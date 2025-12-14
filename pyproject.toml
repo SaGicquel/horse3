@@ -1,0 +1,70 @@
+[project]
+name = "horse3"
+version = "1.0.0"
+description = "Application de prédiction de courses hippiques"
+requires-python = ">=3.10"
+
+[tool.ruff]
+# Longueur de ligne maximale
+line-length = 100
+
+# Exclure certains dossiers
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "node_modules",
+    "dist",
+    "build",
+    ".pytest_cache",
+    "web/frontend",
+    "web/backend/venv",
+]
+
+[tool.ruff.lint]
+# Règles activées (mode permissif pour code legacy)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+]
+
+# Règles ignorées (permissif pour le code existant)
+ignore = [
+    "E501",  # line too long
+    "E402",  # module level import not at top
+    "E722",  # bare except
+    "E741",  # ambiguous variable name
+    "F401",  # unused import
+    "F811",  # redefinition of unused name
+    "F821",  # undefined name (false positives in large files)
+    "F841",  # unused variable
+    "W291",  # trailing whitespace (géré par formatter)
+    "W293",  # blank line contains whitespace
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "enrichment", "calibration", "utils", "models"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | __pycache__
+    | node_modules
+    | dist
+    | build
+    | web/frontend
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

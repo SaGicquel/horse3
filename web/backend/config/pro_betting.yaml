@@ -12,8 +12,8 @@ markets:
   takeout_rate: 0.16
 kelly:
   fraction: 0.33
-  value_cutoff: 0.05
-  max_stake_pct: 0.03
+  value_cutoff: 0.0
+  max_stake_pct: 0.05
 portfolio:
   correlation_penalty: 0.3
   max_same_race: 2
@@ -41,9 +41,9 @@ betting_defaults:
     STANDARD: 0.33
     AMBITIEUX: 0.5
   custom_kelly_fraction: 0.33
-  value_cutoff: 0.05
-  cap_per_bet: 0.02
-  daily_budget_rate: 0.12
+  value_cutoff: 0.0
+  cap_per_bet: 0.05
+  daily_budget_rate: 0.20
   max_unit_bets_per_race: 2
   rounding_increment_eur: 0.5
 exotics_defaults:

@@ -31,22 +31,23 @@ markets:
 # BETTING DEFAULTS - Politique de mise par défaut (Kelly fractionnaire)
 # -----------------------------------------------------------------------------
 betting_defaults:
-  # Profil de mise - SUR (25%), STANDARD (33%), AMBITIEUX (50%), PERSONNALISE
-  kelly_profile_default: "STANDARD"
+  # Profil de mise - ULTRA_SUR (15%), SUR (25%), STANDARD (33%), AMBITIEUX (50%)
+  kelly_profile_default: "ULTRA_SUR"   # Profil conservateur par défaut
   kelly_fraction_map:
+    ULTRA_SUR: 0.15          # 15% Kelly - Très conservateur (SAFE)
     SUR: 0.25                # 1/4 Kelly - Conservateur
-    STANDARD: 0.33           # 1/3 Kelly - Équilibré (défaut)
+    STANDARD: 0.33           # 1/3 Kelly - Équilibré
     AMBITIEUX: 0.50          # 1/2 Kelly - Agressif
   custom_kelly_fraction: 0.33  # Utilisé si profil = PERSONNALISE
-  
+
   # Filtrage des paris
-  value_cutoff: 0.05         # Seuil value minimum ≥ 5% (sinon stake = 0)
-  
+  value_cutoff: 0.10         # Seuil value minimum ≥ 10% (ULTRA_SUR exige value solide)
+
   # Caps et limites
-  cap_per_bet: 0.02          # Cap 2% du bankroll par pari
+  cap_per_bet: 0.05          # Cap 5% du bankroll par pari
   daily_budget_rate: 0.12    # Budget jour = 12% du bankroll
   max_unit_bets_per_race: 2  # Max 2 paris unitaires par course
-  
+
   # Arrondi
   rounding_increment_eur: 0.5  # Arrondir chaque mise à 0.50€
 
@@ -67,6 +68,12 @@ betting_policy:
 
   # Profils de sélection (alignés avec kelly_profile)
   profiles:
+    ULTRA_SUR:
+      max_bets_per_day: 3        # Très sélectif
+      allowed_risks: ["Faible"]  # Uniquement risque faible
+      max_odds_win: 6            # Cotes max 6 (favoris/semi-favoris)
+      min_proba_model: 0.15      # Proba modèle > 15%
+      preferred_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)"]  # Placé privilégié
     SUR:
       max_bets_per_day: 6
       allowed_risks: ["Faible", "Modéré"]
@@ -82,47 +89,136 @@ betting_policy:
 
   # Cutoffs value (en %) par zone BK et bucket SÛR/ÉQUILIBRÉ/RISQUÉ.
   # Appliqué sur value_win (champ value) ou value_place si pari PLACÉ.
-  # Reco: petits BK + SÛR -> 10–15% ; ÉQUILIBRÉ -> 8–10% ; RISQUÉ -> ~5% (stake réduit).
+  # Seuils bas pour afficher plus de paris avec value positive
   value_min_pct_by_zone:
     micro:
-      "SÛR":       { win: 15, place: 12 }
-      "ÉQUILIBRÉ": { win: 18, place: 15 }
-      "RISQUÉ":    { win: 999, place: 999 }
+      "SÛR":       { win: 5, place: 4 }
+      "ÉQUILIBRÉ": { win: 3, place: 2 }
+      "RISQUÉ":    { win: 1, place: 1 }
     small:
-      "SÛR":       { win: 12, place: 10 }
-      "ÉQUILIBRÉ": { win: 10, place: 8 }
-      "RISQUÉ":    { win: 8,  place: 6 }
+      "SÛR":       { win: 5, place: 4 }
+      "ÉQUILIBRÉ": { win: 3, place: 2 }
+      "RISQUÉ":    { win: 1, place: 1 }
     full:
-      "SÛR":       { win: 10, place: 8 }
-      "ÉQUILIBRÉ": { win: 8,  place: 6 }
-      "RISQUÉ":    { win: 5,  place: 4 }
+      "SÛR":       { win: 5, place: 4 }
+      "ÉQUILIBRÉ": { win: 3, place: 2 }
+      "RISQUÉ":    { win: 1, place: 1 }
 
   # Ajustement profil (multiplie les cutoffs ci-dessus)
   profile_value_multiplier:
+    ULTRA_SUR: 1.50            # +50% sur les seuils (très exigeant)
     SUR: 1.25
     STANDARD: 1.0
     AMBITIEUX: 0.90
 
-  # Mise: réduire fortement les RISQUÉS, surtout en petits BK.
+  # Mise: scale par bucket (1.0 = plein Kelly, pas de réduction)
   stake_scale_by_bucket:
     "SÛR": 1.0
-    "ÉQUILIBRÉ": 0.70
-    "RISQUÉ": 0.25
+    "ÉQUILIBRÉ": 1.0
+    "RISQUÉ": 1.0
   stake_scale_by_zone:
     micro: 0.50
     small: 0.80
     full: 1.0
 
-  # Ajustements par zone de bankroll (défauts prudents)
+  # ==========================================================================
+  # ZONES DE BANKROLL DÉTAILLÉES
+  # ==========================================================================
+  # Stratégies adaptées selon le capital disponible:
+  # - micro: <50€ → Ultra conservateur, capital de survie
+  # - small: 50-500€ → Prudent, croissance lente
+  # - full: >500€ → Normal, optimisation complète
+
   bankroll_zones:
+    # =========================================================================
+    # ZONE MICRO: Bankroll < 50€
+    # =========================================================================
+    # Objectif: SURVIE - Éviter la ruine, paris très sélectifs
     micro:
-      max_bets_per_day: 2
+      min_bankroll: 0
+      max_bankroll: 50
+      description: "Mode survie - Capital limité"
+
+      # Sélection ultra-restrictive
+      max_bets_per_day: 1          # 1 seul pari par jour
+      max_odds_win: 4              # Cotes < 4 uniquement (gros favoris)
+      min_proba_model: 0.20        # Proba > 20%
+      value_cutoff_win: 0.15       # Value > 15% obligatoire
+      value_cutoff_place: 0.12     # Value placé > 12%
+
+      # Types de paris autorisés (plus sûrs uniquement)
       allowed_bet_types: ["SIMPLE PLACÉ"]
+      preferred_bet_type: "SIMPLE PLACÉ"
+
+      # Gestion des mises
+      kelly_fraction: 0.10         # Kelly très réduit (10%)
+      max_stake_pct: 0.05          # Max 5% du bankroll par pari
+      min_stake_eur: 1.0           # Mise minimum 1€
+      max_stake_eur: 5.0           # Mise maximum 5€
+
+      # Risque
+      allowed_risks: ["Faible"]
+      max_drawdown_stop: 0.30      # Stop si drawdown > 30%
+
+    # =========================================================================
+    # ZONE SMALL: Bankroll 50-500€
+    # =========================================================================
+    # Objectif: CROISSANCE PRUDENTE - Construire le capital progressivement
     small:
-      max_bets_per_day: 4
+      min_bankroll: 50
+      max_bankroll: 500
+      description: "Croissance prudente"
+
+      # Sélection modérée
+      max_bets_per_day: 3          # 3 paris max par jour
+      max_odds_win: 6              # Cotes < 6
+      min_proba_model: 0.15        # Proba > 15%
+      value_cutoff_win: 0.10       # Value > 10%
+      value_cutoff_place: 0.08     # Value placé > 8%
+
+      # Types de paris (PLACÉ et E/P)
       allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)"]
+      preferred_bet_type: "SIMPLE PLACÉ"
+
+      # Gestion des mises
+      kelly_fraction: 0.15         # Kelly modéré (15%)
+      max_stake_pct: 0.04          # Max 4% du bankroll
+      min_stake_eur: 2.0           # Mise minimum 2€
+      max_stake_eur: 20.0          # Mise maximum 20€
+
+      # Risque
+      allowed_risks: ["Faible", "Modéré"]
+      max_drawdown_stop: 0.25      # Stop si drawdown > 25%
+
+    # =========================================================================
+    # ZONE FULL: Bankroll > 500€
+    # =========================================================================
+    # Objectif: OPTIMISATION - Maximiser le ROI avec gestion du risque
     full:
+      min_bankroll: 500
+      max_bankroll: 999999
+      description: "Optimisation complète"
+
+      # Sélection plus large
+      max_bets_per_day: 5          # 5 paris max par jour
+      max_odds_win: 10             # Cotes jusqu'à 10
+      min_proba_model: 0.12        # Proba > 12%
+      value_cutoff_win: 0.08       # Value > 8%
+      value_cutoff_place: 0.06     # Value placé > 6%
+
+      # Tous types de paris
       allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)", "SIMPLE GAGNANT"]
+      preferred_bet_type: "E/P (GAGNANT-PLACÉ)"
+
+      # Gestion des mises
+      kelly_fraction: 0.25         # Kelly standard (25%)
+      max_stake_pct: 0.03          # Max 3% du bankroll (car plus gros en valeur absolue)
+      min_stake_eur: 5.0           # Mise minimum 5€
+      max_stake_eur: 50.0          # Mise maximum 50€
+
+      # Risque
+      allowed_risks: ["Faible", "Modéré", "Élevé"]
+      max_drawdown_stop: 0.20      # Stop si drawdown > 20%
 
 # -----------------------------------------------------------------------------
 # EXOTICS DEFAULTS - Paris exotiques (Trio/Quinté)
@@ -167,24 +263,24 @@ place_estimators:
   temperature_plat: 0.95      # Favoris légèrement surestimés
   temperature_trot: 1.05      # Plus d'incertitude
   temperature_obstacle: 1.10  # Haute variance
-  
+
   # Paramètres Henery (gamma < 1 = réduit avantage favoris)
   henery_gamma: 0.81
-  
+
   # Paramètres Stern (lambda = lissage vers uniforme)
   stern_lambda: 0.15
-  
+
   # Paramètres Lo-Bacon-Shone
   lbs_iterations: 100
   lbs_damping: 0.7
-  
+
   # Estimateur par défaut par discipline
   # Options: harville, henery, stern, lbs
   estimator_plat: henery
   estimator_trot: lbs
   estimator_obstacle: stern
   estimator_default: harville
-  
+
   # Validation
   min_simulations_stable: 20000  # N minimum pour stabilité EV
   cv_threshold: 0.10             # Coefficient de variation max

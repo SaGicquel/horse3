@@ -4,7 +4,7 @@
 # Services:
 # - backend: API FastAPI (port 8000)
 # - frontend: React + Nginx (port 80)
-# 
+#
 # NOTE: Utilise la base de données PostgreSQL existante (pmuBDD sur port 54624)
 # ============================================================================
 
@@ -26,6 +26,8 @@ services:
       - DATABASE_URL=postgresql://pmu_user:pmu_secure_password_2025@host.docker.internal:54624/pmu_database
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - LOG_LEVEL=info
+      # Activer le modèle Champion (ré-entraîné avec features runtime)
+      - USE_CHAMPION_MODEL=1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

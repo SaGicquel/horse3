@@ -52,7 +52,7 @@ LABEL performance="ROC-AUC Test: 0.7009"
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
-    MODEL_PATH="/app/models/ensemble_stacking.pkl"
+    MODEL_PATH="/app/models/xgboost_model.pkl"
 
 # Installer uniquement les libs runtime nécessaires
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -73,8 +73,8 @@ WORKDIR /app
 # Copier code source
 COPY --chown=apiuser:apiuser api_prediction.py .
 
-# Copier modèle (sera monté en volume en prod)
-COPY --chown=apiuser:apiuser data/models/ensemble_stacking.pkl models/
+# Copier modèle champion optimisé (sera monté en volume en prod)
+COPY --chown=apiuser:apiuser data/models/champion/ models/
 
 # Exposer port
 EXPOSE 8000

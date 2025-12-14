@@ -69,36 +69,99 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
 
   // Récupérer les paramètres de la politique de mise depuis settings
   const bettingDefaults = settings?.betting_defaults || {};
+  const bettingPolicy = settings?.betting_policy || {};
   const kellyProfile = bettingDefaults.kelly_profile || bettingDefaults.kelly_profile_default || 'STANDARD';
 
   // Récupérer la fraction Kelly selon le profil
   const kellyFractionMap = bettingDefaults.kelly_fraction_map || { SUR: 0.25, STANDARD: 0.33, AMBITIEUX: 0.5 };
-  const kellyFraction = bettingDefaults.custom_kelly_fraction || kellyFractionMap[kellyProfile] || 0.33;
 
-  // Politique de zone (reflète le backend) pour éviter 12% sur petites BK
-  const zonePolicy = useMemo(() => {
+  // ==========================================================================
+  // ZONES DE BANKROLL - Configuration complète selon le capital
+  // ==========================================================================
+  const zoneConfig = useMemo(() => {
+    const zones = bettingPolicy.bankroll_zones || {};
+
+    // Déterminer la zone active selon la bankroll
     if (bankroll < 50) {
-      return { dailyBudgetRate: 0.05, kellyFraction: 0.0 };
+      // ZONE MICRO: <50€ - Mode survie
+      const zone = zones.micro || {};
+      return {
+        name: 'micro',
+        label: '🛡️ Mode Survie',
+        description: zone.description || 'Capital limité - Ultra conservateur',
+        maxBetsPerDay: zone.max_bets_per_day ?? 1,
+        maxOddsWin: zone.max_odds_win ?? 4,
+        minProbaModel: zone.min_proba_model ?? 0.20,
+        valueCutoffWin: zone.value_cutoff_win ?? 0.15,
+        valueCutoffPlace: zone.value_cutoff_place ?? 0.12,
+        allowedBetTypes: zone.allowed_bet_types || ['SIMPLE PLACÉ'],
+        preferredBetType: zone.preferred_bet_type || 'SIMPLE PLACÉ',
+        kellyFraction: zone.kelly_fraction ?? 0.10,
+        maxStakePct: zone.max_stake_pct ?? 0.05,
+        minStakeEur: zone.min_stake_eur ?? 1.0,
+        maxStakeEur: zone.max_stake_eur ?? 5.0,
+        allowedRisks: zone.allowed_risks || ['Faible'],
+        dailyBudgetRate: 0.10,
+        color: 'text-red-400 bg-red-500/10 border-red-500/30'
+      };
+    } else if (bankroll < 500) {
+      // ZONE SMALL: 50-500€ - Croissance prudente
+      const zone = zones.small || {};
+      return {
+        name: 'small',
+        label: '📈 Croissance',
+        description: zone.description || 'Croissance prudente',
+        maxBetsPerDay: zone.max_bets_per_day ?? 3,
+        maxOddsWin: zone.max_odds_win ?? 6,
+        minProbaModel: zone.min_proba_model ?? 0.15,
+        valueCutoffWin: zone.value_cutoff_win ?? 0.10,
+        valueCutoffPlace: zone.value_cutoff_place ?? 0.08,
+        allowedBetTypes: zone.allowed_bet_types || ['SIMPLE PLACÉ', 'E/P (GAGNANT-PLACÉ)'],
+        preferredBetType: zone.preferred_bet_type || 'SIMPLE PLACÉ',
+        kellyFraction: zone.kelly_fraction ?? 0.15,
+        maxStakePct: zone.max_stake_pct ?? 0.04,
+        minStakeEur: zone.min_stake_eur ?? 2.0,
+        maxStakeEur: zone.max_stake_eur ?? 20.0,
+        allowedRisks: zone.allowed_risks || ['Faible', 'Modéré'],
+        dailyBudgetRate: 0.15,
+        color: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30'
+      };
+    } else {
+      // ZONE FULL: >500€ - Optimisation complète
+      const zone = zones.full || {};
+      return {
+        name: 'full',
+        label: '🚀 Optimisation',
+        description: zone.description || 'Optimisation complète',
+        maxBetsPerDay: zone.max_bets_per_day ?? 5,
+        maxOddsWin: zone.max_odds_win ?? 10,
+        minProbaModel: zone.min_proba_model ?? 0.12,
+        valueCutoffWin: zone.value_cutoff_win ?? 0.08,
+        valueCutoffPlace: zone.value_cutoff_place ?? 0.06,
+        allowedBetTypes: zone.allowed_bet_types || ['SIMPLE PLACÉ', 'E/P (GAGNANT-PLACÉ)', 'SIMPLE GAGNANT'],
+        preferredBetType: zone.preferred_bet_type || 'E/P (GAGNANT-PLACÉ)',
+        kellyFraction: zone.kelly_fraction ?? 0.25,
+        maxStakePct: zone.max_stake_pct ?? 0.03,
+        minStakeEur: zone.min_stake_eur ?? 5.0,
+        maxStakeEur: zone.max_stake_eur ?? 50.0,
+        allowedRisks: zone.allowed_risks || ['Faible', 'Modéré', 'Élevé'],
+        dailyBudgetRate: 0.12,
+        color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+      };
     }
-    if (bankroll < 250) {
-      return { dailyBudgetRate: 0.09, kellyFraction: 0.20 };
-    }
-    return { dailyBudgetRate: 0.12, kellyFraction: kellyFractionMap[kellyProfile] || 0.33 };
-  }, [bankroll, kellyFractionMap, kellyProfile]);
+  }, [bankroll, bettingPolicy]);
 
-  const capPerBet = bettingDefaults.cap_per_bet || 0.02; // 2% = 20€ sur 1000€
-  const dailyBudgetRateBase = bettingDefaults.daily_budget_rate || 0.12; // 12% par défaut
-  const dailyBudgetRate = zonePolicy.dailyBudgetRate ?? dailyBudgetRateBase;
-  const kellyFractionEffective = zonePolicy.kellyFraction ?? kellyFraction;
-  const maxDailySharePerBet = bettingDefaults.max_daily_budget_share_per_bet || 0.10; // 10% du budget jour
-
-  const valueCutoff = bettingDefaults.value_cutoff || 0.05; // 5%
+  // Utiliser les valeurs de la zone active
+  const kellyFraction = zoneConfig.kellyFraction;
+  const capPerBet = zoneConfig.maxStakePct;
+  const dailyBudgetRate = zoneConfig.dailyBudgetRate;
+  const valueCutoff = zoneConfig.valueCutoffWin;
   const roundingIncrement = bettingDefaults.rounding_increment_eur || 0.50;
-  const maxUnitBetsPerRace = bettingDefaults.max_unit_bets_per_race || 2;
+  const maxUnitBetsPerRace = bettingDefaults.max_unit_bets_per_race || 3;
 
   // Calculs dérivés - limites absolues en €
-  const dailyBudget = bankroll * dailyBudgetRate; // 1000 * 0.12 = 120€
-  const maxStakePerBet = Math.min(bankroll * capPerBet, dailyBudget * maxDailySharePerBet); // ex: min(20€, 12€)
+  const dailyBudget = bankroll * dailyBudgetRate;
+  const maxStakePerBet = Math.min(bankroll * capPerBet, zoneConfig.maxStakeEur, dailyBudget * 0.5);
 
   useEffect(() => {
     onBenterStatus?.({ status: 'pending' });
@@ -193,22 +256,25 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
     }
 
     // Récupérer le Kelly depuis l'API (en %) ou le calculer
-    // L'API renvoie kelly: 25 pour 25%, on le convertit en décimal
-    let kellyFull;
-    if (kellyPercent !== null && kellyPercent !== undefined) {
-      kellyFull = kellyPercent / 100;
+    // L'API renvoie kelly_pct déjà fractionné (cap à 25% = 1/4 Kelly)
+    // On l'utilise directement sans re-fractionner pour éviter des mises ridiculement basses
+    let kellyRate;
+    if (kellyPercent !== null && kellyPercent !== undefined && kellyPercent > 0) {
+      // kellyPercent est en % et déjà fractionné par le backend
+      kellyRate = kellyPercent / 100;  // Convertir en décimal (3.43% -> 0.0343)
     } else {
-      // Calcul Kelly plein: f* = (p*(o-1) - (1-p)) / (o-1)
-      kellyFull = calculateKellyFull(p, odds);
+      // Fallback: calcul Kelly complet puis application de la fraction
+      const kellyFull = calculateKellyFull(p, odds);
+      kellyRate = kellyFractionEffective * kellyFull;
     }
 
     // Si Kelly <= 0, pas de mise
-    if (kellyFull <= 0) {
+    if (kellyRate <= 0) {
       return 0;
     }
 
-    // Kelly fractionnaire selon le profil (ex: 0.33 pour STANDARD)
-    const kellyFractional = kellyFractionEffective * kellyFull;
+    // Utiliser directement kellyRate (déjà fractionné par le backend)
+    const kellyFractional = kellyRate;
 
     // Appliquer le cap per bet (2% = 0.02)
     const cappedRate = Math.min(kellyFractional, capPerBet);
@@ -253,7 +319,7 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
     );
   };
 
-  // Sélection intelligente des paris avec la politique configurée
+  // Sélection intelligente des paris avec la politique de zone configurée
   const { selectedBets, excludedBets, stats } = useMemo(() => {
     // Si le backend fournit un portefeuille déjà adapté, on l'utilise directement
     if (serverPortfolio?.positions) {
@@ -271,58 +337,122 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
           budgetLeft: (serverPortfolio.budget_left ?? (dailyBudgetServer - (serverPortfolio.total_stake ?? 0))),
           avgStake: positions.length > 0 ? Math.round((serverPortfolio.total_stake ?? 0) / positions.length) : 0,
           kellyProfile,
-          kellyFraction: ((serverPortfolio.kelly_fraction_effective ?? kellyFractionEffective) * 100).toFixed(0),
+          kellyFraction: ((serverPortfolio.kelly_fraction_effective ?? kellyFraction) * 100).toFixed(0),
           capPerBet: caps.cap_per_bet ? (caps.cap_per_bet * 100).toFixed(1) : (capPerBet * 100).toFixed(1),
           valueCutoff: caps.value_cutoff ? (caps.value_cutoff * 100).toFixed(0) : (valueCutoff * 100).toFixed(0),
           dailyBudgetServer,
-          capPerBetEurServer
+          capPerBetEurServer,
+          zone: zoneConfig
         }
       };
     }
 
-    // 1. Calculer les mises pour tous les paris selon la politique
-    const allBets = [...bets]
-      .map(b => {
-        const { valuePercent, kellyPercent } = resolveBetMetrics(b);
-        const valueDecimal = valuePercent / 100;
-        const calculatedStake = calculateStake(b);
-        return {
-          ...b,
-          calculatedStake,
-          valuePercent,
-          valueDecimal,
-          meetsValueCutoff: valueDecimal >= valueCutoff,
-          selectionKelly: kellyPercent ?? (b.kelly ?? b.kelly_pct ?? 0),
-        };
-      })
-      .filter(b => b.valuePercent > 0) // Garder uniquement les value positives
-      .sort((a, b) => {
-        // Trier par value desc puis kelly desc
-        const valueA = a.valuePercent;
-        const valueB = b.valuePercent;
-        if (valueB !== valueA) return valueB - valueA;
-        const kellyA = a.selectionKelly ?? 0;
-        const kellyB = b.selectionKelly ?? 0;
-        return kellyB - kellyA;
-      });
-
-    // 2. Filtrer par value cutoff et mise > 0
-    const eligibleBets = allBets.filter(b => b.meetsValueCutoff && b.calculatedStake > 0);
-
-    // 3. Limiter par course (max 2 paris par course par défaut)
-    const raceCount = {};
-    const withinRaceLimit = eligibleBets.filter(bet => {
-      const raceKey = bet.race_key || 'unknown';
-      raceCount[raceKey] = (raceCount[raceKey] || 0) + 1;
-      return raceCount[raceKey] <= maxUnitBetsPerRace;
-    });
-
-    // 4. Sélectionner les meilleurs jusqu'au budget journalier
-    let totalStake = 0;
-    const selected = [];
+    // ==============================================================
+    // FILTRAGE PAR ZONE DE BANKROLL
+    // ==============================================================
     const excluded = [];
 
+    // 1. Mapper et enrichir tous les paris
+    const allBets = [...bets].map(b => {
+      const { valuePercent, kellyPercent } = resolveBetMetrics(b);
+      const valueDecimal = valuePercent / 100;
+      const calculatedStake = calculateStake(b);
+      const cote = b.cote ?? b.odds ?? b.market ?? 0;
+      const pWin = b.p_win ?? b.proba_win ?? b.probabilite ?? 0;
+      const betType = b.bet_type || 'SIMPLE PLACÉ';
+      const betRisk = b.bet_risk || 'Modéré';
+
+      return {
+        ...b,
+        calculatedStake,
+        valuePercent,
+        valueDecimal,
+        cote,
+        pWin,
+        betType,
+        betRisk,
+        meetsValueCutoff: valueDecimal >= valueCutoff,
+        selectionKelly: kellyPercent ?? (b.kelly ?? b.kelly_pct ?? 0),
+      };
+    });
+
+    // 2. FILTRAGE PAR ZONE - Appliquer les contraintes selon la bankroll
+    const zoneFilteredBets = allBets.filter(b => {
+      // a) Filtre par cote max
+      if (b.cote > zoneConfig.maxOddsWin) {
+        excluded.push({ ...b, excludeReason: `Cote ${b.cote.toFixed(1)} > max ${zoneConfig.maxOddsWin} (zone ${zoneConfig.name})` });
+        return false;
+      }
+
+      // b) Filtre par proba minimum
+      if (b.pWin < zoneConfig.minProbaModel) {
+        excluded.push({ ...b, excludeReason: `Proba ${(b.pWin * 100).toFixed(1)}% < min ${(zoneConfig.minProbaModel * 100).toFixed(0)}% (zone ${zoneConfig.name})` });
+        return false;
+      }
+
+      // c) Filtre par type de pari autorisé
+      const betTypeAllowed = zoneConfig.allowedBetTypes.some(allowed =>
+        b.betType.includes(allowed.replace('SIMPLE ', '')) || allowed.includes(b.betType)
+      );
+      if (!betTypeAllowed) {
+        excluded.push({ ...b, excludeReason: `Type "${b.betType}" non autorisé en zone ${zoneConfig.name} (autorisés: ${zoneConfig.allowedBetTypes.join(', ')})` });
+        return false;
+      }
+
+      // d) Filtre par niveau de risque
+      if (!zoneConfig.allowedRisks.includes(b.betRisk)) {
+        excluded.push({ ...b, excludeReason: `Risque "${b.betRisk}" non autorisé en zone ${zoneConfig.name} (autorisés: ${zoneConfig.allowedRisks.join(', ')})` });
+        return false;
+      }
+
+      return true;
+    });
+
+    // 3. Filtrer par value positive et value cutoff
+    const valueFilteredBets = zoneFilteredBets
+      .filter(b => {
+        if (b.valuePercent <= 0) {
+          return false; // Juste ignorer, pas d'exclusion explicite
+        }
+        if (!b.meetsValueCutoff) {
+          excluded.push({ ...b, excludeReason: `Value ${b.valuePercent.toFixed(1)}% < cutoff ${(valueCutoff * 100).toFixed(0)}%` });
+          return false;
+        }
+        if (b.calculatedStake <= 0) {
+          excluded.push({ ...b, excludeReason: 'Kelly ≤ 0 ou mise arrondie à 0' });
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        // Trier par value desc puis kelly desc
+        if (b.valuePercent !== a.valuePercent) return b.valuePercent - a.valuePercent;
+        return (b.selectionKelly ?? 0) - (a.selectionKelly ?? 0);
+      });
+
+    // 4. Limiter par course (max N paris par course)
+    const raceCount = {};
+    const withinRaceLimit = valueFilteredBets.filter(bet => {
+      const raceKey = bet.race_key || 'unknown';
+      raceCount[raceKey] = (raceCount[raceKey] || 0) + 1;
+      if (raceCount[raceKey] > maxUnitBetsPerRace) {
+        excluded.push({ ...bet, excludeReason: `> ${maxUnitBetsPerRace} paris sur cette course` });
+        return false;
+      }
+      return true;
+    });
+
+    // 5. Sélectionner selon le budget journalier ET la limite de paris par jour (zone)
+    let totalStake = 0;
+    const selected = [];
+
     for (const bet of withinRaceLimit) {
+      // Vérifier la limite de paris par jour (zone)
+      if (selected.length >= zoneConfig.maxBetsPerDay) {
+        excluded.push({ ...bet, excludeReason: `Limite ${zoneConfig.maxBetsPerDay} paris/jour atteinte (zone ${zoneConfig.name})` });
+        continue;
+      }
+
       // Vérifier le budget journalier
       if (totalStake + bet.calculatedStake > dailyBudget) {
         excluded.push({ ...bet, excludeReason: `Dépasse budget journalier (${dailyBudget.toFixed(0)}€)` });
@@ -332,23 +462,6 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
       selected.push(bet);
       totalStake += bet.calculatedStake;
     }
-
-    // 5. Ajouter les paris exclus pour différentes raisons
-    const excludedBelowCutoff = allBets.filter(b => !b.meetsValueCutoff);
-    excludedBelowCutoff.forEach(b => excluded.push({
-      ...b,
-      excludeReason: `Value ${b.valuePercent.toFixed(1)}% < cutoff ${(valueCutoff * 100).toFixed(0)}%`
-    }));
-
-    const excludedZeroStake = allBets.filter(b => b.meetsValueCutoff && b.calculatedStake === 0);
-    excludedZeroStake.forEach(b => excluded.push({ ...b, excludeReason: 'Kelly ≤ 0 ou mise arrondie à 0' }));
-
-    // Paris au-delà de la limite par course
-    const beyondRaceLimit = eligibleBets.filter(b => !withinRaceLimit.includes(b));
-    beyondRaceLimit.forEach(b => excluded.push({
-      ...b,
-      excludeReason: `> ${maxUnitBetsPerRace} paris sur cette course`
-    }));
 
     return {
       selectedBets: selected,
@@ -361,10 +474,11 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         kellyProfile,
         kellyFraction: (kellyFraction * 100).toFixed(0),
         capPerBet: (capPerBet * 100).toFixed(1),
-        valueCutoff: (valueCutoff * 100).toFixed(0)
+        valueCutoff: (valueCutoff * 100).toFixed(0),
+        zone: zoneConfig
       }
     };
-  }, [bets, bankroll, kellyFraction, capPerBet, dailyBudget, valueCutoff, maxUnitBetsPerRace]);
+  }, [bets, bankroll, kellyFraction, capPerBet, dailyBudget, valueCutoff, maxUnitBetsPerRace, zoneConfig, serverPortfolio, kellyProfile, calculateStake]);
 
   const getValueColor = (value) => {
     if (value >= 20) return 'text-success';
@@ -447,6 +561,38 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
           Rejouer l'analyse
         </motion.button>
       </div>
+
+      {/* BANDEAU ZONE DE BANKROLL */}
+      <div className={`rounded-xl p-4 border ${zoneConfig.color}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{zoneConfig.label.split(' ')[0]}</span>
+            <div>
+              <p className="font-semibold text-neutral-900 dark:text-white">{zoneConfig.label}</p>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400">{zoneConfig.description}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="text-center px-3 py-1 bg-white/10 rounded-lg">
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Cotes max</p>
+              <p className="font-bold text-neutral-900 dark:text-white">&lt; {zoneConfig.maxOddsWin}</p>
+            </div>
+            <div className="text-center px-3 py-1 bg-white/10 rounded-lg">
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Paris/jour</p>
+              <p className="font-bold text-neutral-900 dark:text-white">{zoneConfig.maxBetsPerDay}</p>
+            </div>
+            <div className="text-center px-3 py-1 bg-white/10 rounded-lg">
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Mise max</p>
+              <p className="font-bold text-neutral-900 dark:text-white">{zoneConfig.maxStakeEur}€</p>
+            </div>
+            <div className="text-center px-3 py-1 bg-white/10 rounded-lg">
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Types</p>
+              <p className="font-bold text-neutral-900 dark:text-white text-xs">{zoneConfig.allowedBetTypes.length === 1 ? 'PLACÉ' : zoneConfig.allowedBetTypes.length === 2 ? 'PLACÉ/E-P' : 'Tous'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Résumé politique Kelly */}
       <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 border border-neutral-200 dark:border-white/10">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -579,7 +725,7 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
                     isInCart={isInCart}
                     addToCart={addToCart}
                     getValueColor={getValueColor}
-                    suggestedStake={bet.calculatedStake}
+                    suggestedStake={bet.stake ?? bet.calculatedStake ?? 0}
                     maxStakePerBet={maxStakePerBet}
                     valueCutoff={valueCutoff}
                   />
