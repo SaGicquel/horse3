@@ -1,0 +1,250 @@
+AUDIT DÉTAILLÉ DES SCRAPERS
+================================================================================
+
+
+base_scraper.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 344
+Complexité: 47
+Fonctions: 11
+Docstrings: 26
+Try blocks: 5
+DB connections: 2
+
+Issues (3):
+  - [lisibilité] Requête SQL multi-lignes (illisible) (x1)
+  - [ressources] Connexions DB non fermées (2 connect, 1 close) (x1)
+  - [performance] Utilise sleep() (3) - ralentit exécution (x3)
+
+Optimisations (1):
+  - Multiple connexions DB - réutiliser connexion
+
+
+batch_processor.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 221
+Complexité: 27
+Fonctions: 11
+Docstrings: 14
+Try blocks: 3
+DB connections: 0
+
+
+cache_manager.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 180
+Complexité: 7
+Fonctions: 11
+Docstrings: 18
+Try blocks: 0
+DB connections: 0
+
+Issues (2):
+  - [performance] SELECT * détecté (charger que colonnes nécessaires) (x1)
+  - [performance] Utilise sleep() (1) - ralentit exécution (x1)
+
+
+calculs_comparaisons.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 302
+Complexité: 1
+Fonctions: 10
+Docstrings: 17
+Try blocks: 1
+DB connections: 0
+
+
+calculs_ml.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 368
+Complexité: 1
+Fonctions: 10
+Docstrings: 17
+Try blocks: 1
+DB connections: 0
+
+
+calculs_stats.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 556
+Complexité: 4
+Fonctions: 22
+Docstrings: 39
+Try blocks: 1
+DB connections: 0
+
+Optimisations (1):
+  - Fichier volumineux (>500 lignes) - envisager découpage
+
+
+cheval_details.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 319
+Complexité: 49
+Fonctions: 4
+Docstrings: 15
+Try blocks: 8
+DB connections: 0
+
+
+conditions_jour.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 234
+Complexité: 35
+Fonctions: 8
+Docstrings: 11
+Try blocks: 2
+DB connections: 0
+
+
+connections.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 265
+Complexité: 30
+Fonctions: 4
+Docstrings: 15
+Try blocks: 2
+DB connections: 0
+
+
+cotes_marche.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 136
+Complexité: 27
+Fonctions: 4
+Docstrings: 5
+Try blocks: 3
+DB connections: 0
+
+
+features_ml.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 199
+Complexité: 35
+Fonctions: 6
+Docstrings: 8
+Try blocks: 3
+DB connections: 0
+
+
+identifiants_avances.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 278
+Complexité: 48
+Fonctions: 3
+Docstrings: 13
+Try blocks: 6
+DB connections: 0
+
+Issues (2):
+  - [lisibilité] Requête SQL multi-lignes (illisible) (x3)
+  - [performance] Utilise sleep() (1) - ralentit exécution (x1)
+
+
+identifiants_avances_v2.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 282
+Complexité: 47
+Fonctions: 3
+Docstrings: 14
+Try blocks: 3
+DB connections: 0
+
+Issues (1):
+  - [lisibilité] Requête SQL multi-lignes (illisible) (x1)
+
+
+index_analyzer.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 276
+Complexité: 39
+Fonctions: 4
+Docstrings: 15
+Try blocks: 5
+DB connections: 2
+
+Issues (2):
+  - [lisibilité] Requête SQL multi-lignes (illisible) (x4)
+  - [erreurs] Except bare détecté (1) - masque erreurs (x1)
+
+Optimisations (1):
+  - Multiple connexions DB - réutiliser connexion
+
+
+metadata_course.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 295
+Complexité: 49
+Fonctions: 5
+Docstrings: 13
+Try blocks: 9
+DB connections: 0
+
+Issues (1):
+  - [performance] Utilise sleep() (1) - ralentit exécution (x1)
+
+
+perf_stats.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 293
+Complexité: 67
+Fonctions: 3
+Docstrings: 16
+Try blocks: 4
+DB connections: 0
+
+
+sectionnels.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 392
+Complexité: 90
+Fonctions: 5
+Docstrings: 13
+Try blocks: 6
+DB connections: 0
+
+
+sectionnels_simple.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 213
+Complexité: 43
+Fonctions: 3
+Docstrings: 10
+Try blocks: 2
+DB connections: 0
+
+Issues (1):
+  - [lisibilité] Requête SQL multi-lignes (illisible) (x1)
+
+
+tests_validation.py
+--------------------------------------------------------------------------------
+Score qualité: 100/100
+Lignes code: 389
+Complexité: 40
+Fonctions: 17
+Docstrings: 33
+Try blocks: 1
+DB connections: 0
+
+Issues (1):
+  - [performance] Boucle avec execute() (utiliser executemany) (x4)
+

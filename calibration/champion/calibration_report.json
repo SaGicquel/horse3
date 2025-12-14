@@ -1,0 +1,178 @@
+{
+  "timestamp": "20251208_014150",
+  "config": {
+    "artifacts_dir": "/Users/gicquelsacha/horse3/data",
+    "temperature_init": 1.5,
+    "temperature_bounds": [
+      0.5,
+      5.0
+    ],
+    "n_bins_ece": 10,
+    "min_samples_cluster": 200,
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "alpha_cv_folds": 5,
+    "use_gamma_correction": true,
+    "gamma_init": 1.0,
+    "gamma_bounds": [
+      0.5,
+      2.0
+    ],
+    "gamma_by_cluster": true,
+    "use_dynamic_alpha": true,
+    "alpha_bounds": [
+      0.3,
+      0.9
+    ],
+    "alpha_base": 0.5,
+    "alpha_pool_coef": 0.05,
+    "alpha_time_coef": 0.01,
+    "default_pool_size": 50000.0,
+    "default_minutes_to_off": 30.0,
+    "train_ratio": 0.6,
+    "val_ratio": 0.2,
+    "test_ratio": 0.2,
+    "min_train_samples": 500,
+    "profit_sim_stake": 10.0,
+    "value_threshold": 0.05
+  },
+  "metrics": {
+    "debias": {
+      "blend": {
+        "brier": 0.08911929873528958,
+        "ece": 0.011211135909390582,
+        "logloss": 0.3232332097560251
+      },
+      "model_only": {
+        "brier": 0.08932150216732501,
+        "ece": 0.011548544340989708,
+        "logloss": 0.3239473037276915
+      },
+      "market_only": {
+        "brier": 0.08875478169106979,
+        "ece": 0.002983166418069464,
+        "logloss": 0.32170882210505836
+      },
+      "alpha_stats": {
+        "mean": 0.7409889142205142,
+        "std": 0.0,
+        "min": 0.7409889142205142,
+        "max": 0.7409889142205142,
+        "p25": 0.7409889142205142,
+        "p75": 0.7409889142205142
+      },
+      "gamma": {
+        "global": 1.0,
+        "by_cluster": {}
+      }
+    },
+    "calibration": {
+      "brier_score": 0.08911929873528958,
+      "log_loss": 0.3232332097560251,
+      "ece": 0.011211135909390582,
+      "ece_bins": [
+        {
+          "bin": 0,
+          "range": "[0.00, 0.10)",
+          "count": 2340,
+          "accuracy": 0.10299145299145299,
+          "confidence": 0.09474062802932265,
+          "gap": 0.008250824962130338
+        },
+        {
+          "bin": 1,
+          "range": "[0.10, 0.20)",
+          "count": 2332,
+          "accuracy": 0.09391080617495712,
+          "confidence": 0.10521374193157834,
+          "gap": -0.011302935756621224
+        },
+        {
+          "bin": 2,
+          "range": "[0.20, 0.30)",
+          "count": 12,
+          "accuracy": 0.0,
+          "confidence": 0.23062970844124145,
+          "gap": -0.23062970844124145
+        },
+        {
+          "bin": 3,
+          "range": "[0.30, 0.40)",
+          "count": 3,
+          "accuracy": 0.0,
+          "confidence": 0.322693160933448,
+          "gap": -0.322693160933448
+        },
+        {
+          "bin": 4,
+          "range": "[0.40, 0.50)",
+          "count": 2,
+          "accuracy": 0.0,
+          "confidence": 0.4662449551041342,
+          "gap": -0.4662449551041342
+        },
+        {
+          "bin": 5,
+          "range": "[0.50, 0.60)",
+          "count": 3,
+          "accuracy": 0.0,
+          "confidence": 0.5208833535794465,
+          "gap": -0.5208833535794465
+        },
+        {
+          "bin": 7,
+          "range": "[0.70, 0.80)",
+          "count": 1,
+          "accuracy": 0.0,
+          "confidence": 0.7177082719024707,
+          "gap": -0.7177082719024707
+        }
+      ]
+    },
+    "stats": {
+      "n_samples_test": 4693,
+      "n_races_test": 474,
+      "win_rate_observed": 9.801832516513958,
+      "avg_prob_predicted": 10.100149158320903,
+      "temperature": 0.5000063322577876,
+      "alpha_blend": null,
+      "calibrator_type": "platt",
+      "use_dynamic_blend": true,
+      "gamma": 1.0,
+      "gamma_by_cluster": {}
+    }
+  },
+  "artifacts": {
+    "plots": [
+      "/Users/gicquelsacha/horse3/data/calibration_reliability.png",
+      "/Users/gicquelsacha/horse3/data/calibration_ece_bins.png"
+    ],
+    "scaler": "/Users/gicquelsacha/horse3/data/scaler_temperature_20251208_014150.pkl",
+    "calibrator_platt": "/Users/gicquelsacha/horse3/data/calibrator_platt_20251208_014150.pkl",
+    "calibrator_isotonic": "/Users/gicquelsacha/horse3/data/calibrator_isotonic_20251208_014150.pkl",
+    "dynamic_blender": "/Users/gicquelsacha/horse3/data/dynamic_blender_20251208_014150"
+  },
+  "best_calibrator": "platt",
+  "temperature": 0.5000063322577876,
+  "alpha": null,
+  "alpha_by_cluster": {},
+  "use_dynamic_blend": true,
+  "gamma": 1.0,
+  "gamma_by_cluster": {},
+  "alpha_coefficients": {
+    "a0": 0.5,
+    "a1": 0.05,
+    "a2": 0.01
+  }
+}

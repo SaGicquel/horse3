@@ -1,0 +1,53 @@
+2025-11-13 19:09:38 - INFO - 📂 Chargement des données...
+2025-11-13 19:09:39 - INFO -    ✅ Train: 16,424 lignes
+2025-11-13 19:09:39 - INFO -    ✅ Val: 3,519 lignes
+2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO - 📊 Features : 103
+2025-11-13 19:09:39 - INFO - 🎯 Target distribution train : 1,646 victoires (10.02%)
+2025-11-13 19:09:39 - INFO - 🎯 Target distribution val : 356 victoires (10.12%)
+2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO - ================================================================================
+2025-11-13 19:09:39 - INFO - 🚀 ENTRAÎNEMENT RANDOM FOREST
+2025-11-13 19:09:39 - INFO - ================================================================================
+2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO -    Estimators : 100
+2025-11-13 19:09:39 - INFO -    Max depth  : 10
+2025-11-13 19:09:39 - INFO -    Class weight : balanced
+2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - ERROR - ❌ Erreur : could not convert string to float: 'F'
+Traceback (most recent call last):
+  File "/Users/gicquelsacha/horse3/train_baseline_rf.py", line 274, in <module>
+    main()
+    ~~~~^^
+  File "/Users/gicquelsacha/horse3/train_baseline_rf.py", line 250, in main
+    model.train(X_train, y_train)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/horse3/train_baseline_rf.py", line 128, in train
+    self.model.fit(X_train, y_train)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/base.py", line 1365, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/ensemble/_forest.py", line 359, in fit
+    X, y = validate_data(
+           ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<5 lines>...
+        ensure_all_finite=False,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py", line 2971, in validate_data
+    X, y = check_X_y(X, y, **check_params)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py", line 1368, in check_X_y
+    X = check_array(
+        X,
+    ...<12 lines>...
+        input_name="X",
+    )
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py", line 1053, in check_array
+    array = _asarray_with_order(array, order=order, dtype=dtype, xp=xp)
+  File "/Users/gicquelsacha/horse3/.venv/lib/python3.14/site-packages/sklearn/utils/_array_api.py", line 757, in _asarray_with_order
+    array = numpy.asarray(array, order=order, dtype=dtype)
+ValueError: could not convert string to float: 'F'

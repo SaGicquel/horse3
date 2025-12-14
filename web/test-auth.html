@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentification</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .token-box { background: #f5f5f5; padding: 10px; margin: 10px 0; font-family: monospace; word-break: break-all; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { background: #e9ecef; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Test de l'authentification Horse3</h1>
+    
+    <h2>1. Créer un utilisateur de test</h2>
+    <button onclick="createUser()">Créer utilisateur</button>
+    <div id="user-result" class="result" style="display: none;"></div>
+    
+    <h2>2. Se connecter à l'application</h2>
+    <p>Une fois le token généré, copiez-le dans le localStorage de votre application React :</p>
+    <button onclick="setTokenInApp()">Ouvrir l'application et définir le token</button>
+    
+    <h2>3. Tester l'API</h2>
+    <button onclick="testAPI()">Tester récupération des settings</button>
+    <button onclick="testSaveAPI()">Tester sauvegarde des settings</button>
+    <div id="api-result" class="result" style="display: none;"></div>
+
+    <script>
+        let currentToken = null;
+
+        async function createUser() {
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'demo-' + Date.now() + '@test.com',
+                        password: 'testpass123'
+                    })
+                });
+                
+                const data = await response.json();
+                currentToken = data.token;
+                
+                document.getElementById('user-result').style.display = 'block';
+                document.getElementById('user-result').innerHTML = `
+                    <h3>✅ Utilisateur créé !</h3>
+                    <p><strong>Email:</strong> ${data.user.email}</p>
+                    <p><strong>Token:</strong></p>
+                    <div class="token-box">${data.token}</div>
+                `;
+            } catch (err) {
+                alert('Erreur: ' + err.message);
+            }
+        }
+
+        function setTokenInApp() {
+            if (!currentToken) {
+                alert('Créez d\'abord un utilisateur pour obtenir un token');
+                return;
+            }
+            
+            const script = `localStorage.setItem('authToken', '${currentToken}'); alert('Token défini ! Rechargez la page Settings.');`;
+            
+            // Ouvrir l'application dans un nouvel onglet avec le script
+            const newWindow = window.open('http://localhost:80', '_blank');
+            
+            // Attendre que la page se charge puis exécuter le script
+            setTimeout(() => {
+                try {
+                    newWindow.eval(script);
+                } catch (e) {
+                    alert(`Token généré: ${currentToken}\n\nCopiez ce token, allez sur http://localhost:80, ouvrez la console (F12) et tapez:\nlocalStorage.setItem('authToken', '${currentToken}')\nPuis rechargez la page.`);
+                }
+            }, 2000);
+        }
+
+        async function testAPI() {
+            if (!currentToken) {
+                alert('Créez d\'abord un utilisateur');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/user/settings', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('api-result').style.display = 'block';
+                document.getElementById('api-result').innerHTML = `
+                    <h3>✅ Settings récupérés !</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (err) {
+                alert('Erreur API: ' + err.message);
+            }
+        }
+
+        async function testSaveAPI() {
+            if (!currentToken) {
+                alert('Créez d\'abord un utilisateur');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/user/settings', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}` 
+                    },
+                    body: JSON.stringify({
+                        bankroll: 2500,
+                        profil_risque: 'AGGRESSIVE',
+                        kelly_profile: 'AMBITIEUX'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('api-result').style.display = 'block';
+                document.getElementById('api-result').innerHTML = `
+                    <h3>✅ Settings sauvegardés !</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <p>Maintenant testez la récupération pour voir les changements...</p>
+                `;
+            } catch (err) {
+                alert('Erreur API: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

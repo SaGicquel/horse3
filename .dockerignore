@@ -1,0 +1,66 @@
+# ============================================================================
+# 🏇 .dockerignore - Exclusions pour build Docker
+# ============================================================================
+# Exclus fichiers inutiles pour réduire taille image et accélérer build
+# ============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Data & Models (seront montés en volume)
+data/splits/
+data/ml_features*.csv
+data/optimization/optuna_study_*.pkl
+
+# Logs
+*.log
+logs/
+*.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Scripts dev/training
+train_*.py
+optimize_*.py
+prepare_*.py
+analyze_*.py
+scraper_*.py
+audit_*.py
+normalize_*.py
+benchmark_*.py
+
+# Config dev
+docker-compose.yml
+monitoring/
+
+# Temp
+tmp/
+temp/
+*.tmp

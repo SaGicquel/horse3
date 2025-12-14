@@ -1,0 +1,18 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic[email]>=2.10.0
+python-multipart>=0.0.17
+psycopg2-binary>=2.9.0
+openai>=1.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Dépendances pour l'intégration race_pronostic_generator
+pandas>=1.5.0
+numpy>=1.21.0
+scikit-learn>=1.1.0
+joblib>=1.2.0
+PyYAML>=6.0
+
+# Modèle champion (XGBoost)
+xgboost>=2.0.0

@@ -1,0 +1,1565 @@
+╔==============================================================================╗
+║                    🔍 AUDIT COLONNES BASE DE DONNÉES                         ║
+╚==============================================================================╝
+
+================================================================================
+📊 AUDIT COMPLET DES COLONNES
+================================================================================
+✅ Connexion PostgreSQL établie
+
+================================================================================
+🗂️  STRUCTURE TABLE CHEVAUX
+================================================================================
+Total colonnes: 100
+
+================================================================================
+🗂️  STRUCTURE TABLE CHEVAL_COURSES_SEEN
+================================================================================
+Total colonnes: 200
+
+================================================================================
+📈 ANALYSE DU TAUX DE REMPLISSAGE
+================================================================================
+
+================================================================================
+TABLE: chevaux
+================================================================================
+
+nom                                 ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:  308,601
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A 1, A AARAU DA VINCI
+
+race                                ✅ EXCELLENT
+   Taux: 100.00% |  327,024 /  327,026 | Distinct:       10
+   Type: text            | Source: ❓ Inconnue
+   Exemple: ANGLO ARABE, ANGLO ARABE DE COMPLEMENT
+
+sexe                                ✅ EXCELLENT
+   Taux: 100.00% |  327,024 /  327,026 | Distinct:        6
+   Type: text            | Source: ❓ Inconnue
+   Exemple: F, FEMELLES
+
+robe                                ✅ EXCELLENT
+   Taux:  97.90% |  320,174 /  327,026 | Distinct:       61
+   Type: text            | Source: ❓ Inconnue
+   Exemple: AL BRU, AL CRL
+
+date_naissance                      ✅ EXCELLENT
+   Taux:  91.06% |  297,804 /  327,026 | Distinct:    4,748
+   Type: date            | Source: ❓ Inconnue
+   Exemple: 2005-11-07, 2005-11-09
+
+pays_naissance                      ✅ EXCELLENT
+   Taux:  94.62% |  309,431 /  327,026 | Distinct:       94
+   Type: text            | Source: ❓ Inconnue
+   Exemple: AFRIQUE DU SUD, ALGERIE
+
+entraineur_courant                  🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:    4,596
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A.A. BARASSIN, A. ACEF
+
+jockey_habituel                     🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:    3,795
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A.A. BARASSIN, A.A. BOULARD
+
+nombre_courses_total                ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        8
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+nombre_victoires_total              ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        3
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+dernier_poids_couru                 ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+dernier_resultat                    🟠 FAIBLE
+   Taux:   7.67% |   25,092 /  327,026 | Distinct:   20,053
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 1, 10
+
+meilleur_temps_distance             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+surface_preferee                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+distance_preferee                   ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+date_derniere_course                ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: date            | Source: ❓ Inconnue
+
+condition_physique                  ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+nombre_courses_2025                 ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        7
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+nombre_victoires_2025               ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        3
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+dernieres_performances              🟠 FAIBLE
+   Taux:   7.67% |   25,092 /  327,026 | Distinct:   24,468
+   Type: text            | Source: ❓ Inconnue
+   Exemple: [{"date": "%s", "hippodrome": "AARAU", "place": "2", "is_win": false}, {"date": "%s", "hippodrome": "VITTEL", "place": "5", "is_win": false}, {"date": "%s", "hippodrome": "CHATEAUBRIANT", "place": "9", "is_win": false}, {"date": "%s", "hippodrome": "AUTEUIL", "place": "%s", "is_win": false}, {"date": "%s", "hippodrome": "COMPIEGNE", "place": "8", "is_win": false}], [{"date": "%s", "hippodrome": "AARAU", "place": "8", "is_win": false}, {"date": "%s", "hippodrome": "AVENCHES", "place": "6", "is_win": false}, {"date": "%s", "hippodrome": "AVENCHES", "place": "2", "is_win": false}, {"date": "%s", "hippodrome": "AVENCHES", "place": "1", "is_win": true}, {"date": "%s", "hippodrome": "AARAU", "place": "7", "is_win": false}]
+
+num_pmu                             🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:       23
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+nom_pere                            🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:    2,805
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A'ALI, ABANO AS
+
+nom_mere                            🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:   21,612
+   Type: text            | Source: ❓ Inconnue
+   Exemple: AAMANDINA, ABADIE MATH
+
+proprietaire                        🟠 FAIBLE
+   Taux:   8.17% |   26,705 /  327,026 | Distinct:   13,658
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 0 ES 3, 11 DE ABRIL (LP)
+
+eleveur                             🟠 FAIBLE
+   Taux:   5.06% |   16,538 /  327,026 | Distinct:    4,949
+   Type: text            | Source: ❓ Inconnue
+   Exemple: , .
+
+musique_complete                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+id_cheval_pmu                       🟠 FAIBLE
+   Taux:   5.32% |   17,385 /  327,026 | Distinct:   17,384
+   Type: text            | Source: ❓ Inconnue
+   Exemple: AALTO-AU DESSUS-ZELZAL, A AMERIC TE SPECSO-ISLAND TIME-PER INCANTO
+
+url_fiche_pmu                       🟠 FAIBLE
+   Taux:   5.32% |   17,385 /  327,026 | Distinct:   17,384
+   Type: text            | Source: ❓ Inconnue
+   Exemple: https://www.pmu.fr/turf/chevaux/AALTO-AU DESSUS-ZELZAL, https://www.pmu.fr/turf/chevaux/A AMERIC TE SPECSO-ISLAND TIME-PER INCANTO
+
+nombre_courses_trot                 ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+nombre_victoires_trot               ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+nombre_courses_plat                 ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+nombre_victoires_plat               ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+nombre_courses_obstacle             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+nombre_victoires_obstacle           ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+gains_trot                          ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: bigint          | Source: ❓ Inconnue
+
+gains_plat                          ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: bigint          | Source: ❓ Inconnue
+
+gains_obstacle                      ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: bigint          | Source: ❓ Inconnue
+
+meilleur_place_trot                 ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+meilleur_place_plat                 ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+meilleur_place_obstacle             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+record_distance_trot                ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+record_distance_plat                ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+reduction_km_record_trot            ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+reduction_km_record_plat            ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+date_record_trot                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: date            | Source: ❓ Inconnue
+
+date_record_plat                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: date            | Source: ❓ Inconnue
+
+hippodrome_record                   ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+forme_recente_30j                   ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+forme_recente_60j                   ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+forme_recente_90j                   ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+serie_victoires                     ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+serie_places                        ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+serie_defaites                      ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+gains_annuels_par_annee             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+rating_officiel                     🔴 CRITIQUE
+   Taux:   0.19% |      617 /  327,026 | Distinct:       68
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 15.0, 16.5
+
+elo_courant                         ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1500.0
+
+statut_sante                        ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+derniere_course_date                ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: date            | Source: ❓ Inconnue
+
+origine_complete                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+nb_places_12m                       ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        5
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+indice_consistance_12m              🟠 FAIBLE
+   Taux:   8.69% |   28,421 /  327,026 | Distinct:        9
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 0.2
+
+score_forme_recent                  🟠 FAIBLE
+   Taux:   8.55% |   27,949 /  327,026 | Distinct:      529
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 0.03957048
+
+rk_best                             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+rk_mediane_90j                      ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sf_best                             ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sf_mediane_90j                      ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+record_distance_ms                  ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+record_parcours_ms                  ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+fs_pct_recent                       ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+dai_rate_individuel                 ✅ EXCELLENT
+   Taux: 100.00% |  327,026 /  327,026 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+nb_courses_total                    🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        5
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+nb_victoires                        🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        4
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+nb_places                           🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        5
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+taux_victoire                       🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        7
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 20.0
+
+taux_place                          🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        9
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 20.0
+
+gains_total                         🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+gains_moyen                         🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+distance_moyenne                    🟠 FAIBLE
+   Taux:   1.92% |    6,294 /  327,026 | Distinct:      135
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 600.0, 1000.0
+
+age_debut_carriere                  🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        2
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 2024, 2025
+
+derniere_course                     🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:       45
+   Type: date            | Source: ❓ Inconnue
+   Exemple: 2024-10-02, 2024-10-03
+
+jours_depuis_derniere_course        🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:       45
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+regularite_courses                  🔴 CRITIQUE
+   Taux:   0.18% |      593 /  327,026 | Distinct:       95
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 0.70710677
+
+forme_recente                       🟠 FAIBLE
+   Taux:   4.61% |   15,079 /  327,026 | Distinct:       59
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0, 1.3333334
+
+progression_distance                🔴 CRITIQUE
+   Taux:   0.02% |       79 /  327,026 | Distinct:       33
+   Type: real            | Source: ❓ Inconnue
+   Exemple: -400.0, -300.0
+
+performance_saison                  🔴 CRITIQUE
+   Taux:   0.90% |    2,936 /  327,026 | Distinct:        5
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 33.333332
+
+constance_hippodrome                🟠 FAIBLE
+   Taux:   1.92% |    6,294 /  327,026 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 100.0
+
+ecart_median_gagnant                ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+meilleur_temps_relatif              ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+rank_gains_generation               ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+performance_vs_moyenne_course       🟠 FAIBLE
+   Taux:   4.61% |   15,079 /  327,026 | Distinct:      356
+   Type: real            | Source: ❓ Inconnue
+   Exemple: -9.5, -8.5
+
+taux_victoire_vs_concurrent         🟠 FAIBLE
+   Taux:   5.12% |   16,738 /  327,026 | Distinct:       72
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 0.25
+
+handicap_optimal                    ❌ VIDE
+   Taux:   0.00% |        0 /  327,026 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+momentum_score                      🟠 FAIBLE
+   Taux:   4.61% |   15,079 /  327,026 | Distinct:      214
+   Type: real            | Source: ❓ Inconnue
+   Exemple: -9.0, -8.0
+
+distance_preference_score           🔴 CRITIQUE
+   Taux:   0.10% |      314 /  327,026 | Distinct:        4
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 33.333332
+
+terrain_preference_score            🔴 CRITIQUE
+   Taux:   0.77% |    2,531 /  327,026 | Distinct:        7
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0, 20.0
+
+consistency_score                   🔴 CRITIQUE
+   Taux:   0.09% |      288 /  327,026 | Distinct:       55
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 13.05768, 13.603864
+
+improvement_rate                    🔴 CRITIQUE
+   Taux:   0.09% |      288 /  327,026 | Distinct:       32
+   Type: real            | Source: ❓ Inconnue
+   Exemple: -6.0, -4.5
+
+versatility_score                   🟠 FAIBLE
+   Taux:   5.40% |   17,646 /  327,026 | Distinct:        5
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0, 3.0
+
+================================================================================
+TABLE: cheval_courses_seen
+================================================================================
+
+nom_norm                            ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:   26,608
+   Type: text            | Source: ❓ Inconnue
+   Exemple: aabid, aalina du soleil
+
+race_key                            ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:    3,448
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 2024-10-21|R6|C1|UNKNOWN, 2025-11-02|R2|C10|UNKNOWN
+
+annee                               ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        2
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 2024, 2025
+
+is_win                              ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        2
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0, 1
+
+reunion_numero                      🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       14
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 4, 14
+
+course_numero                       🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       10
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 8, 9
+
+hippodrome_code                     🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:        1
+   Type: text            | Source: ❓ Inconnue
+   Exemple: UNKNOWN
+
+hippodrome_nom                      🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       42
+   Type: text            | Source: ❓ Inconnue
+   Exemple: HIPPODROME DE PONTCHATEAU, HIPPODROME DU MANS
+
+meteo                               ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+etat_piste                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+course_nom                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:      477
+   Type: text            | Source: ❓ Inconnue
+   Exemple: PRIX DE BAILLEUL (GR A), PRIX DE BEAUCHAMPS (GR A)
+
+discipline                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:        6
+   Type: text            | Source: ❓ Inconnue
+   Exemple: ATTELE, CROSS
+
+specialite                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:        4
+   Type: text            | Source: ❓ Inconnue
+   Exemple: TROT_MONTE, PLAT
+
+distance_m                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       56
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 5200, 2750
+
+type_depart                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+corde                               🟡 MOYEN
+   Taux:  19.05% |    7,839 /   41,157 | Distinct:        3
+   Type: text            | Source: ❓ Inconnue
+   Exemple: CORDE_GAUCHE, CORDE_DROITE
+
+type_piste                          🟠 FAIBLE
+   Taux:   2.87% |    1,182 /   41,157 | Distinct:        3
+   Type: text            | Source: ❓ Inconnue
+   Exemple: GAZON, HERBE
+
+allocation_totale                   🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       75
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 19000, 7289
+
+conditions_course                   🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:      455
+   Type: text            | Source: ❓ Inconnue
+   Exemple: PRIX ROMAIN PASCAL PLOMBERIE CHAUFFAGE Course 6 Course E APPRENTIS-LADS-JOCKEYS 17.000. - Attel?. - 2.825 m?tres. 7.650, 4.250, 2.380, 1.360, 850, 340, 170.- allou?s par le Conseil R?gional u Trot. Pour 6 ans, n'ayant pas gagn? 105.000. - Recul de 25 m. ? 51.000., PRIX DE BAILLEUL Course  1 Course G 12.000. - Attelé, mâles. - 2.450 mètres. 5.400, 3.000, 1.680, 960, 600, 240, 120. Pour poulains entiers et hongres de 3 ans, ayant couru mais n'ayant pas gagn 2.500. En cas d'élimination, les poulains entraînés dans la Fédération de Basse-Nor andie seront maintenus partants en priorité. En cas d'élimination, les poulains ayant couru au moins six fois depuis le d but de leur carrière seront éliminés en priorité.
+
+type_course                         🟠 FAIBLE
+   Taux:   6.96% |    2,864 /   41,157 | Distinct:      231
+   Type: text            | Source: ❓ Inconnue
+   Exemple: LONGINES BREEDERS' CUP DISTAFF (GRADE I), LONGINES BREEDERS' CUP CLASSIC (GRADE I)
+
+heure_depart                        🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:      496
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 1761998700000, 1728217800000
+
+numero_dossard                      🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       18
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 4, 14
+
+num_pmu                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+driver_jockey                       🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:    1,831
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A.A. BARASSIN, A. ABRIVARD
+
+entraineur                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:    1,542
+   Type: text            | Source: ❓ Inconnue
+   Exemple: A.A. BARASSIN, A. ACEF
+
+proprietaire                        🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:    3,303
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 0 ES 3, 28 DE ENERO
+
+age                                 🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       12
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 12, 3
+
+sexe                                🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:        3
+   Type: text            | Source: ❓ Inconnue
+   Exemple: MALES, HONGRES
+
+poids_kg                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+deferrage                           🟠 FAIBLE
+   Taux:   6.74% |    2,776 /   41,157 | Distinct:        8
+   Type: text            | Source: ❓ Inconnue
+   Exemple: PROTEGE_ANTERIEURS_DEFERRRE_POSTERIEURS, PROTEGE_ANTERIEURS
+
+equipement                          🟡 MOYEN
+   Taux:  17.64% |    7,259 /   41,157 | Distinct:       11
+   Type: text            | Source: ❓ Inconnue
+   Exemple: Œillères: SANS_OEILLERES, Déferré: DEFERRE_ANTERIEURS_POSTERIEURS, Œillères: SANS_OEILLERES, Déferré: PROTEGE_ANTERIEURS_POSTERIEURS
+
+handicap_distance                   🟡 MOYEN
+   Taux:  14.64% |    6,027 /   41,157 | Distinct:       33
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 2850, 2275
+
+cote_matin                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+cote_finale                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+place_finale                        🟢 BON
+   Taux:  82.62% |   34,003 /   41,157 | Distinct:       20
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+statut_arrivee                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+temps_str                           🟡 MOYEN
+   Taux:  10.20% |    4,196 /   41,157 | Distinct:    3,125
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 179680, 211120
+
+temps_sec                           ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+reduction_km_sec                    🟡 MOYEN
+   Taux:  10.20% |    4,196 /   41,157 | Distinct:      186
+   Type: double precision | Source: ❓ Inconnue
+   Exemple: 80100.0, 77500.0
+
+ecarts                              ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+gains_course                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+non_partant                         ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0
+
+disqualifie                         ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0
+
+observations                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+rapport_gagnant                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+rapport_place                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: double precision | Source: ❓ Inconnue
+
+rapport_couple                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+rapport_trio                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+pmu_reunion_id                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+pmu_course_id                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+rapports_json                       🟢 BON
+   Taux:  87.86% |   36,160 /   41,157 | Distinct:    2,948
+   Type: text            | Source: ❓ Inconnue
+   Exemple: [{"typePari": "SIMPLE_GAGNANT_INTERNATIONAL", "miseBase": 100, "rembourse": false, "rapports": [{"libelle": "Simple Gagnant International", "dividende": 1005, "dividendePourUnEuro": 1005, "combinaison": "10", "nombreGagnants": 242634.74, "dividendePourUneMiseDeBase": 1005, "dividendeUnite": "PourUnEuro"}], "audience": "NATIONAL", "famillePari": "Simple", "dividendeUnite": "PourUnEuro"}, {"typePari": "SIMPLE_PLACE_INTERNATIONAL", "miseBase": 100, "rembourse": false, "rapports": [{"libelle": "Simple Placé International", "dividende": 290, "dividendePourUnEuro": 290, "combinaison": "10", "nombreGagnants": 245546.37, "dividendePourUneMiseDeBase": 290, "dividendeUnite": "PourUnEuro"}, {"libelle": "Simple Placé International", "dividende": 420, "dividendePourUnEuro": 420, "combinaison": "12", "nombreGagnants": 167668.55, "dividendePourUneMiseDeBase": 420, "dividendeUnite": "PourUnEuro"}, {"libelle": "Simple Placé International", "dividende": 385, "dividendePourUnEuro": 385, "combinaison": "8", "nombreGagnants": 183897.22, "dividendePourUneMiseDeBase": 385, "dividendeUnite": "PourUnEuro"}], "audience": "NATIONAL", "famillePari": "Simple", "dividendeUnite": "PourUnEuro"}], [{"typePari": "SIMPLE_GAGNANT_INTERNATIONAL", "miseBase": 100, "rembourse": false, "rapports": [{"libelle": "Simple Gagnant International", "dividende": 1040, "dividendePourUnEuro": 1040, "combinaison": "9", "nombreGagnants": 208395.51, "dividendePourUneMiseDeBase": 1040, "dividendeUnite": "PourUnEuro"}], "audience": "NATIONAL", "famillePari": "Simple", "dividendeUnite": "PourUnEuro"}, {"typePari": "SIMPLE_PLACE_INTERNATIONAL", "miseBase": 100, "rembourse": false, "rapports": [{"libelle": "Simple Placé International", "dividende": 300, "dividendePourUnEuro": 300, "combinaison": "9", "nombreGagnants": 236994.53, "dividendePourUneMiseDeBase": 300, "dividendeUnite": "PourUnEuro"}, {"libelle": "Simple Placé International", "dividende": 145, "dividendePourUnEuro": 145, "combinaison": "7", "nombreGagnants": 483584.38, "dividendePourUneMiseDeBase": 145, "dividendeUnite": "PourUnEuro"}, {"libelle": "Simple Placé International", "dividende": 330, "dividendePourUnEuro": 330, "combinaison": "2", "nombreGagnants": 213844.67, "dividendePourUneMiseDeBase": 330, "dividendeUnite": "PourUnEuro"}], "audience": "NATIONAL", "famillePari": "Simple", "dividendeUnite": "PourUnEuro"}, {"typePari": "COUPLE_ORDRE_INTERNATIONAL", "miseBase": 100, "rembourse": false, "rapports": [{"libelle": "Couplé Ordre International", "dividende": 4320, "dividendePourUnEuro": 4320, "combinaison": "9-7", "nombreGagnants": 11.0, "dividendePourUneMiseDeBase": 4320, "dividendeUnite": "PourUnEuro"}], "audience": "NATIONAL", "famillePari": "Couple", "dividendeUnite": "PourUnEuro"}]
+
+incidents_json                      🟢 BON
+   Taux:  69.94% |   28,784 /   41,157 | Distinct:    1,381
+   Type: text            | Source: ❓ Inconnue
+   Exemple: [{"type": "NON_PARTANT", "numeroParticipants": [16]}, {"type": "DISQUALIFIE_POUR_ALLURE_IRREGULIERE", "numeroParticipants": [5, 7, 10, 13]}], [{"type": "DISQUALIFIE_POUR_ALLURE_IRREGULIERE", "numeroParticipants": [2, 3, 5, 6, 9, 12]}]
+
+nombre_partants                     🟢 BON
+   Taux:  52.74% |   21,706 /   41,157 | Distinct:       18
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 11, 8
+
+gains_carriere                      🟡 MOYEN
+   Taux:  47.73% |   19,644 /   41,157 | Distinct:   14,566
+   Type: bigint          | Source: ❓ Inconnue
+   Exemple: 3562000, 6888000
+
+robe                                🟠 FAIBLE
+   Taux:   8.32% |    3,426 /   41,157 | Distinct:       15
+   Type: text            | Source: ❓ Inconnue
+   Exemple: BAIMEL, AL CRL
+
+race                                🟠 FAIBLE
+   Taux:   8.35% |    3,436 /   41,157 | Distinct:        6
+   Type: text            | Source: ❓ Inconnue
+   Exemple: TROTTEUR FRANCAIS, TROTTEUR ETRANGER
+
+pays_naissance                      🔴 CRITIQUE
+   Taux:   0.59% |      242 /   41,157 | Distinct:        4
+   Type: text            | Source: ❓ Inconnue
+   Exemple: France, Ireland
+
+eleveur                             🟠 FAIBLE
+   Taux:   8.35% |    3,436 /   41,157 | Distinct:    1,886
+   Type: text            | Source: ❓ Inconnue
+   Exemple: MME NATHALIE TRINQUIER, Mme Tarja VARTIAINEN
+
+nom_pere                            🟠 FAIBLE
+   Taux:   8.35% |    3,436 /   41,157 | Distinct:      595
+   Type: text            | Source: ❓ Inconnue
+   Exemple: KINGFISHER, BRAVE MANSONNIEN
+
+nom_mere                            🟠 FAIBLE
+   Taux:   8.35% |    3,436 /   41,157 | Distinct:    2,746
+   Type: text            | Source: ❓ Inconnue
+   Exemple: OLGADARA, TSARINE DU VIVIER
+
+musique                             🟢 BON
+   Taux:  50.87% |   20,938 /   41,157 | Distinct:   18,991
+   Type: text            | Source: ❓ Inconnue
+   Exemple: 4p3p5p4p6p9p, (24)8p0p
+
+id_entraineur                       🟠 FAIBLE
+   Taux:   9.29% |    3,823 /   41,157 | Distinct:    1,218
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+id_driver                           🟠 FAIBLE
+   Taux:   9.29% |    3,823 /   41,157 | Distinct:    1,317
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+id_proprietaire                     🟠 FAIBLE
+   Taux:   9.29% |    3,823 /   41,157 | Distinct:    2,253
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 1, 2
+
+rapport_quarte                      🔴 CRITIQUE
+   Taux:   0.08% |       32 /   41,157 | Distinct:        2
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 98310.0, 141825.0
+
+rapport_quinte                      🔴 CRITIQUE
+   Taux:   0.04% |       16 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 3300400.0
+
+rapport_multi                       🔴 CRITIQUE
+   Taux:   0.79% |      327 /   41,157 | Distinct:       26
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 300.0, 7650.0
+
+rapport_pick5                       🔴 CRITIQUE
+   Taux:   0.06% |       23 /   41,157 | Distinct:        2
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 5500.0, 22710.0
+
+montant_enjeux_total                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: bigint          | Source: ❓ Inconnue
+
+allocation_premier                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+allocation_deuxieme                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+allocation_troisieme                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+pourcentage_allocation_course       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+pays_hippodrome                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+region_hippodrome                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+ecart_premier                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+ecart_precedent                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+vitesse_moyenne                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+vitesse_fin_course                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+couleurs_casaque_driver             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+couleurs_casaque_jockey             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+id_driver_pmu                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+id_jockey_pmu                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+id_entraineur_pmu                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+note_journaliste                    ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+commentaire_avant_course            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+commentaire_apres_course            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+prix_course                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+course_id                           🟠 FAIBLE
+   Taux:   6.96% |    2,864 /   41,157 | Distinct:      235
+   Type: character varying | Source: ❓ Inconnue
+   Exemple: 2025-11-01|R10|NIM|C6, 2025-11-01|R11|S-M|C1
+
+meeting_id                          🟠 FAIBLE
+   Taux:   6.96% |    2,864 /   41,157 | Distinct:       32
+   Type: character varying | Source: ❓ Inconnue
+   Exemple: 2025-11-01|R10|NIM, 2025-11-01|R11|S-M
+
+heure_locale                        🟠 FAIBLE
+   Taux:   3.21% |    1,321 /   41,157 | Distinct:       96
+   Type: time without time zone | Source: ❓ Inconnue
+   Exemple: 00:07:00, 00:15:00
+
+classe_course                       🔴 CRITIQUE
+   Taux:   0.68% |      278 /   41,157 | Distinct:        6
+   Type: character varying | Source: ❓ Inconnue
+   Exemple: 2, 4
+
+profil_piste                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: character varying | Source: ❓ Inconnue
+
+rend_m                              ✅ EXCELLENT
+   Taux:  96.79% |   39,836 /   41,157 | Distinct:        1
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0
+
+autostart_ligne                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+autostart_num                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+draw_stalle                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+meteo_code                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: character varying | Source: ❓ Inconnue
+
+vent_kmh                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+temperature_c                       🟠 FAIBLE
+   Taux:   3.06% |    1,258 /   41,157 | Distinct:        9
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 11.0, 12.0
+
+handicap_valeur                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+poids_porte_kg                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+decharge_kg                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+ferrure                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: character varying | Source: ❓ Inconnue
+
+materiel                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+oeilleres                           ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+days_off                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+elo_avant_course                    ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+gate_score                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+line_bias_score                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+draw_bias_parcours                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+pace_role_attendu                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: character varying | Source: ❓ Inconnue
+
+pace_map_nb_leaders                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+pace_map_nb_closers                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+topographie_segment                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: character varying | Source: ❓ Inconnue
+
+coef_segment_monte                  ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+cote_ouverture_dec                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+cote_live_dec                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+cote_finale_dec                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+overround_marche                    ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+delta_cote_pct                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+temps_total_s                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sect1_s                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sect2_s                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sect3_s                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sect4_s                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sect5_s                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+vitesse_moy_mps                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+finishing_speed_pct                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+par_time_s                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+going_allowance_s                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+pace_bias                           ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sf_brut                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sf_adj                              ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+sf_pace                             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+reduction_km                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+idx_distance                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+idx_parcours                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+idx_terrain                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+z_rk                                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+z_sf                                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+score_aptitude                      ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+score_forme_globale                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+score_connections                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+delta_classe                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+penalite_rend_m                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+impact_poids_temps_s                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+impact_materiel                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+prob_win                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+prob_place                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+prob_top3                           ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+prob_top5                           ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+edge_win                            ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+edge_place                          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+kelly_win                           ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+kelly_place                         ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+winrate_entraineur_12m              ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+winrate_jockey_12m                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+synergie_j_e                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+exp_parcours_jockey                 ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0
+
+exp_parcours_entraineur             ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: integer         | Source: ❓ Inconnue
+   Exemple: 0
+
+trot_autostart_bool                 ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+trot_volte_bool                     ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+numero_derr_autostart               ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+rend_m_penalite_temps_s             ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+ferrure_delta_perf                  ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+psf_bool                            ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+gazon_bool                          ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+obstacle_bool                       ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: boolean         | Source: ❓ Inconnue
+   Exemple: False
+
+nb_obstacles                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+taux_franchissement_jockey          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+taux_franchissement_cheval          ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+source_donnee                       ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: character varying | Source: ❓ Inconnue
+   Exemple: PMU API
+
+horodatage_import                   ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: timestamp without time zone | Source: ❓ Inconnue
+   Exemple: 2025-11-03 15:43:04.549865
+
+qualite_donnee_score                ✅ EXCELLENT
+   Taux: 100.00% |   41,157 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+notes                               ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: text            | Source: ❓ Inconnue
+
+entraineur_winrate_90j              🟠 FAIBLE
+   Taux:   9.26% |    3,811 /   41,157 | Distinct:       45
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.14285715, 0.0
+
+entraineur_roi_90j                  🟠 FAIBLE
+   Taux:   9.26% |    3,811 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+jockey_winrate_90j                  🟠 FAIBLE
+   Taux:   7.72% |    3,178 /   41,157 | Distinct:       40
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.2, 0.19354838
+
+jockey_roi_90j                      🟠 FAIBLE
+   Taux:   7.72% |    3,178 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+combinaison_winrate                 🟠 FAIBLE
+   Taux:   4.51% |    1,855 /   41,157 | Distinct:       18
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.14285715, 0.0
+
+biais_stalle                        🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+pace_debut                          🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+pace_milieu                         🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+pace_fin                            🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 1.0
+
+effet_topographie                   🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 0.0
+
+penetrometre_valeur                 ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: integer         | Source: ❓ Inconnue
+
+performance_par_meteo               ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+avantage_rail                       ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: boolean         | Source: ❓ Inconnue
+
+probabilite_implicite               ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+is_value_bet                        ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: boolean         | Source: ❓ Inconnue
+
+score_composite                     🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 50.0
+
+probabilite_victoire                ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+probabilite_place                   ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+kelly_criterion                     ❌ VIDE
+   Taux:   0.00% |        0 /   41,157 | Distinct:        0
+   Type: real            | Source: ❓ Inconnue
+
+indice_confiance                    🟠 FAIBLE
+   Taux:   1.19% |      491 /   41,157 | Distinct:        1
+   Type: real            | Source: ❓ Inconnue
+   Exemple: 20.0
+
+code_hippodrome                     🟠 FAIBLE
+   Taux:   3.21% |    1,321 /   41,157 | Distinct:       14
+   Type: text            | Source: ❓ Inconnue
+   Exemple: BEA, CHE
+
+nom_hippodrome                      🟠 FAIBLE
+   Taux:   3.21% |    1,321 /   41,157 | Distinct:       14
+   Type: text            | Source: ❓ Inconnue
+   Exemple: BEAUMONT DE LOMAGNE, CHERBOURG
+
+pays_course                         🟠 FAIBLE
+   Taux:   3.21% |    1,321 /   41,157 | Distinct:        4
+   Type: text            | Source: ❓ Inconnue
+   Exemple: ARG, FRA
+
+================================================================================
+🔍 SCAN DES SCRAPERS
+================================================================================
+
+📄 features_ml.py
+   └─ biais_stalle
+   └─ combinaison_winrate
+   └─ cote_finale
+   └─ courses
+   └─ effet_topographie
+   └─ handicap_valeur
+   └─ nom_norm
+   └─ participants
+   └─ probabilite_implicite
+   └─ reunions
+   └─ with_ml_features
+
+📄 identifiants_avances_v2.py
+   └─ autostart_ligne
+   └─ classe_course
+   └─ code_hippodrome
+   └─ course_id
+   └─ courses_processed
+   └─ date
+   └─ error
+   └─ heure_locale
+   └─ meeting_id
+   └─ nom_hippodrome
+   └─ nom_norm
+   └─ participants_enriched
+   └─ pays_course
+   └─ profil_piste
+   └─ race_key
+   └─ rend_m
+   └─ success
+   └─ type_course
+
+📄 cheval_details.py
+   └─ chevaux
+   └─ num_pmu
+   └─ participants
+
+📄 identifiants_avances.py
+   └─ autostart_ligne
+   └─ classe_course
+   └─ course_id
+   └─ heure_locale
+   └─ meeting_id
+   └─ nom_norm
+   └─ profil_piste
+   └─ rend_m
+   └─ type_course
+
+📄 connections.py
+   └─ driver_jockey
+   └─ entraineur
+   └─ erreurs
+   └─ nb_courses
+   └─ nb_wins
+   └─ nom_norm
+   └─ participants_updated
+   └─ race_key
+   └─ roi
+   └─ winrate
+
+📄 base_scraper.py
+   └─ column_name
+   └─ courses
+   └─ erreurs
+   └─ reunions
+   └─ table_name
+
+📄 calculs_stats.py
+   └─ duration_seconds
+   └─ stats_computed
+   └─ success
+
+📄 sectionnels_simple.py
+   └─ nom_norm
+   └─ reduction_km
+   └─ temps_total_s
+   └─ vitesse_moy_ms
+
+📄 perf_stats.py
+   └─ chevaux_updated
+   └─ date_course
+   └─ discipline
+   └─ distance_m
+   └─ erreurs
+   └─ finishing_speed_pct
+   └─ hippodrome_code
+   └─ incident
+   └─ is_win
+   └─ nom_norm
+   └─ place_finale
+   └─ race_key
+   └─ reduction_km
+   └─ sf_adj
+
+📄 sectionnels.py
+   └─ nom_norm
+   └─ participants
+   └─ race_key
+   └─ sf_adj
+   └─ sf_brut
+   └─ temps_total_s
+
+📄 metadata_course.py
+   └─ errors
+   └─ num_pmu
+   └─ scraped
+   └─ updated
+
+📄 cotes_marche.py
+   └─ courses
+   └─ nom_norm
+   └─ participants
+   └─ reunions
+   └─ with_cotes
+
+📄 conditions_jour.py
+   └─ courses
+   └─ discipline
+   └─ distance
+   └─ hippodrome_code
+   └─ nom_norm
+   └─ participants
+   └─ reunions
+   └─ with_pace
+   └─ with_stall_bias
+   └─ with_topo
+
+✅ Scan terminé: 64 colonnes identifiées dans les scrapers
+
+================================================================================
+🔎 DÉTECTION DES DOUBLONS SÉMANTIQUES
+================================================================================
+
+📊 Groupe: nombre_courses
+   • nombre_courses_total                     [chevaux             ] 100.00%
+   • nb_courses_total                         [chevaux             ]   5.40%
+   • nombre_courses_2025                      [chevaux             ] 100.00%
+
+📊 Groupe: nombre_victoires
+   • nombre_victoires_total                   [chevaux             ] 100.00%
+   • nb_victoires                             [chevaux             ]   5.40%
+   • nombre_victoires_2025                    [chevaux             ] 100.00%
+
+📊 Groupe: nb_places
+   • nb_places                                [chevaux             ]   5.40%
+   • nb_places_12m                            [chevaux             ] 100.00%
+
+📊 Groupe: forme_recente
+   • forme_recente                            [chevaux             ]   4.61%
+   • forme_recente_30j                        [chevaux             ]   0.00%
+   • forme_recente_60j                        [chevaux             ]   0.00%
+   • forme_recente_90j                        [chevaux             ]   0.00%
+   • score_forme_recent                       [chevaux             ]   8.55%
+
+📊 Groupe: derniere_course
+   • derniere_course                          [chevaux             ]   5.40%
+   • derniere_course_date                     [chevaux             ]   0.00%
+   • date_derniere_course                     [chevaux             ]   0.00%
+
+📊 Groupe: gains
+   • gains_total                              [chevaux             ]   5.40%
+   • gains_carriere                           [cheval_courses_seen ]  47.73%
+   • gains_trot                               [chevaux             ]   0.00%
+   • gains_plat                               [chevaux             ]   0.00%
+   • gains_obstacle                           [chevaux             ]   0.00%
+
+📊 Groupe: elo
+   • elo_courant                              [chevaux             ] 100.00%
+   • elo_avant_course                         [cheval_courses_seen ]   0.00%
+
+📊 Groupe: cotes
+   • cote_matin                               [cheval_courses_seen ]   0.00%
+   • cote_finale                              [cheval_courses_seen ]   0.00%
+   • cote_finale_dec                          [cheval_courses_seen ]   0.00%
+   • cote_ouverture_dec                       [cheval_courses_seen ]   0.00%
+   • cote_live_dec                            [cheval_courses_seen ]   0.00%
+
+📊 Groupe: temps
+   • temps_str                                [cheval_courses_seen ]  10.20%
+   • temps_sec                                [cheval_courses_seen ]   0.00%
+   • temps_total_s                            [cheval_courses_seen ]   0.00%
+
+📊 Groupe: reduction_km
+   • reduction_km_sec                         [cheval_courses_seen ]  10.20%
+   • reduction_km                             [cheval_courses_seen ]   0.00%
+   • reduction_km_record_trot                 [chevaux             ]   0.00%
+   • reduction_km_record_plat                 [chevaux             ]   0.00%
+
+📊 Groupe: speed_figure
+   • sf_brut                                  [cheval_courses_seen ]   0.00%
+   • sf_adj                                   [cheval_courses_seen ]   0.00%
+   • sf_pace                                  [cheval_courses_seen ]   0.00%
+   • sf_best                                  [chevaux             ]   0.00%
+   • sf_mediane_90j                           [chevaux             ]   0.00%
+
+📊 Groupe: identifiants
+   • num_pmu                                  [chevaux             ]   8.17%
+   • id_cheval_pmu                            [chevaux             ]   5.32%
+   • pmu_course_id                            [cheval_courses_seen ]   0.00%
+   • pmu_reunion_id                           [cheval_courses_seen ]   0.00%
+
+✅ Rapport généré: RAPPORT_AUDIT_COLONNES_20251104_123406.md
+✅ Connexion fermée
+
+================================================================================
+✅ AUDIT TERMINÉ
+================================================================================

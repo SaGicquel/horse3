@@ -1,0 +1,163 @@
+{
+  "timestamp": "20251202_221008",
+  "config": {
+    "artifacts_dir": "calibration",
+    "temperature_init": 1.5,
+    "temperature_bounds": [
+      0.5,
+      5.0
+    ],
+    "n_bins_ece": 10,
+    "min_samples_cluster": 100,
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "alpha_cv_folds": 5,
+    "train_ratio": 0.6,
+    "val_ratio": 0.2,
+    "test_ratio": 0.2,
+    "min_train_samples": 500,
+    "profit_sim_stake": 10.0,
+    "value_threshold": 0.05
+  },
+  "metrics": {
+    "calibration": {
+      "brier_score": 0.08031303669744105,
+      "log_loss": 0.279068487185619,
+      "ece": 0.010755340798982554,
+      "ece_bins": [
+        {
+          "bin": 0,
+          "range": "[0.00, 0.10)",
+          "count": 1086,
+          "accuracy": 0.0423572744014733,
+          "confidence": 0.042212709895178294,
+          "gap": 0.00014456450629500572
+        },
+        {
+          "bin": 1,
+          "range": "[0.10, 0.20)",
+          "count": 348,
+          "accuracy": 0.14655172413793102,
+          "confidence": 0.14183547796346926,
+          "gap": 0.004716246174461758
+        },
+        {
+          "bin": 2,
+          "range": "[0.20, 0.30)",
+          "count": 128,
+          "accuracy": 0.1953125,
+          "confidence": 0.2468719154467532,
+          "gap": -0.05155941544675319
+        },
+        {
+          "bin": 3,
+          "range": "[0.30, 0.40)",
+          "count": 55,
+          "accuracy": 0.43636363636363634,
+          "confidence": 0.3524539443412985,
+          "gap": 0.08390969202233783
+        },
+        {
+          "bin": 4,
+          "range": "[0.40, 0.50)",
+          "count": 31,
+          "accuracy": 0.5161290322580645,
+          "confidence": 0.4432632212176409,
+          "gap": 0.07286581104042361
+        },
+        {
+          "bin": 5,
+          "range": "[0.50, 0.60)",
+          "count": 11,
+          "accuracy": 0.45454545454545453,
+          "confidence": 0.5439184759720223,
+          "gap": -0.08937302142656772
+        },
+        {
+          "bin": 6,
+          "range": "[0.60, 0.70)",
+          "count": 4,
+          "accuracy": 0.5,
+          "confidence": 0.6315151797357491,
+          "gap": -0.1315151797357491
+        },
+        {
+          "bin": 7,
+          "range": "[0.70, 0.80)",
+          "count": 1,
+          "accuracy": 1.0,
+          "confidence": 0.7183027108778084,
+          "gap": 0.2816972891221916
+        },
+        {
+          "bin": 8,
+          "range": "[0.80, 0.90)",
+          "count": 1,
+          "accuracy": 0.0,
+          "confidence": 0.8450520833333334,
+          "gap": -0.8450520833333334
+        }
+      ]
+    },
+    "profit_flat": {
+      "n_bets": 458,
+      "total_staked": 4580.0,
+      "total_return": 5976.0,
+      "profit": 1396.0,
+      "roi": 30.480349344978166,
+      "win_rate": 12.008733624454148,
+      "avg_odds": 32.85764192139738,
+      "avg_ev": 38.78067610679294
+    },
+    "profit_kelly": {
+      "n_bets": 578,
+      "total_staked": 15846.694031024284,
+      "total_return": 26501.89140661524,
+      "profit": 10655.197375590955,
+      "roi": 67.23924469501627,
+      "final_bankroll": 11655.197375590962,
+      "bankroll_growth": 1065.5197375590963,
+      "max_drawdown_pct": 18.40389705965953
+    },
+    "stats": {
+      "n_samples_test": 1665,
+      "n_races_test": 170,
+      "win_rate_observed": 10.21021021021021,
+      "avg_prob_predicted": 10.21021021021021,
+      "temperature": 4.9999936677422125,
+      "alpha_blend": 0.0,
+      "calibrator_type": "platt"
+    }
+  },
+  "artifacts": {
+    "plots": [
+      "calibration/calibration_reliability.png",
+      "calibration/calibration_ece_bins.png"
+    ],
+    "scaler": "calibration/scaler_temperature_20251202_221008.pkl",
+    "calibrator_platt": "calibration/calibrator_platt_20251202_221008.pkl",
+    "calibrator_isotonic": "calibration/calibrator_isotonic_20251202_221008.pkl",
+    "blender": "calibration/blender_20251202_221008.pkl"
+  },
+  "best_calibrator": "platt",
+  "temperature": 4.9999936677422125,
+  "alpha": 0.0,
+  "alpha_by_cluster": {
+    "ATTELE": 0.0,
+    "HAIE": 0.0,
+    "MONTE": 0.0,
+    "PLAT": 0.0,
+    "STEEPLECHASE": 0.0
+  }
+}

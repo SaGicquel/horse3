@@ -1,0 +1,28 @@
+{
+  "color": {
+    "primary": {
+      "300": "#C86D8A",
+      "500": "#9D3656",
+      "600": "#812C47"
+    },
+    "secondary": {
+      "500": "#F5C3CE"
+    },
+    "success": "#2ED573",
+    "error": "#DC2626"
+  },
+  "font": {
+    "display": "Bebas Neue",
+    "sans": "Inter",
+    "mono": "Roboto Mono"
+  },
+  "radius": {
+    "md": "12px"
+  },
+  "shadow": {
+    "card": "0 6px 16px rgba(17,24,39,0.08)"
+  },
+  "spacing": {
+    "unit": 8
+  }
+}

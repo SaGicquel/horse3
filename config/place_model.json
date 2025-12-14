@@ -1,0 +1,34 @@
+{
+  "model": "logistic_regression",
+  "target": "is_place_top3",
+  "features": [
+    "logit_p_place_harville",
+    "log_field",
+    "rank_pct",
+    "is_trot",
+    "is_obstacle"
+  ],
+  "intercept": 2.9490713293495245,
+  "coef": {
+    "logit_p_place_harville": 0.16688463327279313,
+    "log_field": -1.203429727566232,
+    "rank_pct": -1.8518110296668924,
+    "is_trot": -0.008614167008791689,
+    "is_obstacle": 0.17629372745778354
+  },
+  "metrics": {
+    "train": {
+      "brier": 0.1685089030635145,
+      "logloss": 0.5097598547753119,
+      "auc": 0.7282737030018862,
+      "n": 14432
+    },
+    "test": {
+      "brier": 0.16701564810175634,
+      "logloss": 0.5052691659504026,
+      "auc": 0.7415676263313181,
+      "n": 3609
+    }
+  },
+  "notes": "Calibre p_place à partir de p_place Harville (basé sur cotes), + taille champ + rang + discipline."
+}

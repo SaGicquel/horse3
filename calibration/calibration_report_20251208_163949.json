@@ -1,0 +1,229 @@
+{
+  "timestamp": "20251208_163949",
+  "config": {
+    "artifacts_dir": "calibration",
+    "temperature_init": 1.5,
+    "temperature_bounds": [
+      0.5,
+      5.0
+    ],
+    "n_bins_ece": 10,
+    "min_samples_cluster": 200,
+    "alpha_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "alpha_cv_folds": 5,
+    "use_gamma_correction": true,
+    "gamma_init": 1.0,
+    "gamma_bounds": [
+      0.5,
+      2.0
+    ],
+    "gamma_by_cluster": true,
+    "use_dynamic_alpha": true,
+    "alpha_bounds": [
+      0.3,
+      0.9
+    ],
+    "alpha_base": 0.5,
+    "alpha_pool_coef": 0.05,
+    "alpha_time_coef": 0.01,
+    "default_pool_size": 50000.0,
+    "default_minutes_to_off": 30.0,
+    "train_ratio": 0.6,
+    "val_ratio": 0.2,
+    "test_ratio": 0.2,
+    "min_train_samples": 500,
+    "profit_sim_stake": 10.0,
+    "value_threshold": 0.05
+  },
+  "metrics": {
+    "debias": {
+      "blend": {
+        "brier": 0.0811409463009517,
+        "ece": 0.004012034260869436,
+        "logloss": 0.28176111885245836
+      },
+      "model_only": {
+        "brier": 0.0814225104952769,
+        "ece": 0.010399167704606362,
+        "logloss": 0.28366169529137913
+      },
+      "market_only": {
+        "brier": 0.0839231130754669,
+        "ece": 0.0068899648932040794,
+        "logloss": 0.29291897676395406
+      },
+      "ev_lift": {
+        "ev_blend": 0.6092043045817708,
+        "ev_market": 0.07142081315132834,
+        "lift_pct": 53.778349143044245,
+        "n_bets_blend": 30665,
+        "n_bets_market": 34065
+      },
+      "alpha_stats": {
+        "mean": 0.740988914220514,
+        "std": 1.1102230246251565e-16,
+        "min": 0.7409889142205142,
+        "max": 0.7409889142205142,
+        "p25": 0.7409889142205142,
+        "p75": 0.7409889142205142
+      },
+      "gamma": {
+        "global": 0.9,
+        "by_cluster": {}
+      }
+    },
+    "calibration": {
+      "brier_score": 0.0811409463009517,
+      "log_loss": 0.2817611188524583,
+      "ece": 0.004012034260869434,
+      "ece_bins": [
+        {
+          "bin": 0,
+          "range": "[0.00, 0.10)",
+          "count": 88484,
+          "accuracy": 0.04589530310564622,
+          "confidence": 0.042655068413564,
+          "gap": 0.0032402346920822195
+        },
+        {
+          "bin": 1,
+          "range": "[0.10, 0.20)",
+          "count": 33108,
+          "accuracy": 0.13649269058837743,
+          "confidence": 0.13772251495441024,
+          "gap": -0.0012298243660328056
+        },
+        {
+          "bin": 2,
+          "range": "[0.20, 0.30)",
+          "count": 9574,
+          "accuracy": 0.24075621474827658,
+          "confidence": 0.24336759588104243,
+          "gap": -0.00261138113276585
+        },
+        {
+          "bin": 3,
+          "range": "[0.30, 0.40)",
+          "count": 3721,
+          "accuracy": 0.34399355012093524,
+          "confidence": 0.34173440176905323,
+          "gap": 0.002259148351882012
+        },
+        {
+          "bin": 4,
+          "range": "[0.40, 0.50)",
+          "count": 1874,
+          "accuracy": 0.41728922091782283,
+          "confidence": 0.44582212473622834,
+          "gap": -0.02853290381840551
+        },
+        {
+          "bin": 5,
+          "range": "[0.50, 0.60)",
+          "count": 1125,
+          "accuracy": 0.5102222222222222,
+          "confidence": 0.5466088443534944,
+          "gap": -0.036386622131272195
+        },
+        {
+          "bin": 6,
+          "range": "[0.60, 0.70)",
+          "count": 619,
+          "accuracy": 0.5815831987075929,
+          "confidence": 0.6469044792661536,
+          "gap": -0.06532128055856068
+        },
+        {
+          "bin": 7,
+          "range": "[0.70, 0.80)",
+          "count": 357,
+          "accuracy": 0.6666666666666666,
+          "confidence": 0.7486050850104781,
+          "gap": -0.08193841834381144
+        },
+        {
+          "bin": 8,
+          "range": "[0.80, 0.90)",
+          "count": 226,
+          "accuracy": 0.7345132743362832,
+          "confidence": 0.8420117849557758,
+          "gap": -0.10749851061949256
+        },
+        {
+          "bin": 9,
+          "range": "[0.90, 1.00)",
+          "count": 51,
+          "accuracy": 0.7450980392156863,
+          "confidence": 0.9217777719210503,
+          "gap": -0.17667973270536397
+        }
+      ]
+    },
+    "profit_flat": {
+      "n_bets": 30665,
+      "total_staked": 306650.0,
+      "total_return": 493462.5,
+      "profit": 186812.5,
+      "roi": 60.92043045817708,
+      "win_rate": 18.63362139246698,
+      "avg_odds": 15.712509375509537,
+      "avg_ev": 57.56855580658422
+    },
+    "profit_kelly": {
+      "n_bets": 34407,
+      "total_staked": 3.75399348836078e+156,
+      "total_return": 4.962314043441999e+156,
+      "profit": 1.2083205550812193e+156,
+      "roi": 32.187603916405436,
+      "final_bankroll": 1.2083205550812188e+156,
+      "bankroll_growth": 1.208320555081219e+155,
+      "max_drawdown_pct": 50.52426003890903
+    },
+    "stats": {
+      "n_samples_test": 139139,
+      "n_races_test": 14291,
+      "win_rate_observed": 10.29402252423835,
+      "avg_prob_predicted": 10.27102394008869,
+      "temperature": 0.9935018837694053,
+      "alpha_blend": null,
+      "calibrator_type": "isotonic",
+      "use_dynamic_blend": true,
+      "gamma": 0.9,
+      "gamma_by_cluster": {}
+    }
+  },
+  "artifacts": {
+    "plots": [
+      "calibration/calibration_reliability.png",
+      "calibration/calibration_ece_bins.png"
+    ],
+    "scaler": "calibration/scaler_temperature_20251208_163949.pkl",
+    "calibrator_platt": "calibration/calibrator_platt_20251208_163949.pkl",
+    "calibrator_isotonic": "calibration/calibrator_isotonic_20251208_163949.pkl",
+    "dynamic_blender": "calibration/dynamic_blender_20251208_163949"
+  },
+  "best_calibrator": "isotonic",
+  "temperature": 0.9935018837694053,
+  "alpha": null,
+  "alpha_by_cluster": {},
+  "use_dynamic_blend": true,
+  "gamma": 0.9,
+  "gamma_by_cluster": {},
+  "alpha_coefficients": {
+    "a0": 0.5,
+    "a1": 0.05,
+    "a2": 0.01
+  }
+}

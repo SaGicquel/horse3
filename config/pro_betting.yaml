@@ -1,0 +1,205 @@
+# =============================================================================
+# Configuration Pro Betting v3.0 - Politique de Mise Complète
+# =============================================================================
+# Hash de version calculé automatiquement par loader.py
+
+# -----------------------------------------------------------------------------
+# Calibration des probabilités
+# -----------------------------------------------------------------------------
+calibration:
+  temperature: 1.254         # T* optimisé
+  blend_alpha_global: 0.2    # α global (blend proba/cote)
+  blend_alpha_plat: 0.0      # α pour courses plat
+  blend_alpha_trot: 0.4      # α pour courses trot
+  blend_alpha_obstacle: 0.4  # α pour courses obstacle
+  calibrator: platt          # Méthode: platt, isotonic, temperature
+
+# -----------------------------------------------------------------------------
+# Simulation Monte Carlo
+# -----------------------------------------------------------------------------
+simulation:
+  num_simulations: 20000     # Nombre de simulations MC
+
+# -----------------------------------------------------------------------------
+# Marchés de paris
+# -----------------------------------------------------------------------------
+markets:
+  mode: parimutuel           # Mode: parimutuel, fixed (exchange)
+  takeout_rate: 0.16         # Prélèvement PMU (16%)
+
+# -----------------------------------------------------------------------------
+# BETTING DEFAULTS - Politique de mise par défaut (Kelly fractionnaire)
+# -----------------------------------------------------------------------------
+betting_defaults:
+  # Profil de mise - SUR (25%), STANDARD (33%), AMBITIEUX (50%), PERSONNALISE
+  kelly_profile_default: "STANDARD"
+  kelly_fraction_map:
+    SUR: 0.25                # 1/4 Kelly - Conservateur
+    STANDARD: 0.33           # 1/3 Kelly - Équilibré (défaut)
+    AMBITIEUX: 0.50          # 1/2 Kelly - Agressif
+  custom_kelly_fraction: 0.33  # Utilisé si profil = PERSONNALISE
+  
+  # Filtrage des paris
+  value_cutoff: 0.05         # Seuil value minimum ≥ 5% (sinon stake = 0)
+  
+  # Caps et limites
+  cap_per_bet: 0.02          # Cap 2% du bankroll par pari
+  daily_budget_rate: 0.12    # Budget jour = 12% du bankroll
+  max_unit_bets_per_race: 2  # Max 2 paris unitaires par course
+  
+  # Arrondi
+  rounding_increment_eur: 0.5  # Arrondir chaque mise à 0.50€
+
+# -----------------------------------------------------------------------------
+# BETTING POLICY - Sélection & mise (séparée du moteur proba/value)
+# -----------------------------------------------------------------------------
+# Objectif: geler le moteur (p, value) et itérer uniquement sur la politique:
+# - combien de paris/jour
+# - quels types (PLACÉ / E/P / GAGNANT) selon BK
+# - seuils de value selon profil (SUR / STANDARD / AMBITIEUX)
+betting_policy:
+  # Cap additionnel: éviter 20€ sur 1 seul cheval avec BK=1000€.
+  # Exemple: budget jour 120€ => 10% = 12€ max par pari.
+  max_daily_budget_share_per_bet: 0.10
+
+  # Limite de diversité
+  max_bets_per_race: 2
+
+  # Profils de sélection (alignés avec kelly_profile)
+  profiles:
+    SUR:
+      max_bets_per_day: 6
+      allowed_risks: ["Faible", "Modéré"]
+      max_odds_win: 12
+    STANDARD:
+      max_bets_per_day: 8
+      allowed_risks: ["Faible", "Modéré", "Élevé"]
+      max_odds_win: 18
+    AMBITIEUX:
+      max_bets_per_day: 10
+      allowed_risks: ["Faible", "Modéré", "Élevé", "Très élevé"]
+      max_odds_win: 30
+
+  # Cutoffs value (en %) par zone BK et bucket SÛR/ÉQUILIBRÉ/RISQUÉ.
+  # Appliqué sur value_win (champ value) ou value_place si pari PLACÉ.
+  # Reco: petits BK + SÛR -> 10–15% ; ÉQUILIBRÉ -> 8–10% ; RISQUÉ -> ~5% (stake réduit).
+  value_min_pct_by_zone:
+    micro:
+      "SÛR":       { win: 15, place: 12 }
+      "ÉQUILIBRÉ": { win: 18, place: 15 }
+      "RISQUÉ":    { win: 999, place: 999 }
+    small:
+      "SÛR":       { win: 12, place: 10 }
+      "ÉQUILIBRÉ": { win: 10, place: 8 }
+      "RISQUÉ":    { win: 8,  place: 6 }
+    full:
+      "SÛR":       { win: 10, place: 8 }
+      "ÉQUILIBRÉ": { win: 8,  place: 6 }
+      "RISQUÉ":    { win: 5,  place: 4 }
+
+  # Ajustement profil (multiplie les cutoffs ci-dessus)
+  profile_value_multiplier:
+    SUR: 1.25
+    STANDARD: 1.0
+    AMBITIEUX: 0.90
+
+  # Mise: réduire fortement les RISQUÉS, surtout en petits BK.
+  stake_scale_by_bucket:
+    "SÛR": 1.0
+    "ÉQUILIBRÉ": 0.70
+    "RISQUÉ": 0.25
+  stake_scale_by_zone:
+    micro: 0.50
+    small: 0.80
+    full: 1.0
+
+  # Ajustements par zone de bankroll (défauts prudents)
+  bankroll_zones:
+    micro:
+      max_bets_per_day: 2
+      allowed_bet_types: ["SIMPLE PLACÉ"]
+    small:
+      max_bets_per_day: 4
+      allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)"]
+    full:
+      allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)", "SIMPLE GAGNANT"]
+
+# -----------------------------------------------------------------------------
+# EXOTICS DEFAULTS - Paris exotiques (Trio/Quinté)
+# -----------------------------------------------------------------------------
+exotics_defaults:
+  per_ticket_rate: 0.0075    # 0.75% du bankroll par ticket
+  max_pack_rate: 0.04        # Max 4% du bankroll par pack/course
+
+# -----------------------------------------------------------------------------
+# Kelly Criterion (rétrocompatibilité)
+# -----------------------------------------------------------------------------
+kelly:
+  fraction: 0.33             # Fraction Kelly (= STANDARD)
+  value_cutoff: 0.05         # Seuil EV minimum (+5%)
+  max_stake_pct: 0.02        # Mise max = cap_per_bet (2% bankroll)
+
+# -----------------------------------------------------------------------------
+# Portfolio Management
+# -----------------------------------------------------------------------------
+portfolio:
+  correlation_penalty: 0.30  # Pénalité corrélation (30%)
+  max_same_race: 2           # Max paris même course
+  max_same_jockey: 3         # Max paris même jockey
+  max_same_trainer: 3        # Max paris même entraîneur
+  confidence_level: 0.95     # Niveau confiance VaR
+
+# -----------------------------------------------------------------------------
+# Paris Exotiques (legacy)
+# -----------------------------------------------------------------------------
+exotics:
+  p_place_simulations: 20000 # Simulations p_place (= num_simulations)
+  top_k_couples: 50          # Top couples évalués
+  top_k_trios: 100           # Top trios évalués
+  max_coverage: 0.30         # Couverture max champ
+
+# -----------------------------------------------------------------------------
+# Estimateurs de Place/Ordre (Exotiques avancés)
+# -----------------------------------------------------------------------------
+place_estimators:
+  # Températures Plackett-Luce par discipline (à apprendre)
+  temperature_default: 1.0
+  temperature_plat: 0.95      # Favoris légèrement surestimés
+  temperature_trot: 1.05      # Plus d'incertitude
+  temperature_obstacle: 1.10  # Haute variance
+  
+  # Paramètres Henery (gamma < 1 = réduit avantage favoris)
+  henery_gamma: 0.81
+  
+  # Paramètres Stern (lambda = lissage vers uniforme)
+  stern_lambda: 0.15
+  
+  # Paramètres Lo-Bacon-Shone
+  lbs_iterations: 100
+  lbs_damping: 0.7
+  
+  # Estimateur par défaut par discipline
+  # Options: harville, henery, stern, lbs
+  estimator_plat: henery
+  estimator_trot: lbs
+  estimator_obstacle: stern
+  estimator_default: harville
+  
+  # Validation
+  min_simulations_stable: 20000  # N minimum pour stabilité EV
+  cv_threshold: 0.10             # Coefficient de variation max
+
+# -----------------------------------------------------------------------------
+# Backtest
+# -----------------------------------------------------------------------------
+backtest:
+  initial_bankroll: 1000.0   # Bankroll initiale
+  min_races: 50              # Min courses pour stats
+
+# -----------------------------------------------------------------------------
+# Artefacts
+# -----------------------------------------------------------------------------
+artifacts:
+  model_path: models/xgb_proba_v9.joblib
+  predictions_dir: predictions
+  reports_dir: reports

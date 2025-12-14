@@ -1,0 +1,953 @@
+{
+  "date_analyse": "2025-11-05T11:56:11.902295",
+  "course_data": {
+    "cached": false,
+    "departImminent": false,
+    "arriveeDefinitive": true,
+    "timezoneOffset": 3600000,
+    "numReunion": 1,
+    "numExterneReunion": 1,
+    "numOrdre": 1,
+    "numExterne": 1,
+    "heureDepart": 1762260900000,
+    "libelle": "PRIX DE MAURE DE BRETAGNE",
+    "libelleCourt": "M. DE BRETAGNE",
+    "montantPrix": 53000,
+    "parcours": "GP",
+    "distance": 2700,
+    "distanceUnit": "METRE",
+    "corde": "CORDE_GAUCHE",
+    "discipline": "ATTELE",
+    "specialite": "TROT_ATTELE",
+    "categorieParticularite": "INCONNU",
+    "conditionSexe": "FEMELLES",
+    "nombreDeclaresPartants": 16,
+    "grandPrixNationalTrot": false,
+    "numSocieteMere": 750006,
+    "pariMultiCourses": false,
+    "pariSpecial": false,
+    "montantTotalOffert": 53000,
+    "montantOffert1er": 23850,
+    "montantOffert2eme": 13250,
+    "montantOffert3eme": 7420,
+    "montantOffert4eme": 4240,
+    "montantOffert5eme": 2650,
+    "conditions": "PRIX DE MAURE DE BRETAGNE Course  6 Course C 53.000. - Attelé, femelles. - 2.700 mètres (G. P.) 23.850, 13.250, 7.420, 4.240, 2.650, 1.060, 530. Pour juments de 5 ans, n'ayant pas gagné 111.000.",
+    "numCourseDedoublee": 0,
+    "paris": [
+      {
+        "typePari": "SIMPLE_GAGNANT",
+        "miseBase": 200,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": true,
+        "misEnPaiement": true,
+        "codePari": "SIMPLE_GAGNANT",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 1,
+        "complement": false,
+        "infosJackpot": {
+          "miseBase": 300,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          }
+        }
+      },
+      {
+        "poolId": "78582d4e-5861-47d0-af8c-35d535cb72dd",
+        "typePari": "E_SIMPLE_GAGNANT",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": true,
+        "codePari": "E_SIMPLE_GAGNANT",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 1,
+        "complement": false,
+        "infosJackpot": {
+          "miseBase": 150,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          }
+        }
+      },
+      {
+        "typePari": "SIMPLE_PLACE",
+        "miseBase": 200,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": true,
+        "misEnPaiement": true,
+        "codePari": "SIMPLE_PLACE",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 1,
+        "complement": false,
+        "infosJackpot": {
+          "miseBase": 300,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          }
+        }
+      },
+      {
+        "poolId": "d9be6446-7389-4a0e-9a4a-7d50cfb9c0c9",
+        "typePari": "E_SIMPLE_PLACE",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": true,
+        "codePari": "E_SIMPLE_PLACE",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 1,
+        "complement": false,
+        "infosJackpot": {
+          "miseBase": 150,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          }
+        }
+      },
+      {
+        "typePari": "COUPLE_GAGNANT",
+        "miseBase": 200,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": true,
+        "misEnPaiement": true,
+        "codePari": "COUPLE_GAGNANT",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true
+      },
+      {
+        "poolId": "bf0ee8b7-3001-4cbc-ac46-ec3690f80359",
+        "typePari": "E_COUPLE_GAGNANT",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": true,
+        "codePari": "E_COUPLE_GAGNANT",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true
+      },
+      {
+        "typePari": "COUPLE_PLACE",
+        "miseBase": 200,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": true,
+        "misEnPaiement": true,
+        "codePari": "COUPLE_PLACE",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true
+      },
+      {
+        "poolId": "b38f72df-d4ca-4b7f-9708-af1d33d7669b",
+        "typePari": "E_COUPLE_PLACE",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": true,
+        "codePari": "E_COUPLE_PLACE",
+        "spotAutorise": true,
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true
+      },
+      {
+        "typePari": "DEUX_SUR_QUATRE",
+        "miseBase": 300,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": true,
+        "misEnPaiement": true,
+        "codePari": "DEUX_SUR_QUATRE",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          25,
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true,
+        "infosJackpot": {
+          "miseBase": 400,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 4
+          }
+        }
+      },
+      {
+        "poolId": "f9b58625-5177-4d4f-837f-d323e35291b8",
+        "typePari": "E_DEUX_SUR_QUATRE",
+        "miseBase": 300,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": true,
+        "codePari": "E_DEUX_SUR_QUATRE",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 2,
+        "complement": true,
+        "infosJackpot": {
+          "miseBase": 400,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 4
+          }
+        }
+      },
+      {
+        "typePari": "MULTI",
+        "miseBase": 300,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "misEnPaiement": true,
+        "codePari": "MULTI",
+        "spotAutorise": true,
+        "valeursRisqueAutorisees": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "valeursFlexiAutorisees": [
+          25,
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 4,
+        "complement": false
+      },
+      {
+        "poolId": "e6f78aa3-5b62-47c0-bb9b-65f8ee2a01d1",
+        "typePari": "E_MULTI",
+        "miseBase": 300,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": false,
+        "codePari": "E_MULTI",
+        "spotAutorise": true,
+        "valeursRisqueAutorisees": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": false,
+        "combine": true,
+        "nbChevauxReglementaire": 4,
+        "complement": false
+      },
+      {
+        "typePari": "TIERCE",
+        "miseBase": 100,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "misEnPaiement": true,
+        "codePari": "TIERCE",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 3,
+        "complement": true
+      },
+      {
+        "poolId": "2e47b772-dc77-4897-85c5-d78b97cac36c",
+        "typePari": "E_TIERCE",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": false,
+        "codePari": "E_TIERCE",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 3,
+        "complement": true
+      },
+      {
+        "typePari": "QUARTE_PLUS",
+        "miseBase": 150,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "misEnPaiement": true,
+        "codePari": "QUARTE_PLUS",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 4,
+        "complement": true
+      },
+      {
+        "poolId": "09dd6834-5b89-430f-a1a0-a3fd905bd8bf",
+        "typePari": "E_QUARTE_PLUS",
+        "miseBase": 150,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": false,
+        "codePari": "E_QUARTE_PLUS",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 4,
+        "complement": true
+      },
+      {
+        "typePari": "QUINTE_PLUS",
+        "miseBase": 200,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "nouveauQuinte": true,
+        "infosOptionMax": {
+          "miseBase": 300,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          },
+          "tirage": [
+            {
+              "coef": 2.0,
+              "numeros": [
+                1,
+                3,
+                8,
+                9,
+                18,
+                20
+              ]
+            },
+            {
+              "coef": 10.0,
+              "numeros": [
+                2
+              ]
+            }
+          ]
+        },
+        "misEnPaiement": true,
+        "codePari": "QUINTE_PLUS",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          25,
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 5,
+        "complement": true
+      },
+      {
+        "poolId": "fce7d075-a993-4b1a-a93e-53d286e5c148",
+        "typePari": "E_QUINTE_PLUS",
+        "miseBase": 200,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "cagnotte": 0,
+        "reportable": false,
+        "infosOptionMax": {
+          "miseBase": 300,
+          "tauxContribution": {
+            "numerateur": 1,
+            "denominateur": 3
+          },
+          "tirage": [
+            {
+              "coef": 2.0,
+              "numeros": [
+                1,
+                3,
+                8,
+                9,
+                18,
+                20
+              ]
+            },
+            {
+              "coef": 10.0,
+              "numeros": [
+                2
+              ]
+            }
+          ]
+        },
+        "codePari": "E_QUINTE_PLUS",
+        "spotAutorise": true,
+        "valeursFlexiAutorisees": [
+          25,
+          50
+        ],
+        "ordre": true,
+        "combine": true,
+        "nbChevauxReglementaire": 5,
+        "complement": true
+      },
+      {
+        "typePari": "TIC_TROIS",
+        "miseBase": 450,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "misEnPaiement": false,
+        "codePari": "TIC_TROIS",
+        "spotAutorise": false,
+        "ordre": true,
+        "combine": false,
+        "nbChevauxReglementaire": 5,
+        "complement": false
+      },
+      {
+        "poolId": "0e967dcc-b39c-4e85-82c8-c09a1f30652d",
+        "typePari": "E_REPORT_PLUS",
+        "miseBase": 100,
+        "miseMax": 3000000,
+        "enVente": false,
+        "audience": "NATIONAL",
+        "reportable": false,
+        "codePari": "E_REPORT_PLUS",
+        "spotAutorise": false,
+        "ordre": false,
+        "combine": false,
+        "nbChevauxReglementaire": 1,
+        "complement": false
+      }
+    ],
+    "statut": "ARRIVEE_DEFINITIVE_COMPLETE",
+    "categorieStatut": "ARRIVEE",
+    "dureeCourse": 195870,
+    "participants": [],
+    "ecuries": [],
+    "photosArrivee": [
+      {
+        "heightSize": 217,
+        "widthSize": 450,
+        "url": "https://www.pmu.fr/back-assets/hippique/infocentre/photos/arrivee/04112025R1C1/photo_arrivee_450px_width_size.jpg",
+        "originalSize": false
+      },
+      {
+        "heightSize": 96,
+        "widthSize": 200,
+        "url": "https://www.pmu.fr/back-assets/hippique/infocentre/photos/arrivee/04112025R1C1/photo_arrivee_200px_width_size.jpg",
+        "originalSize": false
+      },
+      {
+        "heightSize": 230,
+        "widthSize": 478,
+        "url": "https://www.pmu.fr/back-assets/hippique/infocentre/photos/arrivee/04112025R1C1/photo_arrivee_original_size.jpg",
+        "originalSize": true
+      }
+    ],
+    "commentaireApresCourse": {
+      "texte": "KALINE DE VIVOIN (16) reste sage et remet brillamment les pendules à l'heure. KANAKA DE BUSSET (15) se défend bien et résiste et d'un rien à KLASSE DE BRUZEAU (7). Bonnes finisseuse, KISS ME HONEY (14) et KARVINA D'ELA (1) complètent la bonne combinaison d'un Quinté+, qui fait la part belle aux outsiders.",
+      "source": "GENY"
+    },
+    "incidents": [
+      {
+        "type": "DISQUALIFIE_POUR_ALLURE_IRREGULIERE",
+        "numeroParticipants": [
+          6,
+          11,
+          12
+        ]
+      }
+    ],
+    "isArriveeDefinitive": true,
+    "isDepartImminent": false,
+    "isDepartAJPlusUn": false,
+    "cagnottes": [],
+    "pronosticsExpires": false,
+    "replayDisponible": true,
+    "hippodrome": {
+      "codeHippodrome": "VIN",
+      "libelleCourt": "VINCENNES",
+      "libelleLong": "HIPPODROME DE PARIS-VINCENNES"
+    },
+    "epcPourTousParis": true,
+    "courseTrackee": false,
+    "courseExclusiveInternet": false,
+    "formuleChampLibreIndisponible": false,
+    "ordreArrivee": [
+      [
+        16
+      ],
+      [
+        15
+      ],
+      [
+        7
+      ],
+      [
+        14
+      ],
+      [
+        1
+      ],
+      [
+        10
+      ],
+      [
+        5
+      ],
+      [
+        13
+      ],
+      [
+        8
+      ],
+      [
+        9
+      ],
+      [
+        3
+      ],
+      [
+        4
+      ],
+      [
+        2
+      ]
+    ],
+    "hasEParis": true
+  },
+  "rapports": [
+    {
+      "typePari": "SIMPLE_GAGNANT",
+      "miseBase": 200,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Simple gagnant",
+          "dividende": 590,
+          "dividendePourUnEuro": 590,
+          "combinaison": "16",
+          "nombreGagnants": 32962.86,
+          "dividendePourUneMiseDeBase": 1180,
+          "dividendeUnite": "PourUnEuro"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Simple",
+      "dividendeUnite": "PourUnEuro"
+    },
+    {
+      "typePari": "SIMPLE_PLACE",
+      "miseBase": 200,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Simple placé",
+          "dividende": 330,
+          "dividendePourUnEuro": 330,
+          "combinaison": "16",
+          "nombreGagnants": 20947.52,
+          "dividendePourUneMiseDeBase": 660,
+          "dividendeUnite": "PourUnEuro"
+        },
+        {
+          "libelle": "Simple placé",
+          "dividende": 1140,
+          "dividendePourUnEuro": 1140,
+          "combinaison": "15",
+          "nombreGagnants": 4777.07,
+          "dividendePourUneMiseDeBase": 2280,
+          "dividendeUnite": "PourUnEuro"
+        },
+        {
+          "libelle": "Simple placé",
+          "dividende": 730,
+          "dividendePourUnEuro": 730,
+          "combinaison": "7",
+          "nombreGagnants": 7822.93,
+          "dividendePourUneMiseDeBase": 1460,
+          "dividendeUnite": "PourUnEuro"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Simple",
+      "dividendeUnite": "PourUnEuro"
+    },
+    {
+      "typePari": "COUPLE_GAGNANT",
+      "miseBase": 200,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Couplé gagnant",
+          "dividende": 11860,
+          "dividendePourUnEuro": 11860,
+          "combinaison": "16-15",
+          "nombreGagnants": 589.29,
+          "dividendePourUneMiseDeBase": 23720,
+          "dividendeUnite": "PourUnEuro"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Couple",
+      "dividendeUnite": "PourUnEuro"
+    },
+    {
+      "typePari": "COUPLE_PLACE",
+      "miseBase": 200,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Couplé placé",
+          "dividende": 4590,
+          "dividendePourUnEuro": 4590,
+          "combinaison": "16-15",
+          "nombreGagnants": 1118.86,
+          "dividendePourUneMiseDeBase": 9180,
+          "dividendeUnite": "PourUnEuro"
+        },
+        {
+          "libelle": "Couplé placé",
+          "dividende": 4320,
+          "dividendePourUnEuro": 4320,
+          "combinaison": "16-7",
+          "nombreGagnants": 1220.3,
+          "dividendePourUneMiseDeBase": 8640,
+          "dividendeUnite": "PourUnEuro"
+        },
+        {
+          "libelle": "Couplé placé",
+          "dividende": 10360,
+          "dividendePourUnEuro": 10360,
+          "combinaison": "15-7",
+          "nombreGagnants": 306.03,
+          "dividendePourUneMiseDeBase": 20720,
+          "dividendeUnite": "PourUnEuro"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Couple",
+      "dividendeUnite": "PourUnEuro"
+    },
+    {
+      "typePari": "DEUX_SUR_QUATRE",
+      "miseBase": 300,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "16-15",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "16-7",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "16-14",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "15-7",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "15-14",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "2sur4",
+          "dividende": 16860,
+          "dividendePourUnEuro": 5620,
+          "combinaison": "7-14",
+          "nombreGagnants": 1846.31,
+          "dividendePourUneMiseDeBase": 16860,
+          "dividendeUnite": "PourUneMiseDeBase"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "2sur4",
+      "dividendeUnite": "PourUneMiseDeBase"
+    },
+    {
+      "typePari": "MULTI",
+      "miseBase": 300,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Multi en 4",
+          "dividende": 1902600,
+          "dividendePourUnEuro": 634200,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 1.25,
+          "dividendePourUneMiseDeBase": 1902600,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Multi en 5",
+          "dividende": 380520,
+          "dividendePourUnEuro": 126840,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 2.95,
+          "dividendePourUneMiseDeBase": 380520,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Multi en 6",
+          "dividende": 126840,
+          "dividendePourUnEuro": 42280,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 44.24,
+          "dividendePourUneMiseDeBase": 126840,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Multi en 7",
+          "dividende": 54360,
+          "dividendePourUnEuro": 18120,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 323.33,
+          "dividendePourUneMiseDeBase": 54360,
+          "dividendeUnite": "PourUneMiseDeBase"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Multi",
+      "dividendeUnite": "PourUneMiseDeBase"
+    },
+    {
+      "typePari": "TIERCE",
+      "miseBase": 100,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Ordre",
+          "dividende": 407600,
+          "dividendePourUnEuro": 407600,
+          "combinaison": "16-15-7",
+          "nombreGagnants": 43.12,
+          "dividendePourUneMiseDeBase": 407600,
+          "dividendeUnite": "PourUnEuro"
+        },
+        {
+          "libelle": "Désordre",
+          "dividende": 68700,
+          "dividendePourUnEuro": 68700,
+          "combinaison": "16-15-7",
+          "nombreGagnants": 146.52,
+          "dividendePourUneMiseDeBase": 68700,
+          "dividendeUnite": "PourUnEuro"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Tierce",
+      "dividendeUnite": "PourUnEuro"
+    },
+    {
+      "typePari": "QUARTE_PLUS",
+      "miseBase": 150,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Ordre",
+          "dividende": 2050290,
+          "dividendePourUnEuro": 1366860,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 6.5,
+          "dividendePourUneMiseDeBase": 2050290,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Désordre",
+          "dividende": 202620,
+          "dividendePourUnEuro": 135080,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 21.08,
+          "dividendePourUneMiseDeBase": 202620,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus",
+          "dividende": 24405,
+          "dividendePourUnEuro": 16270,
+          "combinaison": "16-15-7",
+          "nombreGagnants": 551.61,
+          "dividendePourUneMiseDeBase": 24405,
+          "dividendeUnite": "PourUneMiseDeBase"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Quarte Plus",
+      "dividendeUnite": "PourUneMiseDeBase"
+    },
+    {
+      "typePari": "QUINTE_PLUS",
+      "miseBase": 200,
+      "rembourse": false,
+      "rapports": [
+        {
+          "libelle": "Ordre",
+          "dividende": 29172060,
+          "dividendePourUnEuro": 14586030,
+          "combinaison": "16-15-7-14-1",
+          "nombreGagnants": 1.67,
+          "dividendePourUneMiseDeBase": 29172060,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Désordre",
+          "dividende": 459040,
+          "dividendePourUnEuro": 229520,
+          "combinaison": "16-15-7-14-1",
+          "nombreGagnants": 40.53,
+          "dividendePourUneMiseDeBase": 459040,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 4sur5",
+          "dividende": 8720,
+          "dividendePourUnEuro": 4360,
+          "combinaison": "16-15-7-14",
+          "nombreGagnants": 3032.05,
+          "dividendePourUneMiseDeBase": 8720,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 4sur5",
+          "dividende": 8720,
+          "dividendePourUnEuro": 4360,
+          "combinaison": "16-15-7-1",
+          "nombreGagnants": 3032.05,
+          "dividendePourUneMiseDeBase": 8720,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 4sur5",
+          "dividende": 8720,
+          "dividendePourUnEuro": 4360,
+          "combinaison": "16-15-14-1",
+          "nombreGagnants": 3032.05,
+          "dividendePourUneMiseDeBase": 8720,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 4sur5",
+          "dividende": 8720,
+          "dividendePourUnEuro": 4360,
+          "combinaison": "16-7-14-1",
+          "nombreGagnants": 3032.05,
+          "dividendePourUneMiseDeBase": 8720,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 4sur5",
+          "dividende": 8720,
+          "dividendePourUnEuro": 4360,
+          "combinaison": "15-7-14-1",
+          "nombreGagnants": 3032.05,
+          "dividendePourUneMiseDeBase": 8720,
+          "dividendeUnite": "PourUneMiseDeBase"
+        },
+        {
+          "libelle": "Bonus 3",
+          "dividende": 6060,
+          "dividendePourUnEuro": 3030,
+          "combinaison": "16-15-7",
+          "nombreGagnants": 6143.38,
+          "dividendePourUneMiseDeBase": 6060,
+          "dividendeUnite": "PourUneMiseDeBase"
+        }
+      ],
+      "audience": "NATIONAL",
+      "famillePari": "Quinte Plus",
+      "dividendeUnite": "PourUneMiseDeBase"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Persistance Paramètres</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        .test-section { margin: 20px 0; padding: 15px; background: #2a2a2a; border-radius: 8px; }
+        button { padding: 8px 15px; margin: 5px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2563eb; }
+        input { padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        .current { font-weight: bold; color: #10b981; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Persistance Paramètres Utilisateur</h1>
+    
+    <div class="test-section">
+        <h3>Paramètres Actuels</h3>
+        <div id="current-params" class="current">Chargement...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>Modifier Bankroll</h3>
+        <input type="number" id="bankroll-input" min="100" max="10000" step="50" placeholder="Bankroll (€)">
+        <button onclick="updateBankroll()">Mettre à jour</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Modifier Profil</h3>
+        <button onclick="updateProfil('PRUDENT')">🛡️ Prudent</button>
+        <button onclick="updateProfil('STANDARD')">⚖️ Standard</button>
+        <button onclick="updateProfil('AGRESSIF')">🚀 Agressif</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Tests</h3>
+        <button onclick="loadFromStorage()">🔄 Recharger depuis localStorage</button>
+        <button onclick="clearStorage()">🗑️ Vider localStorage</button>
+        <button onclick="testAPICall()">📡 Tester API avec paramètres</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Résultats API</h3>
+        <pre id="api-results"></pre>
+    </div>
+
+    <script>
+        // Fonction pour charger les paramètres
+        function loadParams() {
+            const bankroll = localStorage.getItem('user_bankroll') || '500';
+            const profil = localStorage.getItem('user_profil') || 'STANDARD';
+            
+            document.getElementById('current-params').innerHTML = `
+                💰 Bankroll: ${bankroll}€<br>
+                🎯 Profil: ${profil}
+            `;
+            document.getElementById('bankroll-input').value = bankroll;
+        }
+
+        // Mettre à jour la bankroll
+        function updateBankroll() {
+            const newBankroll = document.getElementById('bankroll-input').value;
+            localStorage.setItem('user_bankroll', newBankroll);
+            
+            // Déclencher l'événement pour notifier les autres pages
+            window.dispatchEvent(new CustomEvent('userSettingsChanged', {
+                detail: { 
+                    bankroll: parseInt(newBankroll), 
+                    profil: localStorage.getItem('user_profil') 
+                }
+            }));
+            
+            loadParams();
+        }
+
+        // Mettre à jour le profil
+        function updateProfil(newProfil) {
+            localStorage.setItem('user_profil', newProfil);
+            
+            // Déclencher l'événement
+            window.dispatchEvent(new CustomEvent('userSettingsChanged', {
+                detail: { 
+                    bankroll: parseInt(localStorage.getItem('user_bankroll')), 
+                    profil: newProfil 
+                }
+            }));
+            
+            loadParams();
+        }
+
+        // Recharger depuis storage
+        function loadFromStorage() {
+            loadParams();
+        }
+
+        // Vider le storage
+        function clearStorage() {
+            localStorage.removeItem('user_bankroll');
+            localStorage.removeItem('user_profil');
+            loadParams();
+        }
+
+        // Tester l'API
+        async function testAPICall() {
+            const bankroll = localStorage.getItem('user_bankroll') || '500';
+            const profil = localStorage.getItem('user_profil') || 'STANDARD';
+            
+            const url = `http://localhost:8000/api/paris/recommandations-jour?bankroll=${bankroll}&profil=${profil}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                document.getElementById('api-results').innerHTML = JSON.stringify({
+                    profil_utilisateur: data.profil_utilisateur,
+                    nb_courses: data.nb_courses,
+                    resume: data.resume
+                }, null, 2);
+            } catch (error) {
+                document.getElementById('api-results').innerHTML = `Erreur: ${error.message}`;
+            }
+        }
+
+        // Charger au démarrage
+        loadParams();
+
+        // Écouter les changements
+        window.addEventListener('userSettingsChanged', () => {
+            console.log('Paramètres utilisateur modifiés!');
+            loadParams();
+        });
+    </script>
+</body>
+</html>

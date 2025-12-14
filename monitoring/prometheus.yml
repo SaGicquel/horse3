@@ -1,0 +1,55 @@
+# ============================================================================
+# 🏇 Configuration Prometheus - Monitoring API
+# ============================================================================
+# Scrape les métriques de l'API toutes les 15 secondes
+# Stocke les données pour 30 jours (configurable via --storage.tsdb.retention.time)
+# ============================================================================
+
+global:
+  scrape_interval: 15s  # Fréquence de collecte par défaut
+  evaluation_interval: 15s  # Fréquence d'évaluation des règles
+  external_labels:
+    monitor: 'horse-prediction-monitor'
+    environment: 'production'
+
+# Configuration des alertes (optionnel)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Chargement des règles d'alerte (optionnel)
+rule_files:
+  # - "alerts.yml"
+
+# Configuration des scrape targets
+scrape_configs:
+  # ==========================================================================
+  # API Prédiction
+  # ==========================================================================
+  - job_name: 'horse-prediction-api'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['api:8000']
+        labels:
+          service: 'prediction-api'
+          version: '1.0.0'
+    
+    # Timeout pour éviter blocages
+    scrape_timeout: 10s
+    
+    # Métriques à conserver
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'predictions_total|prediction_latency_ms|api_uptime_seconds|model_loaded'
+        action: keep
+
+  # ==========================================================================
+  # Prometheus Self-Monitoring
+  # ==========================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'

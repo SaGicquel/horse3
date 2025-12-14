@@ -1,0 +1,65 @@
+ANALYSE ENRICHISSEMENT OCTOBRE 2024
+Date: 2025-11-06 15:01:04
+================================================================================
+
+Total participations : 19,454
+Colonnes vides       : 76
+Colonnes partielles  : 53
+Colonnes pleines     : 24
+Taux moyen           : 24.2%
+
+COLONNES À ENRICHIR:
+--------------------------------------------------------------------------------
+  0.0% │ nombre_partants
+  0.9% │ kelly_criterion
+  0.9% │ probabilite_place
+  0.9% │ probabilite_victoire
+  5.0% │ combinaison_winrate
+  5.0% │ poids_porte_kg
+  6.4% │ classe_course
+  7.4% │ deferrage
+  8.3% │ jockey_roi_90j
+  8.3% │ jockey_winrate_90j
+  9.7% │ entraineur_roi_90j
+  9.7% │ entraineur_winrate_90j
+ 10.6% │ reduction_km_sec
+ 10.6% │ temps_str
+ 14.0% │ handicap_valeur
+ 15.4% │ handicap_distance
+ 17.0% │ ferrure
+ 19.7% │ age
+ 19.7% │ allocation_totale
+ 19.7% │ conditions_course
+ 19.7% │ course_nom
+ 19.7% │ course_numero
+ 19.7% │ discipline
+ 19.7% │ distance_m
+ 19.7% │ driver_jockey
+ 19.7% │ entraineur
+ 19.7% │ equipement
+ 19.7% │ heure_depart
+ 19.7% │ hippodrome_code
+ 19.7% │ hippodrome_nom
+ 19.7% │ id_driver
+ 19.7% │ id_entraineur
+ 19.7% │ id_proprietaire
+ 19.7% │ numero_dossard
+ 19.7% │ proprietaire
+ 19.7% │ reunion_numero
+ 19.7% │ sexe
+ 19.7% │ specialite
+ 40.0% │ cote_evolution_pct
+ 40.0% │ tendance_marche
+ 47.0% │ cote_finale
+ 47.0% │ probabilite_implicite
+ 48.5% │ temperature_c
+ 55.3% │ biais_stalle
+ 55.3% │ effet_topographie
+ 55.3% │ num_pmu
+ 55.3% │ score_composite
+ 55.3% │ course_id
+ 55.3% │ indice_confiance
+ 55.3% │ meeting_id
+ 55.3% │ type_course
+ 55.6% │ corde
+ 70.0% │ incidents_json

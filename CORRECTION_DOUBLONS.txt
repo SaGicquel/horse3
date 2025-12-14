@@ -1,0 +1,182 @@
+================================================================================
+🔧 CORRECTION DU PROBLÈME DES DOUBLONS
+================================================================================
+
+📋 PROBLÈME IDENTIFIÉ
+================================================================================
+
+Avant la correction, pour un même cheval dans une même course, on avait plusieurs
+entrées dans la table `cheval_courses_seen` :
+
+Exemple avec "northern chill" dans la course R6 C7 du 2025-10-30:
+   • 2025-10-30|R6|C7|KENTUCKY DOWNS
+   • 2025-10-30|R6|C7|SARATOGA
+   • 2025-10-30|R6|C7|CHURCHILL DOWNS
+   • 2025-10-30|R6|C7|OAKLAWN PARK
+
+🔍 CAUSE DU PROBLÈME
+================================================================================
+
+Le scraper enregistrait dans `cheval_courses_seen` :
+1. ❌ La course ACTUELLE du jour (correct)
+2. ❌ TOUTES les courses de l'HISTORIQUE du cheval (incorrect)
+
+Les hippodromes "KENTUCKY DOWNS", "SARATOGA", etc. venaient des ANCIENNES courses
+du cheval, pas de la course actuelle !
+
+Le système confondait :
+   • Course ACTUELLE : R6 C7 à Churchill Downs (30/10/2025)
+   • Performances PASSÉES : courses précédentes du cheval à différents hippodromes
+
+================================================================================
+✅ SOLUTION IMPLÉMENTÉE
+================================================================================
+
+1. SÉPARATION DES CONCEPTS
+   ──────────────────────────
+   
+   Course actuelle (table `cheval_courses_seen`):
+      → Une seule entrée par cheval par course
+      → Format: DATE|R#|C#|HIPPODROME_ACTUEL
+      → Exemple: 2025-10-30|R6|C7|CHURCHILL DOWNS
+   
+   Performances passées (colonne `dernieres_performances` dans `chevaux`):
+      → Stockées en JSON dans la table chevaux
+      → Contient les 5 dernières courses avec détails
+      → Format: [{"date": "...", "hippodrome": "...", "place": "...", "is_win": true/false}]
+
+2. MODIFICATIONS DU CODE
+   ──────────────────────
+   
+   a) Fonction `fetch_performances()`:
+      - ✅ Récupère l'hippodrome ACTUEL en paramètre
+      - ✅ N'enregistre QUE la course actuelle dans `cheval_courses_seen`
+      - ✅ Calcule les stats depuis l'historique (sans l'enregistrer)
+      - ✅ Stocke les 5 dernières performances en JSON
+
+   b) Fonction `enrich_from_course()`:
+      - ✅ Récupère l'hippodrome de la course actuelle depuis l'API
+      - ✅ Le passe à `fetch_performances()`
+   
+   c) Table `chevaux`:
+      - ✅ Nouvelle colonne `dernieres_performances` (TEXT/JSON)
+      - ✅ Stocke l'historique complet des performances
+
+3. STRUCTURE DE DONNÉES
+   ─────────────────────
+   
+   Table `cheval_courses_seen`:
+      ┌─────────────────┬────────────────────────────────────┬───────┬────────┐
+      │ nom_norm        │ race_key                           │ annee │ is_win │
+      ├─────────────────┼────────────────────────────────────┼───────┼────────┤
+      │ northern chill  │ 2025-10-30|R6|C7|CHURCHILL DOWNS   │ 2025  │ 0      │
+      └─────────────────┴────────────────────────────────────┴───────┴────────┘
+      ➜ UNE SEULE entrée par cheval par course !
+   
+   Colonne `chevaux.dernieres_performances` (JSON):
+      [
+         {"date": "2025-09-15", "hippodrome": "KENTUCKY DOWNS", "place": "3", "is_win": false},
+         {"date": "2025-08-22", "hippodrome": "SARATOGA", "place": "5", "is_win": false},
+         {"date": "2025-07-10", "hippodrome": "CHURCHILL DOWNS", "place": "2", "is_win": false},
+         ...
+      ]
+
+================================================================================
+📊 RÉSULTATS
+================================================================================
+
+AVANT la correction:
+   • northern chill dans R6 C7: 4 entrées (doublons)
+   • Historique mélangé avec les courses actuelles
+   • Impossible de distinguer course actuelle vs performances passées
+
+APRÈS la correction:
+   • northern chill dans R6 C7: 1 SEULE entrée ✅
+   • Course actuelle clairement identifiée
+   • Historique stocké séparément en JSON
+   • Aucun doublon
+
+================================================================================
+🚀 UTILISATION
+================================================================================
+
+1. NETTOYER ET RE-SCRAPER
+   ───────────────────────
+   
+   $ python clean_and_rescrape.py
+   
+   → Nettoie la table `cheval_courses_seen`
+   → Re-scrape toutes les courses du jour
+   → Vérifie qu'il n'y a plus de doublons
+
+2. VOIR LES PERFORMANCES D'UN CHEVAL
+   ──────────────────────────────────
+   
+   $ python voir_performances.py "nom du cheval"
+   
+   → Affiche les infos du cheval
+   → Liste les 10 dernières performances historiques
+   → Montre les courses actuelles (celles du jour)
+
+3. VÉRIFIER L'ABSENCE DE DOUBLONS
+   ────────────────────────────────
+   
+   $ sqlite3 data/database.db "
+   SELECT nom_norm, COUNT(*) as nb
+   FROM cheval_courses_seen
+   GROUP BY nom_norm
+   HAVING COUNT(*) > 1;
+   "
+   
+   → Si aucun résultat: ✅ Pas de doublons !
+
+================================================================================
+💡 AVANTAGES DE LA NOUVELLE ARCHITECTURE
+================================================================================
+
+✅ Données plus propres
+   → Une seule entrée par cheval par course
+   → Pas de confusion entre course actuelle et historique
+
+✅ Meilleure performance
+   → Moins d'entrées dans `cheval_courses_seen`
+   → Requêtes plus rapides
+
+✅ Plus d'informations
+   → Historique complet des performances stocké
+   → Détails accessibles (date, hippodrome, place, victoire)
+
+✅ Évolutivité
+   → Facile d'ajouter des champs aux performances (distance, gains, etc.)
+   → Format JSON flexible
+
+✅ Traçabilité
+   → On sait exactement quelles courses du jour ont été scrapées
+   → L'historique est conservé séparément
+
+================================================================================
+📁 NOUVEAUX FICHIERS
+================================================================================
+
+clean_and_rescrape.py    → Nettoie et re-scrape avec la nouvelle logique
+voir_performances.py     → Visualise les performances d'un cheval
+
+FICHIERS MODIFIÉS:
+
+scraper_pmu_simple.py    → Logique corrigée pour éviter les doublons
+   • fetch_performances() : ne stocke que la course actuelle
+   • enrich_from_course() : récupère l'hippodrome actuel
+   • db_setup() : ajoute la colonne dernieres_performances
+   • upsert_cheval_counts() : stocke les performances en JSON
+
+================================================================================
+✅ PROBLÈME RÉSOLU !
+================================================================================
+
+Le cheval "northern chill" (et tous les autres) n'apparaît maintenant qu'UNE SEULE 
+FOIS pour la course R6 C7, avec le bon hippodrome (CHURCHILL DOWNS).
+
+Les anciennes performances sont conservées dans la colonne `dernieres_performances`
+et peuvent être consultées facilement avec le script `voir_performances.py`.
+
+================================================================================

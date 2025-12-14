@@ -1,0 +1,50 @@
+# OS
+.DS_Store
+
+# Env / secrets
+.env
+**/.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs / PIDs
+*.log
+logs/
+**/logs/
+*.pid
+
+# Data / artifacts (trop volumineux pour GitHub)
+data/
+backtest_results/
+calibration_artifacts/
+backup_*.sql
+backup*.sql
+*.db
+*.db.*
+*.sqlite
+*.sqlite3
+fichier-des-equides.csv
+
+# Node / Frontend build
+node_modules/
+dist/
+build/
+coverage/
+web/frontend/test-results/
+
+# Docker
+*.tar
+*.tgz

@@ -1,0 +1,159 @@
+# 🎯 AVANCEMENT PLAN D'ENRICHISSEMENT COMPLET
+
+**Date:** 3 novembre 2025  
+**Statut:** ✅ Phase 1 en cours (SCRAPER 1 opérationnel)
+
+---
+
+## ✅ TERMINÉ
+
+### 1. Schéma SQL enrichi complet (`schema_enrichi_complet.sql`)
+- ✅ 177 colonnes dans `cheval_courses_seen`
+- ✅ 72 colonnes dans `chevaux`
+- ✅ 4 vues analytiques créées
+- ✅ 3 fonctions utilitaires (z-score, réduction km, vitesse)
+- ✅ Index optimisés pour recherches rapides
+
+### 2. Architecture scrapers modulaires
+- ✅ Package `scrapers/` créé
+- ✅ Classe mère `BaseScraper` avec utilitaires communs
+  - Connexion DB thread-safe
+  - Requêtes HTTP avec fallback automatique
+  - Normalisation texte/dates
+  - Rate limiting
+  - Context manager
+
+### 3. SCRAPER 1 - Métadonnées course (`scrapers/metadata_course.py`)
+- ✅ **OPÉRATIONNEL** et testé sur 2025-11-02
+- ✅ Enrichit 13 champs:
+  - `course_id`, `meeting_id` (identifiants normalisés)
+  - `heure_locale` (horaire départ)
+  - `type_course` (Quinté+, Prix de...)
+  - `classe_course` (extraction intelligente)
+  - `profil_piste`, `corde`
+  - `meteo_code`, `vent_kmh`, `temperature_c`
+  - `autostart_ligne`, `autostart_num`, `draw_stalle`, `rend_m`
+
+**Résultats test (2025-11-02):**
+- 12 réunions traitées
+- 84 courses enrichies
+- **1052 participants mis à jour**
+- 0 erreurs (après correction trigger)
+
+---
+
+## 🚀 EN COURS
+
+### SCRAPER 2 - Cheval détails
+**Fichier:** `scrapers/cheval_details.py`  
+**Objectif:** Enrichir handicap, matériel, ferrure, ELO
+
+**Champs à récupérer (10):**
+- `handicap_valeur`, `poids_porte_kg`, `decharge_kg`
+- `ferrure`, `materiel`, `oeilleres`
+- `rating_officiel`, `elo_avant_course`
+- `days_off`, `statut_sante`
+
+---
+
+## 📋 À FAIRE
+
+### SCRAPER 3 - Statistiques performances
+**Fichier:** `scrapers/perf_stats.py`  
+**Calculs internes (13 champs):**
+- Indices de forme, RK, SF, records, consistance
+
+### SCRAPER 4 - Conditions jour
+**Fichier:** `scrapers/conditions_jour.py`  
+**Analyse bias (8 champs):**
+- Gate score, pace map, topographie
+
+### SCRAPER 5 - Cotes marché
+**Fichier:** `scrapers/cotes_marche.py`  
+**Évolution cotes (5 champs):**
+- Ouverture, live, finale, delta, overround
+
+### SCRAPER 6 - Sectionnels
+**Fichier:** `scrapers/sectionnels.py`  
+**Chronos détaillés (15 champs):**
+- 5 sectionnels, vitesses, speed figures
+
+### SCRAPER 7 - Features ML
+**Fichier:** `scrapers/features_ml.py`  
+**Modèle prédictif (20 champs):**
+- Indices, probas, edge, kelly
+
+### SCRAPER 8 - Connections
+**Fichier:** `scrapers/connections.py`  
+**Stats pros (5 champs):**
+- Winrates, synergies, expérience
+
+---
+
+## 📊 COUVERTURE ACTUELLE
+
+| Catégorie | Total | Fait | % |
+|-----------|-------|------|---|
+| **Identifiants & contexte** | 22 | 13 | **59%** ✅ |
+| **Cheval** | 17 | 0 | 0% |
+| **Connections** | 11 | 0 | 0% |
+| **Historique perf** | 13 | 0 | 0% |
+| **Conditions jour** | 9 | 0 | 0% |
+| **Marché paris** | 5 | 0 | 0% |
+| **Features calculées** | 20 | 0 | 0% |
+| **Sectionnels & chronos** | 16 | 0 | 0% |
+| **Discipline Trot** | 5 | 0 | 0% |
+| **Plat/Obstacle** | 6 | 0 | 0% |
+| **Résultats** | 11 | 0 | 0% |
+| **Qualité** | 4 | 0 | 0% |
+| **TOTAL** | **139** | **13** | **9%** |
+
+---
+
+## 🎯 PROCHAINES ÉTAPES
+
+### Immédiat (aujourd'hui)
+1. ✅ ~~SCRAPER 1 testé et validé~~
+2. 🔨 **Créer SCRAPER 2** (cheval détails)
+3. 🔨 **Tester SCRAPER 2** sur 2025-11-02
+
+### Cette semaine
+4. Créer SCRAPER 3 (stats perf)
+5. Créer SCRAPER 8 (connections)
+6. Tester scrapers 3+8
+
+### Semaine prochaine
+7. Créer SCRAPERS 4, 5, 6, 7
+8. Créer orchestrateur global
+9. Pipeline automatisé
+
+---
+
+## 💻 COMMANDES UTILES
+
+```bash
+# Tester SCRAPER 1
+python -m scrapers.metadata_course 2025-11-02
+
+# Vérifier enrichissement
+docker exec -i pmuBDD psql -U postgres -d pmubdd -c "
+SELECT COUNT(*) as total, 
+       COUNT(course_id) as avec_course_id,
+       COUNT(type_course) as avec_type_course
+FROM cheval_courses_seen 
+WHERE race_key LIKE '2025-11-02|%';
+"
+
+# Voir les colonnes disponibles
+docker exec -i pmuBDD psql -U postgres -d pmubdd -c "\d cheval_courses_seen"
+```
+
+---
+
+## 🏆 OBJECTIF FINAL
+
+**100%** des 139 champs du dictionnaire PMU récupérés  
+→ Base de données complète pour ML/prédictions  
+→ Value betting rentable !
+
+**Estimation:** 3-4 semaines pour tout compléter

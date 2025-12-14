@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.horse3.scraping.immortel</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/gicquelsacha/horse3/scraper_immortel.sh</string>
+    </array>
+    
+    <!-- Se lance toutes les 5 minutes -->
+    <key>StartInterval</key>
+    <integer>300</integer>
+    
+    <!-- Se lance aussi au démarrage/réveil -->
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/gicquelsacha/horse3/logs/launchd_immortel.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/gicquelsacha/horse3/logs/launchd_immortel_error.log</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+    
+    <!-- Processus de fond avec faible priorité -->
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>

@@ -1,0 +1,351 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Import des animations avancées */
+@import "./styles/animations.css";
+
+/* Import du système glassmorphism */
+@import "./styles/glassmorphism.css";
+
+@layer base {
+  :root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+    /* Force browser UI (scrollbars, etc.) to match the app theme, not system */
+    color-scheme: light;
+
+    /* Variables pour le mode clair (défaut) */
+    --color-bg: #f8fafc;
+    /* neutral-50 */
+    --color-bg-rgb: 248, 250, 252;
+    --color-text: #0f172a;
+    /* neutral-900 */
+    --color-text-muted: #334155;
+    /* neutral-700 */
+
+    --color-card: rgba(255, 255, 255, 0.85);
+    --color-card-rgb: 255, 255, 255;
+
+    --color-primary: #ec4899;
+    /* p-500 */
+    --color-primary-rgb: 236, 72, 153;
+    --color-primary-hover: #db2777;
+    /* p-600 */
+    --color-primary-light: #fbcfe8;
+    /* p-200 */
+
+    --color-secondary: #8b5cf6;
+    /* s-500 */
+    --color-secondary-rgb: 139, 92, 246;
+
+    --color-border: rgba(236, 72, 153, 0.15);
+    --color-border-rgb: 236, 72, 153;
+    --color-border-hover: rgba(236, 72, 153, 0.25);
+
+    --color-success: #10B981;
+    --color-error: #EF4444;
+    --color-warning: #F59E0B;
+    --color-info: #3B82F6;
+
+    /* Glass effect variables - Light mode (use dark borders on light backgrounds) */
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-border-hover: rgba(0, 0, 0, 0.12);
+    --glass-highlight: rgba(0, 0, 0, 0.03);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --glass-inset: rgba(255, 255, 255, 0.8);
+  }
+
+  :root.dark {
+    /* Force browser UI for dark mode */
+    color-scheme: dark;
+
+    /* Variables pour le mode sombre - Premium & Deep */
+    --color-bg: #020617;
+    /* Slate 950 - Deepest Blue/Black */
+    --color-bg-rgb: 2, 6, 23;
+
+    --color-text: #f8fafc;
+    /* Slate 50 - Brightest White */
+    --color-text-muted: #94a3b8;
+    /* Slate 400 */
+
+    /* Cartes plus claires pour le contraste */
+    --color-card: rgba(30, 41, 59, 0.5);
+    /* Slate 800 with opacity */
+    --color-card-rgb: 30, 41, 59;
+
+    --color-primary: #f472b6;
+    /* Pink 400 */
+    --color-primary-rgb: 244, 114, 182;
+    --color-primary-hover: #f9a8d4;
+    /* Pink 300 */
+    --color-primary-light: #831843;
+    /* Pink 900 */
+    --color-primary-light: #831843;
+    /* Fix duplicate variable if any */
+
+    --color-secondary: #a78bfa;
+    /* Violet 400 */
+    --color-secondary-rgb: 167, 139, 250;
+
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-rgb: 255, 255, 255;
+    --color-border-hover: rgba(255, 255, 255, 0.2);
+
+    --color-success: #34D399;
+    --color-error: #F87171;
+    --color-warning: #FBBF24;
+    --color-info: #60A5FA;
+
+    /* Glass effect variables - Dark mode (use white borders on dark backgrounds) */
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-hover: rgba(255, 255, 255, 0.2);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --glass-inset: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(var(--color-primary-rgb), 0.15), transparent 35%),
+      radial-gradient(circle at 85% 30%, rgba(var(--color-secondary-rgb), 0.15), transparent 35%);
+    background-attachment: fixed;
+  }
+
+  /* Force text color inheritance for headings and common text elements to prevent browser default overrides or stuck styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  div,
+  li,
+  a {
+    color: inherit;
+  }
+
+  /* Explicitly reset text color for light mode if it gets stuck */
+  :root:not(.dark) body {
+    color: #0f172a;
+    /* neutral-900 */
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Scrollbar moderne */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(var(--color-text-muted), 0.2);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--color-text-muted), 0.4);
+    border-radius: 10px;
+    /* Ensure radius stays */
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: rgba(var(--color-primary-rgb), 0.3);
+    color: var(--color-text);
+  }
+}
+
+@layer components {
+  /* ========================================
+     GLASSMORPHISM UTILITIES
+     ======================================== */
+
+  .glass-panel {
+    @apply backdrop-blur-xl shadow-xl;
+    background: linear-gradient(135deg, rgba(var(--color-card-rgb), 0.6), rgba(var(--color-card-rgb), 0.4));
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-card {
+    @apply rounded-2xl backdrop-blur-md transition-all duration-300;
+    background: rgba(var(--color-card-rgb), 0.4);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 6px -1px var(--glass-shadow), 0 2px 4px -1px var(--glass-shadow);
+  }
+
+  .glass-card:hover {
+    @apply -translate-y-1 shadow-lg;
+    background: rgba(var(--color-card-rgb), 0.5);
+    border-color: var(--glass-border-hover);
+    box-shadow: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.1), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.05);
+  }
+
+  .glass-button {
+    @apply px-4 py-2 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2;
+    background: rgba(var(--color-card-rgb), 0.5);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(4px);
+  }
+
+  .glass-button:hover {
+    @apply -translate-y-0.5 shadow-md;
+    background: rgba(var(--color-card-rgb), 0.7);
+    border-color: rgba(var(--color-primary-rgb), 0.3);
+  }
+
+  .glass-button-primary {
+    @apply px-4 py-2 rounded-xl font-medium text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#ec489933];
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-button-primary:hover {
+    @apply -translate-y-0.5 shadow-xl shadow-[#ec48994d];
+    filter: brightness(1.1);
+  }
+
+  .glass-input {
+    @apply w-full px-4 py-2 rounded-xl outline-none transition-all duration-300;
+    background: rgba(var(--color-card-rgb), 0.3);
+    border: 1px solid var(--glass-border);
+    color: var(--color-text);
+  }
+
+  .glass-input:focus {
+    background: rgba(var(--color-card-rgb), 0.5);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+  }
+
+  /* Typography */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#ec4899] to-[#8b5cf6];
+  }
+
+  .h1-display {
+    @apply font-sans font-bold text-5xl md:text-6xl tracking-tight leading-none;
+  }
+
+  .h2-display {
+    @apply font-sans font-bold text-4xl md:text-5xl tracking-tight leading-tight;
+  }
+
+  .h3-display {
+    @apply font-sans font-bold text-3xl md:text-4xl tracking-tight;
+  }
+
+  /* ========================================
+     LIGHT MODE SPECIFIC OVERRIDES
+     ======================================== */
+
+  :root:not(.dark) .glass-panel {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+    /* Force dark text */
+  }
+
+  :root:not(.dark) .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    color: #0f172a;
+    /* Force dark text */
+  }
+
+  :root:not(.dark) .glass-card:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(236, 72, 153, 0.2);
+  }
+
+  :root:not(.dark) .glass-button {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+    /* Force dark text */
+  }
+
+  :root:not(.dark) .glass-button:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(236, 72, 153, 0.3);
+  }
+
+  :root:not(.dark) .glass-input {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #0f172a;
+    /* Force dark text */
+  }
+
+  :root:not(.dark) .glass-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(var(--color-primary-rgb), 0.5);
+  }
+}
+
+/* Animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(var(--color-primary-rgb), 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite;
+}

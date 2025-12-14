@@ -1,0 +1,51 @@
+calibration:
+  temperature: 1.254
+  blend_alpha_global: 0.2
+  blend_alpha_plat: 0.0
+  blend_alpha_trot: 0.4
+  blend_alpha_obstacle: 0.4
+  calibrator: platt
+simulation:
+  num_simulations: 20000
+markets:
+  mode: parimutuel
+  takeout_rate: 0.16
+kelly:
+  fraction: 0.33
+  value_cutoff: 0.05
+  max_stake_pct: 0.03
+portfolio:
+  correlation_penalty: 0.3
+  max_same_race: 2
+  max_same_jockey: 3
+  max_same_trainer: 3
+  confidence_level: 0.95
+exotics:
+  p_place_simulations: 20000
+  top_k_couples: 50
+  top_k_trios: 100
+  max_coverage: 0.3
+backtest:
+  initial_bankroll: 1000.0
+  min_races: 50
+artifacts:
+  model_path: models/xgb_proba_v9.joblib
+  predictions_dir: predictions
+  reports_dir: reports
+budget:
+  daily_limit: 100.0
+betting_defaults:
+  kelly_profile_default: STANDARD
+  kelly_fraction_map:
+    SUR: 0.25
+    STANDARD: 0.33
+    AMBITIEUX: 0.5
+  custom_kelly_fraction: 0.33
+  value_cutoff: 0.05
+  cap_per_bet: 0.02
+  daily_budget_rate: 0.12
+  max_unit_bets_per_race: 2
+  rounding_increment_eur: 0.5
+exotics_defaults:
+  per_ticket_rate: 0.0075
+  max_pack_rate: 0.04

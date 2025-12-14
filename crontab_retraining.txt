@@ -1,0 +1,93 @@
+# ============================================================================
+# CRONTAB - Pipeline Retraining Automatique
+# ============================================================================
+#
+# Installation:
+#   crontab -e
+#   # Copier les lignes ci-dessous dans l'éditeur
+#
+# Vérification:
+#   crontab -l
+#
+# Logs:
+#   tail -f logs/retraining.log
+#   tail -f logs/cron_retraining.log
+#
+# Auteur: Phase 8 - Online Learning
+# Date: 2025-11-14
+# ============================================================================
+
+# Variables environnement
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+PROJECT_DIR=/Users/gicquelsacha/horse3
+
+# ============================================================================
+# RETRAINING HEBDOMADAIRE
+# ============================================================================
+
+# Chaque lundi à 3h du matin
+# Retrainer avec feedback des 7 derniers jours
+# Min ROC-AUC: 0.70 pour valider nouveau modèle
+0 3 * * 1 cd $PROJECT_DIR && source .venv/bin/activate && python train_online.py --days 7 --min-roc-auc 0.70 >> logs/cron_retraining.log 2>&1
+
+# ============================================================================
+# RETRAINING MENSUEL (OPTIONNEL)
+# ============================================================================
+
+# Premier jour du mois à 4h du matin
+# Retrainer avec feedback des 30 derniers jours
+# Plus de données = modèle potentiellement plus robuste
+# 0 4 1 * * cd $PROJECT_DIR && source .venv/bin/activate && python train_online.py --days 30 --min-roc-auc 0.70 >> logs/cron_retraining_monthly.log 2>&1
+
+# ============================================================================
+# NETTOYAGE ARCHIVES (OPTIONNEL)
+# ============================================================================
+
+# Chaque dimanche à 2h du matin
+# Supprimer archives > 90 jours
+# 0 2 * * 0 find $PROJECT_DIR/data/models/archive -type d -mtime +90 -exec rm -rf {} \; >> logs/cron_cleanup.log 2>&1
+
+# ============================================================================
+# MONITORING SANTÉ (OPTIONNEL)
+# ============================================================================
+
+# Chaque jour à 9h du matin
+# Vérifier que champion existe et est récent
+# 0 9 * * * cd $PROJECT_DIR && python check_model_health.py >> logs/cron_health.log 2>&1
+
+# ============================================================================
+# NOTES
+# ============================================================================
+#
+# Format Cron:
+#   * * * * *  command
+#   │ │ │ │ │
+#   │ │ │ │ └─── Jour semaine (0-7, 0=dimanche)
+#   │ │ │ └───── Mois (1-12)
+#   │ │ └─────── Jour du mois (1-31)
+#   │ └───────── Heure (0-23)
+#   └─────────── Minute (0-59)
+#
+# Exemples:
+#   0 3 * * *     # Tous les jours à 3h
+#   0 */6 * * *   # Toutes les 6 heures
+#   0 0 * * 0     # Chaque dimanche à minuit
+#   */15 * * * *  # Toutes les 15 minutes
+#
+# Variables:
+#   - Adapter PROJECT_DIR à votre chemin absolu
+#   - Adapter SHELL si vous utilisez zsh: SHELL=/bin/zsh
+#   - Adapter virtualenv si différent: source /path/to/venv/bin/activate
+#
+# Dépannage:
+#   - Tester commande manuellement d'abord
+#   - Vérifier permissions: chmod +x train_online.py
+#   - Vérifier logs: tail -f logs/cron_retraining.log
+#   - Vérifier cron actif: ps aux | grep cron
+#
+# Désactivation temporaire:
+#   - Commenter ligne avec #
+#   - Ou: crontab -r (supprime TOUTES les tâches cron!)
+#
+# ============================================================================

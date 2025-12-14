@@ -1,0 +1,85 @@
+# ============================================================================
+# 🏇 Docker Compose - Stack Web (Backend + Frontend)
+# ============================================================================
+# Services:
+# - backend: API FastAPI (port 8000)
+# - frontend: React + Nginx (port 80)
+# 
+# NOTE: Utilise la base de données PostgreSQL existante (pmuBDD sur port 54624)
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # BACKEND FASTAPI
+  # ==========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: horse-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Connexion à la BDD existante (pmuBDD) via host.docker.internal
+      - DATABASE_URL=postgresql://pmu_user:pmu_secure_password_2025@host.docker.internal:54624/pmu_database
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=info
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Pour le développement : hot-reload
+      - ./backend:/app
+      # Accès aux modèles et configurations du projet principal
+      - ../models:/project/models:ro
+      # Modèle champion XGBoost + preprocessing
+      - ../data/models/champion:/project/data/models/champion:ro
+      - ../config:/project/config:ro
+      - ../race_pronostic_generator.py:/project/race_pronostic_generator.py:ro
+      - ../calibration:/project/calibration:ro
+      - ../artifacts:/project/artifacts:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - horse-network
+
+  # ==========================================================================
+  # FRONTEND REACT + NGINX
+  # ==========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: horse-frontend
+    ports:
+      - "80:80"
+    environment:
+      # Configuration runtime injectée via generate-config.sh
+      - VITE_API_BASE_URL=/api
+      - APP_ENVIRONMENT=production
+      - APP_VERSION=${APP_VERSION:-1.0.0}
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - horse-network
+
+# ==========================================================================
+# RÉSEAU
+# ==========================================================================
+networks:
+  horse-network:
+    driver: bridge

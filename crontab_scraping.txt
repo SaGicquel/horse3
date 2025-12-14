@@ -1,0 +1,82 @@
+# ============================================================================
+# CRONTAB - SCRAPING ET PIPELINE AUTOMATIQUE QUOTIDIEN
+# ============================================================================
+#
+# Ce fichier contient la configuration cron pour automatiser le scraping
+# quotidien des courses PMU avec toutes les données associées.
+#
+# Installation:
+#   crontab -e
+#   # Copier les lignes ci-dessous dans l'éditeur
+#
+# Vérification:
+#   crontab -l
+#
+# Logs:
+#   tail -f logs/scraping_latest.log
+#   ls -la logs/scraping_*.log
+#
+# ============================================================================
+
+# Variables environnement
+SHELL=/bin/zsh
+PATH=/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin
+PROJECT_DIR=/Users/gicquelsacha/horse3
+
+# ============================================================================
+# SCRAPING QUOTIDIEN - COURSES DU JOUR
+# ============================================================================
+
+# 🌅 Scraping matinal à 6h00
+# Récupère les courses programmées pour la journée
+# Données: chevaux, jockeys, entraineurs, cotes initiales
+0 6 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
+
+# ☀️ Mise à jour mi-journée à 12h00 (OPTIONNEL)
+# Met à jour les cotes qui ont évolué
+# Utile pour avoir les dernières cotes avant les courses de l'après-midi
+# 0 12 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
+
+# 🌆 Mise à jour soirée à 18h00 (OPTIONNEL)
+# Récupère les résultats des courses terminées
+# 0 18 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
+
+# 🌙 Enrichissement nocturne à 23h30
+# Enrichit avec cotes Turf.bzh et données Zone-Turf
+30 23 * * * /Users/gicquelsacha/horse3/cron_enrichissement_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_quotidien.log 2>&1
+
+# ============================================================================
+# RETRAINING HEBDOMADAIRE (OPTIONNEL)
+# ============================================================================
+
+# Chaque lundi à 3h du matin - Retraining ML
+# 0 3 * * 1 cd /Users/gicquelsacha/horse3 && source .venv/bin/activate && python train_online.py --days 7 --min-roc-auc 0.70 >> logs/cron_retraining.log 2>&1
+
+# ============================================================================
+# NETTOYAGE HEBDOMADAIRE
+# ============================================================================
+
+# Dimanche à 4h du matin - Nettoyage des vieux logs
+0 4 * * 0 find /Users/gicquelsacha/horse3/logs -name "*.log" -mtime +30 -delete 2>/dev/null
+
+# ============================================================================
+# NOTES IMPORTANTES
+# ============================================================================
+#
+# Pour activer une ligne commentée, supprimez le # au début
+#
+# Vérifier que PostgreSQL tourne :
+#   pg_isready -h localhost -p 54624
+#
+# Tester le script manuellement :
+#   /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh
+#
+# Voir les derniers logs :
+#   tail -100 /Users/gicquelsacha/horse3/logs/scraping_latest.log
+#
+# En cas de problème :
+#   - Vérifier les permissions : chmod +x cron_scraping_quotidien.sh
+#   - Vérifier PostgreSQL : brew services list
+#   - Vérifier le virtualenv : ls -la .venv/bin/python
+#
+# ============================================================================

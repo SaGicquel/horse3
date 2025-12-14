@@ -1,0 +1,149 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    🏇 HORSE3 - GUIDE DE DÉMARRAGE RAPIDE                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🎉 FÉLICITATIONS ! LE MENU CLI INTERACTIF EST MAINTENANT DISPONIBLE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 LANCEMENT IMMÉDIAT
+
+  Pour lancer le menu interactif, il suffit de taper :
+
+    python cli.py
+
+  C'est tout ! Le menu s'affiche automatiquement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 NAVIGATION DANS LE MENU
+
+  • Tapez le NUMÉRO de l'option souhaitée
+  • Tapez 0 pour REVENIR au menu précédent
+  • Tapez 0 dans le menu principal pour QUITTER
+  • Appuyez sur ENTRÉE après chaque saisie
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 EXEMPLE D'UTILISATION
+
+  1. Lancez : python cli.py
+  
+  2. Le menu principal s'affiche :
+     ┌─────────────────────────────────────┐
+     │  1. SCRAPING & ENRICHISSEMENT       │
+     │  2. VÉRIFICATION & AUDIT BDD        │
+     │  3. NETTOYAGE & MAINTENANCE         │
+     │  4. CONFIGURATION & INITIALISATION  │
+     │  5. STATISTIQUES & RAPPORTS         │
+     │  6. OUTILS AVANCÉS                  │
+     │  0. QUITTER                         │
+     └─────────────────────────────────────┘
+  
+  3. Tapez 1 pour accéder au scraping
+  
+  4. Le sous-menu scraping s'affiche
+  
+  5. Tapez 2 pour scraper aujourd'hui
+  
+  6. Le script s'exécute
+  
+  7. Appuyez sur Entrée pour continuer
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ COMMANDES RAPIDES (SANS MENU)
+
+  Si vous connaissez déjà la commande, utilisez :
+
+    python cli.py fetch                        Scraper aujourd'hui
+    python cli.py fetch --date 2025-11-04     Scraper une date
+    python cli.py backfill --days-back 30     Rattrapage 30 jours
+    python cli.py init-db                     Initialiser BDD
+    python cli.py recompute                   Recalculer gains
+    python cli.py --help                      Voir l'aide complète
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION COMPLÈTE
+
+  Pour en savoir plus :
+
+    cat README_CLI.md              Guide d'utilisation complet
+    cat CREATION_MENU_CLI.md       Récapitulatif de création
+    cat MENU_CLI_README.txt        Résumé visuel
+    python cli.py --help           Aide en ligne de commande
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ PREMIER LANCEMENT (NOUVELLE INSTALLATION)
+
+  Si c'est votre premier lancement :
+
+  1. python cli.py
+  2. Tapez 4 (Configuration)
+  3. Tapez 1 (Initialiser BDD)
+  4. Tapez 0 (Retour)
+  5. Tapez 4 (Configuration)
+  6. Tapez 5 (Importer CSV IFCE)
+     → Entrez le chemin du fichier CSV
+  7. Tapez 0 (Retour)
+  8. Tapez 1 (Scraping)
+  9. Tapez 2 (Scraper aujourd'hui)
+
+  Et voilà ! Votre système est opérationnel.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎪 DÉMONSTRATION INTERACTIVE
+
+  Voulez-vous voir les menus sans exécuter d'actions ?
+  
+    python test_menu.py
+  
+  Cela affichera tous les menus les uns après les autres.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 ASTUCES
+
+  • Les valeurs par défaut sont affichées entre [crochets]
+  • Appuyez simplement sur Entrée pour accepter la valeur par défaut
+  • Les opérations dangereuses demandent une confirmation
+  • Les backups sont créés automatiquement avec un horodatage
+  • Utilisez "0" pour naviguer en arrière à tout moment
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 CAS D'USAGE FRÉQUENTS
+
+  SCRAPING QUOTIDIEN
+    python cli.py → 1 → 2 (Scraper aujourd'hui)
+
+  AUDIT DE LA BDD
+    python cli.py → 2 → 2 (Audit complet)
+
+  CRÉER UN BACKUP
+    python cli.py → 3 → 5 (Créer backup)
+
+  VOIR LES STATS
+    python cli.py → 5 → 1 (Stats générales)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🆘 BESOIN D'AIDE ?
+
+  • Tapez --help : python cli.py --help
+  • Lisez README_CLI.md pour le guide complet
+  • Consultez CREATION_MENU_CLI.md pour les détails techniques
+  • Les erreurs affichent des messages explicites
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    🎉 PRÊT ! LANCEZ : python cli.py                          ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝

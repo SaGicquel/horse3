@@ -1,0 +1,110 @@
+# ============================================================================
+# 🏇 Docker Compose - Stack Production Complète
+# ============================================================================
+# Services:
+# - api: API FastAPI prédictions (port 8000)
+# - prometheus: Monitoring métriques (port 9090)
+# - grafana: Dashboards visualisation (port 3000)
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # API PRÉDICTION
+  # ==========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horse-prediction-api
+    image: horse-prediction:1.0.0
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/app/models/ensemble_stacking.pkl
+      - LOG_LEVEL=info
+    volumes:
+      # Monter le modèle (permet updates sans rebuild)
+      - ./data/models:/app/models:ro
+      # Logs persistants
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - horse-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # ==========================================================================
+  # PROMETHEUS - Monitoring Métriques
+  # ==========================================================================
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: horse-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - horse-network
+    depends_on:
+      - api
+
+  # ==========================================================================
+  # GRAFANA - Dashboards Visualisation
+  # ==========================================================================
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: horse-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    restart: unless-stopped
+    networks:
+      - horse-network
+    depends_on:
+      - prometheus
+
+# ==========================================================================
+# VOLUMES PERSISTANTS
+# ==========================================================================
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# ==========================================================================
+# RÉSEAU
+# ==========================================================================
+networks:
+  horse-network:
+    driver: bridge
