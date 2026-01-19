@@ -26,7 +26,7 @@ services:
       - DATABASE_URL=postgresql://pmu_user:pmu_secure_password_2025@host.docker.internal:54624/pmu_database
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - GEMINI_API_KEY=AIzaSyBi_o5kQJ9Nl1OR-_y2axv2Iv5nLKI9f7w
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - AI_PROVIDER=${AI_PROVIDER:-auto}
       - LOG_LEVEL=info
       # Activer le modèle Champion (ré-entraîné avec features runtime)

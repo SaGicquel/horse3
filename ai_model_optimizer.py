@@ -33,7 +33,7 @@ OPTIMIZED_DIR = Path("data/models/optimized")
 # Vérifier la clé API
 if not GOOGLE_API_KEY:
     print("❌ GOOGLE_API_KEY non définie. Export-la d'abord:")
-    print("   export GOOGLE_API_KEY=AIzaSyBi_o5kQJ9Nl1OR-_y2axv2Iv5nLKI9f7w")
+    print("   export GOOGLE_API_KEY=votre_cle_ici")
     sys.exit(1)
 
 # Import Gemini - nouveau SDK
