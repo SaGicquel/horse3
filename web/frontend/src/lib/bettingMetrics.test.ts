@@ -33,4 +33,3 @@ describe('resolveBetMetrics', () => {
     expect(metrics.kellyPercent).toBe(3.1);
   });
 });
-

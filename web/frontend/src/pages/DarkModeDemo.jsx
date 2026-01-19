@@ -1,6 +1,6 @@
 /**
  * Page de démonstration du mode sombre
- * 
+ *
  * Affiche tous les composants UI avec leurs variantes
  * pour vérifier le bon fonctionnement du thème.
  */
@@ -30,7 +30,7 @@ const DarkModeDemo = () => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 
+        <h1
           className="text-4xl font-bold font-['Bebas_Neue'] mb-2"
           style={{ color: colors.text }}
         >
@@ -45,7 +45,7 @@ const DarkModeDemo = () => {
 
       {/* Variables CSS */}
       <Card>
-        <CardHeader 
+        <CardHeader
           icon={Activity}
           title="Variables CSS"
           subtitle="Couleurs du thème actif"
@@ -53,9 +53,9 @@ const DarkModeDemo = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(colors).map(([name, value]) => (
             <div key={name} className="space-y-2">
-              <div 
+              <div
                 className="h-16 rounded-lg border"
-                style={{ 
+                style={{
                   backgroundColor: value,
                   borderColor: colors.border
                 }}
@@ -75,7 +75,7 @@ const DarkModeDemo = () => {
 
       {/* Boutons */}
       <Card>
-        <CardHeader 
+        <CardHeader
           icon={Users}
           title="Composants Boutons"
           subtitle="Primary & Secondary"
@@ -90,7 +90,7 @@ const DarkModeDemo = () => {
 
       {/* Cartes statistiques */}
       <div>
-        <h2 
+        <h2
           className="text-2xl font-bold font-['Bebas_Neue'] mb-4"
           style={{ color: colors.text }}
         >
@@ -131,39 +131,39 @@ const DarkModeDemo = () => {
       {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader 
+          <CardHeader
             icon={TrendingUp}
             title="Graphique en Ligne"
             subtitle="Évolution des victoires"
           />
-          <ThemedLineChart 
-            data={chartData} 
+          <ThemedLineChart
+            data={chartData}
             dataKeys={['victoires', 'places']}
             height={250}
           />
         </Card>
 
         <Card>
-          <CardHeader 
+          <CardHeader
             icon={Activity}
             title="Graphique en Aires"
             subtitle="Gains mensuels"
           />
-          <ThemedAreaChart 
-            data={chartData} 
+          <ThemedAreaChart
+            data={chartData}
             dataKeys={['gains']}
             height={250}
           />
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader 
+          <CardHeader
             icon={Award}
             title="Graphique en Barres"
             subtitle="Performance globale"
           />
-          <ThemedBarChart 
-            data={chartData} 
+          <ThemedBarChart
+            data={chartData}
             dataKeys={['victoires', 'places']}
             height={300}
           />
@@ -172,14 +172,14 @@ const DarkModeDemo = () => {
 
       {/* Typographie */}
       <Card>
-        <CardHeader 
+        <CardHeader
           icon={Activity}
           title="Échelle Typographique"
           subtitle="Bebas Neue & Inter"
         />
         <div className="space-y-4">
           <div>
-            <h1 
+            <h1
               className="text-4xl font-['Bebas_Neue'] font-bold"
               style={{ color: colors.text }}
             >
@@ -187,7 +187,7 @@ const DarkModeDemo = () => {
             </h1>
           </div>
           <div>
-            <h2 
+            <h2
               className="text-3xl font-['Bebas_Neue'] font-bold"
               style={{ color: colors.text }}
             >
@@ -195,7 +195,7 @@ const DarkModeDemo = () => {
             </h2>
           </div>
           <div>
-            <p 
+            <p
               className="text-lg font-['Inter']"
               style={{ color: colors.text }}
             >
@@ -203,7 +203,7 @@ const DarkModeDemo = () => {
             </p>
           </div>
           <div>
-            <p 
+            <p
               className="text-base font-['Inter'] font-medium"
               style={{ color: colors.text }}
             >
@@ -211,7 +211,7 @@ const DarkModeDemo = () => {
             </p>
           </div>
           <div>
-            <p 
+            <p
               className="text-sm font-['Inter']"
               style={{ color: colors.muted }}
             >
@@ -219,9 +219,9 @@ const DarkModeDemo = () => {
             </p>
           </div>
           <div>
-            <code 
+            <code
               className="text-sm font-['Roboto_Mono'] px-2 py-1 rounded"
-              style={{ 
+              style={{
                 backgroundColor: colors.secondary,
                 color: colors.primary
               }}
@@ -234,13 +234,13 @@ const DarkModeDemo = () => {
 
       {/* Contraste */}
       <Card>
-        <CardHeader 
+        <CardHeader
           icon={Activity}
           title="Tests de Contraste"
           subtitle="Validation WCAG AA"
         />
         <div className="space-y-3">
-          <div 
+          <div
             className="p-4 rounded-lg"
             style={{ backgroundColor: colors.bg }}
           >
@@ -248,7 +248,7 @@ const DarkModeDemo = () => {
               ✓ Texte principal sur fond (Ratio: {isDark ? '13.2:1' : '15.8:1'})
             </p>
           </div>
-          <div 
+          <div
             className="p-4 rounded-lg"
             style={{ backgroundColor: colors.card }}
           >
@@ -256,7 +256,7 @@ const DarkModeDemo = () => {
               ✓ Texte sur carte (Ratio: {isDark ? '12.1:1' : '15.8:1'})
             </p>
           </div>
-          <div 
+          <div
             className="p-4 rounded-lg"
             style={{ backgroundColor: colors.primary }}
           >
@@ -264,7 +264,7 @@ const DarkModeDemo = () => {
               ✓ Texte blanc sur primaire (Ratio: {isDark ? '4.8:1' : '6.8:1'})
             </p>
           </div>
-          <div 
+          <div
             className="p-4 rounded-lg"
             style={{ backgroundColor: colors.bg }}
           >

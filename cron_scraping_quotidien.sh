@@ -3,12 +3,12 @@
 ################################################################################
 # SCRIPT CRON - SCRAPING QUOTIDIEN AUTOMATIQUE
 ################################################################################
-# 
+#
 # Description : Script d'automatisation pour scraper quotidiennement les courses
 #               du jour avec toutes les informations associées (participants,
 #               cotes, chevaux, jockeys, etc.)
 #
-# Fréquence recommandée : 
+# Fréquence recommandée :
 #   - 06h00 : Scraping matinal (données du jour)
 #   - 12h00 : Mise à jour mi-journée (nouvelles cotes)
 #   - 18h00 : Mise à jour soirée (résultats courses terminées)
@@ -17,11 +17,11 @@
 #   crontab -e
 #   # Scraping du matin (6h00)
 #   0 6 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
-#   
+#
 #   # Mise à jour mi-journée (12h00) - optionnel
 #   0 12 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
-#   
-#   # Mise à jour soirée (18h00) - optionnel  
+#
+#   # Mise à jour soirée (18h00) - optionnel
 #   0 18 * * * /Users/gicquelsacha/horse3/cron_scraping_quotidien.sh >> /Users/gicquelsacha/horse3/logs/cron_scraping.log 2>&1
 #
 ################################################################################
@@ -98,14 +98,14 @@ log_success "Virtualenv Python trouvé"
 log_info "Vérification PostgreSQL..."
 if ! pg_isready -h localhost -p 54624 >> "$LOG_FILE" 2>&1; then
     log_warning "PostgreSQL non accessible, tentative de redémarrage..."
-    
+
     # Essayer de redémarrer PostgreSQL
     if command -v brew &> /dev/null; then
         brew services restart postgresql@14 >> "$LOG_FILE" 2>&1 || true
     fi
-    
+
     sleep 5
-    
+
     if ! pg_isready -h localhost -p 54624 >> "$LOG_FILE" 2>&1; then
         log_error "Impossible de démarrer PostgreSQL"
         exit 1
@@ -145,7 +145,7 @@ echo "======================================================================" | 
 UPDATE_EXIT=0
 if [ -f "$PROJECT_DIR/update_results.py" ]; then
     "$PYTHON" update_results.py >> "$LOG_FILE" 2>&1 || UPDATE_EXIT=$?
-    
+
     if [ $UPDATE_EXIT -eq 0 ]; then
         log_success "Mise à jour des résultats terminée"
     else
@@ -166,7 +166,7 @@ echo "======================================================================" | 
 TURF_EXIT=0
 if [ -f "$PROJECT_DIR/enrichir_batch_turfbzh.py" ]; then
     "$PYTHON" enrichir_batch_turfbzh.py --days 1 >> "$LOG_FILE" 2>&1 || TURF_EXIT=$?
-    
+
     if [ $TURF_EXIT -eq 0 ]; then
         log_success "Enrichissement Turf.bzh terminé"
     else
@@ -187,7 +187,7 @@ echo "======================================================================" | 
 ZONE_EXIT=0
 if [ -f "$PROJECT_DIR/enrichir_zoneturf.py" ]; then
     "$PYTHON" enrichir_zoneturf.py --date today >> "$LOG_FILE" 2>&1 || ZONE_EXIT=$?
-    
+
     if [ $ZONE_EXIT -eq 0 ]; then
         log_success "Enrichissement Zone-Turf terminé"
     else
@@ -209,7 +209,7 @@ FEATURES_EXIT=0
 TODAY_ISO=$(date +%Y-%m-%d)
 if [ -f "$PROJECT_DIR/prepare_daily_features.py" ]; then
     "$PYTHON" prepare_daily_features.py --date "$TODAY_ISO" >> "$LOG_FILE" 2>&1 || FEATURES_EXIT=$?
-    
+
     if [ $FEATURES_EXIT -eq 0 ]; then
         log_success "Features ML préparées"
     else
@@ -249,14 +249,14 @@ try:
     conn = get_connection()
     cur = conn.cursor()
     today = date.today().isoformat()
-    
+
     # Courses du jour
     cur.execute("""
-        SELECT COUNT(*) FROM courses 
+        SELECT COUNT(*) FROM courses
         WHERE id_course LIKE %s
     """, (today.replace('-', '') + '%',))
     nb_courses = cur.fetchone()[0]
-    
+
     # Performances du jour
     cur.execute("""
         SELECT COUNT(*) FROM performances p
@@ -264,20 +264,20 @@ try:
         WHERE c.id_course LIKE %s
     """, (today.replace('-', '') + '%',))
     nb_perfs = cur.fetchone()[0]
-    
+
     # Total chevaux
     cur.execute("SELECT COUNT(*) FROM chevaux")
     nb_chevaux = cur.fetchone()[0]
-    
+
     # Courses total
     cur.execute("SELECT COUNT(*) FROM courses")
     nb_courses_total = cur.fetchone()[0]
-    
+
     print(f"   📅 Courses aujourd'hui ({today})  : {nb_courses}")
     print(f"   🐴 Participants aujourd'hui      : {nb_perfs}")
     print(f"   📚 Total chevaux en base         : {nb_chevaux:,}")
     print(f"   🏁 Total courses en base         : {nb_courses_total:,}")
-    
+
     cur.close()
     conn.close()
 except Exception as e:

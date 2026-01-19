@@ -1,6 +1,6 @@
 /**
  * StatCard - Carte de statistiques avec effet Glassmorphism parfait
- * 
+ *
  * Caractéristiques :
  * - Effet glassmorphism moderne avec backdrop-blur
  * - Animations douces au hover
@@ -10,9 +10,9 @@
 
 const StatCard = ({ title, value, evolution, icon: Icon, trend = 'up' }) => {
   const isPositive = trend === 'up';
-  
+
   return (
-    <div 
+    <div
       className="rounded-[20px] p-6 glass-card glass-shimmer"
       style={{
         background: 'rgba(var(--color-card-rgb), 0.5)',
@@ -23,7 +23,7 @@ const StatCard = ({ title, value, evolution, icon: Icon, trend = 'up' }) => {
       }}
     >
       <div className="flex items-center justify-between">
-        <div 
+        <div
           className="p-2.5 rounded-xl transition-all duration-300"
           style={isPositive ? {
             background: 'linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-primary-rgb), 0.05))',
@@ -39,12 +39,12 @@ const StatCard = ({ title, value, evolution, icon: Icon, trend = 'up' }) => {
         >
           <Icon size={20} />
         </div>
-        <div 
+        <div
           className="text-sm font-semibold font-['Inter'] px-3 py-1 rounded-full"
           style={{
             color: isPositive ? 'var(--color-primary)' : 'var(--color-error)',
-            background: isPositive 
-              ? 'rgba(var(--color-primary-rgb), 0.1)' 
+            background: isPositive
+              ? 'rgba(var(--color-primary-rgb), 0.1)'
               : 'rgba(220, 38, 38, 0.1)',
             border: `1px solid ${isPositive ? 'rgba(var(--color-primary-rgb), 0.2)' : 'rgba(220, 38, 38, 0.2)'}`
           }}
@@ -53,13 +53,13 @@ const StatCard = ({ title, value, evolution, icon: Icon, trend = 'up' }) => {
         </div>
       </div>
       <div className="mt-4">
-        <p 
+        <p
           className="text-3xl font-bold font-['Inter']"
           style={{ color: 'var(--color-text)' }}
         >
           {value}
         </p>
-        <p 
+        <p
           className="text-sm font-['Inter'] mt-1"
           style={{ color: 'var(--color-muted)' }}
         >

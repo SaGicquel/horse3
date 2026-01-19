@@ -16,7 +16,7 @@ export const useUserSettings = () => {
   const setBankroll = (newBankroll) => {
     setBankrollState(newBankroll);
     localStorage.setItem('user_bankroll', newBankroll.toString());
-    
+
     // Déclencher un événement pour notifier les autres composants
     window.dispatchEvent(new CustomEvent('userSettingsChanged', {
       detail: { bankroll: newBankroll, profil }
@@ -26,7 +26,7 @@ export const useUserSettings = () => {
   const setProfil = (newProfil) => {
     setProfilState(newProfil);
     localStorage.setItem('user_profil', newProfil);
-    
+
     // Déclencher un événement pour notifier les autres composants
     window.dispatchEvent(new CustomEvent('userSettingsChanged', {
       detail: { bankroll, profil: newProfil }
@@ -38,7 +38,7 @@ export const useUserSettings = () => {
     const handleStorageChange = () => {
       const savedBankroll = localStorage.getItem('user_bankroll');
       const savedProfil = localStorage.getItem('user_profil');
-      
+
       if (savedBankroll && parseInt(savedBankroll) !== bankroll) {
         setBankrollState(parseInt(savedBankroll));
       }
@@ -55,7 +55,7 @@ export const useUserSettings = () => {
 
     // Écouter les changements de localStorage (entre onglets)
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Écouter les changements depuis la même page
     window.addEventListener('userSettingsChanged', handleCustomEvent);
 

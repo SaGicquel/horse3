@@ -215,25 +215,25 @@ export default function Jockeys() {
               <div className="text-2xl font-bold text-[var(--color-text)]">{jockeyStats.statistiques.victoires}</div>
               <div className="text-xs text-gray-400">Victoires</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <ChartBarIcon className="h-8 w-8 mx-auto text-blue-400 mb-2" />
               <div className="text-2xl font-bold text-[var(--color-text)]">{jockeyStats.statistiques.courses}</div>
               <div className="text-xs text-gray-400">Courses</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <ArrowTrendingUpIcon className="h-8 w-8 mx-auto text-green-400 mb-2" />
               <div className="text-2xl font-bold text-green-400">{jockeyStats.statistiques.taux_victoire}%</div>
               <div className="text-xs text-gray-400">Taux Victoire</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <div className="text-3xl mb-2">🥈</div>
               <div className="text-2xl font-bold text-purple-400">{jockeyStats.statistiques.taux_place}%</div>
               <div className="text-xs text-gray-400">Taux Placé</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <div className="text-3xl mb-2">💰</div>
               <div className="text-2xl font-bold text-emerald-400">{jockeyStats.statistiques.cote_moyenne}</div>
@@ -251,17 +251,17 @@ export default function Jockeys() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis dataKey="mois" stroke="#9CA3AF" fontSize={10} />
                   <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taux" 
-                    stroke="#8B5CF6" 
+                  <Line
+                    type="monotone"
+                    dataKey="taux"
+                    stroke="#8B5CF6"
                     strokeWidth={2}
                     dot={{ fill: '#8B5CF6', r: 4 }}
                     name="Taux %"
@@ -288,9 +288,9 @@ export default function Jockeys() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1F2937',
                         border: '1px solid #374151',
                         borderRadius: '8px'
                       }}
@@ -313,9 +313,9 @@ export default function Jockeys() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis type="number" stroke="#9CA3AF" fontSize={12} />
                   <YAxis dataKey="name" type="category" stroke="#9CA3AF" fontSize={10} width={100} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
@@ -335,7 +335,7 @@ export default function Jockeys() {
                   <div key={i} className="bg-white/5 rounded-lg p-4">
                     <div className="flex items-center gap-3">
                       <div className={`text-2xl font-bold ${
-                        i === 0 ? 'text-yellow-400' : 
+                        i === 0 ? 'text-yellow-400' :
                         i === 1 ? 'text-gray-400' :
                         i === 2 ? 'text-orange-400' : 'text-gray-500'
                       }`}>

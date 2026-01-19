@@ -41,7 +41,7 @@ from scrapers.batch_processor import batch_mode
 with BaseScraper(enable_cache=True) as scraper:
     # Cache automatique
     data = scraper.cache.get('key') or fetch()
-    
+
     # Batch INSERT (10-100x rapide)
     with batch_mode(scraper.cur, 1000) as batch:
         batch.add("INSERT ...", (val,))

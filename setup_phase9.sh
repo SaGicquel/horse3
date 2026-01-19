@@ -122,7 +122,7 @@ import sys
 try:
     import torch
     print(f"   ✅ PyTorch {torch.__version__}")
-    
+
     # Test GPU/MPS disponibilité
     if torch.cuda.is_available():
         print(f"      🎮 CUDA available: {torch.cuda.get_device_name(0)}")

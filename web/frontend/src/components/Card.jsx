@@ -1,6 +1,6 @@
 /**
  * Composants Card réutilisables avec effet Glassmorphism parfait
- * 
+ *
  * Caractéristiques :
  * - Effet glassmorphism moderne avec backdrop-blur
  * - Bordures subtiles avec reflets lumineux
@@ -8,20 +8,20 @@
  * - Support mode sombre automatique via CSS variables
  */
 
-export const Card = ({ 
-  children, 
+export const Card = ({
+  children,
   dark = false,
   glass = true,
   glow = false,
   hover = true,
-  className = '' 
+  className = ''
 }) => {
   const glassStyle = glass ? {
     background: 'rgba(var(--color-card-rgb), 0.5)',
     backdropFilter: 'blur(24px) saturate(180%)',
     WebkitBackdropFilter: 'blur(24px) saturate(180%)',
     border: '1px solid rgba(255, 255, 255, 0.18)',
-    boxShadow: glow 
+    boxShadow: glow
       ? '0 8px 40px rgba(var(--color-primary-rgb), 0.15), 0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
       : '0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
   } : {
@@ -47,18 +47,18 @@ export const Card = ({
   );
 };
 
-export const CardHeader = ({ 
-  icon: Icon, 
-  title, 
+export const CardHeader = ({
+  icon: Icon,
+  title,
   subtitle,
   iconColor = 'text-[var(--color-primary)]',
   iconBgColor = '',
-  className = '' 
+  className = ''
 }) => {
   return (
     <div className={`mb-6 flex items-center gap-4 ${className}`}>
       {Icon && (
-        <span 
+        <span
           className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconColor} glass-sm`}
           style={{
             background: 'linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-primary-rgb), 0.05))',
@@ -70,14 +70,14 @@ export const CardHeader = ({
         </span>
       )}
       <div>
-        <h2 
+        <h2
           className="text-lg font-semibold"
           style={{ color: 'var(--color-text)' }}
         >
           {title}
         </h2>
         {subtitle && (
-          <p 
+          <p
             className="text-xs uppercase tracking-[0.32em]"
             style={{ color: 'var(--color-muted)' }}
           >
@@ -91,12 +91,12 @@ export const CardHeader = ({
 
 /**
  * Exemple d'utilisation :
- * 
+ *
  * import { Card, CardHeader } from './components/Card';
  * import { TrendingUp } from 'lucide-react';
- * 
+ *
  * <Card>
- *   <CardHeader 
+ *   <CardHeader
  *     icon={TrendingUp}
  *     title="Statistiques"
  *     subtitle="Vue d'ensemble"

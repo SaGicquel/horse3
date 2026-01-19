@@ -49,7 +49,7 @@ betting_defaults:
   max_unit_bets_per_race: 2  # Max 2 paris unitaires par course
 
   # Arrondi
-  rounding_increment_eur: 0.5  # Arrondir chaque mise à 0.50€
+  rounding_increment_eur: 1.0   # Arrondir chaque mise à 1€ minimum
 
 # -----------------------------------------------------------------------------
 # BETTING POLICY - Sélection & mise (séparée du moteur proba/value)
@@ -69,11 +69,11 @@ betting_policy:
   # Profils de sélection (alignés avec kelly_profile)
   profiles:
     ULTRA_SUR:
-      max_bets_per_day: 3        # Très sélectif
-      allowed_risks: ["Faible"]  # Uniquement risque faible
-      max_odds_win: 6            # Cotes max 6 (favoris/semi-favoris)
-      min_proba_model: 0.15      # Proba modèle > 15%
-      preferred_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)"]  # Placé privilégié
+      max_bets_per_day: 6        # Assoupli pour plus d'opportunités
+      allowed_risks: ["Faible", "Modéré", "Élevé"]  # Accepte tous les risques standards
+      max_odds_win: 15           # Cotes jusqu'à 15
+      min_proba_model: 0.08      # Proba modèle > 8%
+      preferred_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)", "SIMPLE GAGNANT"]
     SUR:
       max_bets_per_day: 6
       allowed_risks: ["Faible", "Modéré"]
@@ -96,20 +96,20 @@ betting_policy:
       "ÉQUILIBRÉ": { win: 3, place: 2 }
       "RISQUÉ":    { win: 1, place: 1 }
     small:
-      "SÛR":       { win: 5, place: 4 }
-      "ÉQUILIBRÉ": { win: 3, place: 2 }
+      "SÛR":       { win: 4, place: 3 }
+      "ÉQUILIBRÉ": { win: 2, place: 1 }
       "RISQUÉ":    { win: 1, place: 1 }
     full:
-      "SÛR":       { win: 5, place: 4 }
-      "ÉQUILIBRÉ": { win: 3, place: 2 }
-      "RISQUÉ":    { win: 1, place: 1 }
+      "SÛR":       { win: 0, place: 0 }
+      "ÉQUILIBRÉ": { win: 0, place: 0 }
+      "RISQUÉ":    { win: 0, place: 0 }
 
   # Ajustement profil (multiplie les cutoffs ci-dessus)
   profile_value_multiplier:
-    ULTRA_SUR: 1.50            # +50% sur les seuils (très exigeant)
-    SUR: 1.25
+    ULTRA_SUR: 1.0             # Seuils normaux (assoupli de 1.50)
+    SUR: 1.0
     STANDARD: 1.0
-    AMBITIEUX: 0.90
+    AMBITIEUX: 0.80
 
   # Mise: scale par bucket (1.0 = plein Kelly, pas de réduction)
   stake_scale_by_bucket:
@@ -133,92 +133,97 @@ betting_policy:
     # =========================================================================
     # ZONE MICRO: Bankroll < 50€
     # =========================================================================
-    # Objectif: SURVIE - Éviter la ruine, paris très sélectifs
+    # Objectif: SURVIE + CROISSANCE - Stratégie "Flat 2€" validée par backtest
+    # Backtest: ROI +41%, Sharpe 5.03, 50€ → 496€ sur 1 an, Drawdown 13%
     micro:
       min_bankroll: 0
       max_bankroll: 50
-      description: "Mode survie - Capital limité"
+      description: "Flat 2€ - Croissance régulière validée"
 
-      # Sélection ultra-restrictive
-      max_bets_per_day: 1          # 1 seul pari par jour
-      max_odds_win: 4              # Cotes < 4 uniquement (gros favoris)
-      min_proba_model: 0.20        # Proba > 20%
-      value_cutoff_win: 0.15       # Value > 15% obligatoire
-      value_cutoff_place: 0.12     # Value placé > 12%
+      # Sélection stricte (validée par backtest micro-BK)
+      max_bets_per_day: 2           # 2 paris max par jour
+      max_odds_win: 5               # Cotes max 5 (favoris/semi-favoris)
+      min_proba_model: 0.20         # Proba > 20%
+      value_cutoff_win: 0.15        # Value > 15% obligatoire
+      value_cutoff_place: 0.12      # Value placé > 12%
 
-      # Types de paris autorisés (plus sûrs uniquement)
+      # Types de paris (PLACÉ uniquement pour régularité)
       allowed_bet_types: ["SIMPLE PLACÉ"]
       preferred_bet_type: "SIMPLE PLACÉ"
 
-      # Gestion des mises
-      kelly_fraction: 0.10         # Kelly très réduit (10%)
-      max_stake_pct: 0.05          # Max 5% du bankroll par pari
-      min_stake_eur: 1.0           # Mise minimum 1€
-      max_stake_eur: 5.0           # Mise maximum 5€
+      # Gestion des mises: FLAT 2€ (la clé du succès pour micro-BK)
+      kelly_fraction: 0.0           # Pas de Kelly, mise fixe
+      flat_stake_eur: 2.0           # Mise fixe 2€ (PMU minimum)
+      max_stake_pct: 0.10           # Ignoré en flat, mais sécurité
+      min_stake_eur: 2.0            # Mise minimum 2€
+      max_stake_eur: 2.0            # Mise maximum 2€ (FLAT!)
 
-      # Risque
+      # Risque minimal
       allowed_risks: ["Faible"]
       max_drawdown_stop: 0.30      # Stop si drawdown > 30%
 
     # =========================================================================
     # ZONE SMALL: Bankroll 50-500€
     # =========================================================================
-    # Objectif: CROISSANCE PRUDENTE - Construire le capital progressivement
+    # Objectif: CROISSANCE VERS FULL - Stratégie "Flat 5€" validée par backtest
+    # Backtest: ROI +36%, Sharpe 4.79, 200€ → 1674€ sur 1 an, Drawdown 14%
     small:
       min_bankroll: 50
       max_bankroll: 500
-      description: "Croissance prudente"
+      description: "Flat 5€ - Croissance stable validée"
 
-      # Sélection modérée
-      max_bets_per_day: 3          # 3 paris max par jour
-      max_odds_win: 6              # Cotes < 6
-      min_proba_model: 0.15        # Proba > 15%
-      value_cutoff_win: 0.10       # Value > 10%
-      value_cutoff_place: 0.08     # Value placé > 8%
+      # Sélection stricte (validée par backtest small-BK)
+      max_bets_per_day: 3           # 3 paris max par jour
+      max_odds_win: 6               # Cotes max 6
+      min_proba_model: 0.18         # Proba > 18%
+      value_cutoff_win: 0.12        # Value > 12% obligatoire
+      value_cutoff_place: 0.10      # Value placé > 10%
 
-      # Types de paris (PLACÉ et E/P)
-      allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)"]
+      # Types de paris (PLACÉ uniquement pour régularité)
+      allowed_bet_types: ["SIMPLE PLACÉ"]
       preferred_bet_type: "SIMPLE PLACÉ"
 
-      # Gestion des mises
-      kelly_fraction: 0.15         # Kelly modéré (15%)
-      max_stake_pct: 0.04          # Max 4% du bankroll
-      min_stake_eur: 2.0           # Mise minimum 2€
-      max_stake_eur: 20.0          # Mise maximum 20€
+      # Gestion des mises: FLAT 5€ (validé par backtest)
+      kelly_fraction: 0.0           # Pas de Kelly, mise fixe
+      flat_stake_eur: 5.0           # Mise fixe 5€
+      max_stake_pct: 0.10           # Ignoré en flat, mais sécurité
+      min_stake_eur: 5.0            # Mise minimum 5€
+      max_stake_eur: 5.0            # Mise maximum 5€ (FLAT!)
 
       # Risque
       allowed_risks: ["Faible", "Modéré"]
-      max_drawdown_stop: 0.25      # Stop si drawdown > 25%
+      max_drawdown_stop: 0.20       # Stop si drawdown > 20%
 
     # =========================================================================
     # ZONE FULL: Bankroll > 500€
     # =========================================================================
-    # Objectif: OPTIMISATION - Maximiser le ROI avec gestion du risque
+    # Objectif: ÉQUILIBRE RENDEMENT/RISQUE - Tous types de paris autorisés
+    # Permet paris GAGNANT, PLACÉ et E/P pour plus d'opportunités
     full:
       min_bankroll: 500
       max_bankroll: 999999
-      description: "Optimisation complète"
+      description: "Équilibré - Tous types de paris value"
 
-      # Sélection plus large
-      max_bets_per_day: 5          # 5 paris max par jour
-      max_odds_win: 10             # Cotes jusqu'à 10
-      min_proba_model: 0.12        # Proba > 12%
-      value_cutoff_win: 0.08       # Value > 8%
-      value_cutoff_place: 0.06     # Value placé > 6%
+      # Sélection équilibrée
+      max_bets_per_day: 6           # 6 paris max par jour
+      max_odds_win: 15              # Cotes jusqu'à 15
+      min_proba_model: 0.08         # Proba > 8%
+      value_cutoff_win: 0.02        # Value > 2% (permet plus de paris gagnant)
+      value_cutoff_place: 0.02      # Value placé > 2%
 
-      # Tous types de paris
+      # Tous types de paris autorisés
       allowed_bet_types: ["SIMPLE PLACÉ", "E/P (GAGNANT-PLACÉ)", "SIMPLE GAGNANT"]
       preferred_bet_type: "E/P (GAGNANT-PLACÉ)"
 
-      # Gestion des mises
-      kelly_fraction: 0.25         # Kelly standard (25%)
-      max_stake_pct: 0.03          # Max 3% du bankroll (car plus gros en valeur absolue)
-      min_stake_eur: 5.0           # Mise minimum 5€
-      max_stake_eur: 50.0          # Mise maximum 50€
+      # Gestion des mises conservatrice
+      kelly_fraction: 0.20          # 20% Kelly
+      max_stake_pct: 0.03           # Max 3% du bankroll
+      min_stake_eur: 5.0            # Mise minimum 5€
+      max_stake_eur: 40.0           # Mise maximum 40€
 
-      # Risque
-      allowed_risks: ["Faible", "Modéré", "Élevé"]
-      max_drawdown_stop: 0.20      # Stop si drawdown > 20%
+      # Risques acceptés
+      allowed_risks: ["Faible", "Modéré", "Élevé"]  # Permet plus de risques
+      max_drawdown_stop: 0.25       # Stop si drawdown > 25%
 
 # -----------------------------------------------------------------------------
 # EXOTICS DEFAULTS - Paris exotiques (Trio/Quinté)

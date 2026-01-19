@@ -102,4 +102,3 @@ def load_place_model() -> Optional[PlaceModel]:
         coef={str(k): float(v) for k, v in coef.items()},
         metadata={"path": chosen, "metrics": payload.get("metrics"), "model": payload.get("model")},
     )
-

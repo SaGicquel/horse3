@@ -120,7 +120,7 @@ export const cachedFetch = async (fetchFn, cacheKey, cacheType = 'default', forc
 export const prefetchCriticalData = async (fetchFunctions) => {
   // Utiliser requestIdleCallback si disponible, sinon setTimeout
   const scheduleTask = window.requestIdleCallback || ((cb) => setTimeout(cb, 100));
-  
+
   scheduleTask(() => {
     Promise.allSettled(fetchFunctions.map(fn => fn()));
   });

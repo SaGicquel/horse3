@@ -2,6 +2,7 @@
 """
 Script pour lancer le scraping sur les 30 derniers jours
 """
+
 from datetime import datetime, timedelta
 from scraper_pmu_simple import run
 import time
@@ -13,7 +14,7 @@ start_date = end_date - timedelta(days=29)  # 30 jours au total (aujourd'hui inc
 dates = []
 current = start_date
 while current <= end_date:
-    dates.append(current.strftime('%Y-%m-%d'))
+    dates.append(current.strftime("%Y-%m-%d"))
     current += timedelta(days=1)
 
 print(f"\n{'=' * 80}")
@@ -41,7 +42,7 @@ for i, date_iso in enumerate(dates, 1):
 elapsed = time.time() - start_time
 
 print(f"\n{'=' * 80}")
-print(f"📊 RÉSUMÉ FINAL")
+print("📊 RÉSUMÉ FINAL")
 print(f"{'=' * 80}")
 print(f"Jours scrapés : {success_count}/{len(dates)}")
 print(f"Erreurs : {error_count}")

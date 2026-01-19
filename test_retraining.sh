@@ -39,11 +39,11 @@ TESTS_FAILED=0
 run_test() {
     local test_name="$1"
     local test_command="$2"
-    
+
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo -e "${BLUE}TEST:${NC} $test_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     if eval "$test_command"; then
         echo -e "${GREEN}✅ PASS${NC}: $test_name"
         ((TESTS_PASSED++))
@@ -60,13 +60,13 @@ run_test() {
 # ============================================================================
 test_model_registry_structure() {
     echo "🔍 Vérification structure model registry..."
-    
+
     local required_dirs=(
         "data/models/champion"
         "data/models/challenger"
         "data/models/archive"
     )
-    
+
     for dir in "${required_dirs[@]}"; do
         if [ -d "$dir" ]; then
             echo "   ✅ $dir existe"
@@ -75,7 +75,7 @@ test_model_registry_structure() {
             return 1
         fi
     done
-    
+
     return 0
 }
 
@@ -86,11 +86,11 @@ run_test "Structure Model Registry" "test_model_registry_structure"
 # ============================================================================
 test_retraining_dry_run() {
     echo "🔄 Lancement retraining en mode dry-run..."
-    
+
     # Lancer retraining sans sauvegarder
     if python train_online.py --dry-run --days 7 --min-samples 0 2>&1 | tee logs/retraining_test.log; then
         echo "   ✅ Retraining terminé sans erreur"
-        
+
         # Vérifier que rien n'a été sauvegardé (dry-run)
         if [ ! -f "data/models/challenger/model.pkl" ]; then
             echo "   ✅ Pas de fichier sauvegardé (dry-run OK)"
@@ -112,10 +112,10 @@ run_test "Retraining Dry-Run" "test_retraining_dry_run"
 # ============================================================================
 test_retraining_logs() {
     echo "📋 Vérification logs retraining..."
-    
+
     if [ -f "logs/retraining.log" ]; then
         echo "   ✅ logs/retraining.log existe"
-        
+
         # Vérifier présence étapes clés
         local required_logs=(
             "CHARGEMENT DONNÉES ORIGINALES"
@@ -123,7 +123,7 @@ test_retraining_logs() {
             "CONSTRUCTION MODÈLE STACKING"
             "ENTRAÎNEMENT & VALIDATION"
         )
-        
+
         for log_pattern in "${required_logs[@]}"; do
             if grep -q "$log_pattern" logs/retraining.log; then
                 echo "   ✅ Étape trouvée: $log_pattern"
@@ -131,7 +131,7 @@ test_retraining_logs() {
                 echo "   ⚠️  Étape manquante: $log_pattern"
             fi
         done
-        
+
         return 0
     else
         echo "   ❌ logs/retraining.log manquant"
@@ -146,13 +146,13 @@ run_test "Logs Retraining" "test_retraining_logs"
 # ============================================================================
 test_setup_champion() {
     echo "📦 Setup champion pour tests..."
-    
+
     # Si modèle champion n'existe pas, copier depuis ensemble_stacking.pkl
     if [ ! -f "data/models/champion/model.pkl" ]; then
         if [ -f "data/models/ensemble_stacking.pkl" ]; then
             echo "   📋 Copie ensemble_stacking.pkl → champion/model.pkl"
             cp data/models/ensemble_stacking.pkl data/models/champion/model.pkl
-            
+
             # Créer metadata basique
             cat > data/models/champion/metadata.json << 'EOF'
 {
@@ -189,7 +189,7 @@ run_test "Setup Champion Model" "test_setup_champion"
 # ============================================================================
 test_script_help() {
     echo "ℹ️  Test option --help..."
-    
+
     if python train_online.py --help > /dev/null 2>&1; then
         echo "   ✅ Option --help fonctionne"
         return 0

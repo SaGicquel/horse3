@@ -15,7 +15,7 @@ Statut: ✅ SCRAPERS FONCTIONNELS
   • MetadataCourseScraper : Formats course_id/meeting_id corrects
   • 43 courses scrapées sur 6 hippodromes
   • 491 participations enregistrées
-  
+
 ⚠️  À COMPLÉTER
   • 42 courses (98.8%) sans course_id/meeting_id
   • 40 666 entrées historiques à rattraper
@@ -77,10 +77,10 @@ TOTAL: 6 fichiers, 37.0 KB
 
 1️⃣  COMPLÉTER MÉTADONNÉES (5 minutes)
     Objectif: Atteindre 100% course_id/meeting_id pour 2025-11-03
-    
+
     Commande:
     $ python3 completer_metadata_2025-11-03.py
-    
+
     Résultat attendu:
     • 42 courses traitées
     • 485 participations enrichies
@@ -88,10 +88,10 @@ TOTAL: 6 fichiers, 37.0 KB
 
 2️⃣  VÉRIFIER COHÉRENCE (1 minute)
     Objectif: Confirmer la qualité des données
-    
+
     Commande:
     $ python3 verifier_coherence_scrapers.py 2025-11-03
-    
+
     Résultat attendu:
     • Score global > 95%
     • 0 courses incomplètes
@@ -99,11 +99,11 @@ TOTAL: 6 fichiers, 37.0 KB
 
 3️⃣  RATTRAPER HISTORIQUE (10 minutes)
     Objectif: Propager métadonnées sur 40 666 entrées anciennes
-    
+
     Commandes:
     $ pg_dump -d horse3 > backup_avant_rattrapage.sql
     $ psql -d horse3 -f rattrapage_historique_hippodromes.sql
-    
+
     ⚠️  IMPORTANT:
     • Faire un backup avant
     • Tester sur échantillon (voir étape 2 du script)

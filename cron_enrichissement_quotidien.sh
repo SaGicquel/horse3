@@ -3,7 +3,7 @@
 ################################################################################
 # SCRIPT CRON - ENRICHISSEMENT QUOTIDIEN TURF.BZH
 ################################################################################
-# 
+#
 # Description : Script d'automatisation pour enrichir quotidiennement la base
 #               de données avec les cotes et prédictions de Turf.bzh
 #
@@ -124,13 +124,13 @@ cur = conn.cursor()
 
 # Stats performances enrichies
 cur.execute(\"\"\"
-    SELECT 
+    SELECT
         COUNT(*) as total,
         COUNT(CASE WHEN cote_turfbzh IS NOT NULL THEN 1 END) as avec_turfbzh,
         COUNT(CASE WHEN musique IS NOT NULL THEN 1 END) as avec_musique
     FROM performances
     WHERE id_course IN (
-        SELECT id_course FROM courses 
+        SELECT id_course FROM courses
         WHERE SUBSTRING(id_course, 1, 8) >= TO_CHAR(NOW() - INTERVAL '7 days', 'YYYYMMDD')
     )
 \"\"\")

@@ -1,0 +1,118 @@
+========================================================================================================================
+EXTRACTION DES DONNÉES HISTORIQUES COMPLÈTES
+========================================================================================================================
+
+Chargement des données...
+Traceback (most recent call last):
+  File "/Users/gicquelsacha/.pyenv/versions/3.11.9/lib/python3.11/site-packages/pandas/io/sql.py", line 2664, in execute
+    cur.execute(sql, *args)
+psycopg2.errors.UndefinedColumn: column "date_course" does not exist
+LINE 6:     date_course,
+            ^
+HINT:  Perhaps you meant to reference the column "cheval_courses_seen.type_course" or the column "cheval_courses_seen.duree_course".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/gicquelsacha/horse3/train_optimized_model.py", line 115, in <module>
+    df = pd.read_sql(query, conn)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/.pyenv/versions/3.11.9/lib/python3.11/site-packages/pandas/io/sql.py", line 708, in read_sql
+    return pandas_sql.read_query(
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/.pyenv/versions/3.11.9/lib/python3.11/site-packages/pandas/io/sql.py", line 2728, in read_query
+    cursor = self.execute(sql, params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/gicquelsacha/.pyenv/versions/3.11.9/lib/python3.11/site-packages/pandas/io/sql.py", line 2676, in execute
+    raise ex from exc
+pandas.errors.DatabaseError: Execution failed on sql '
+SELECT
+    -- Identifiants
+    nom_norm,
+    race_key,
+    date_course,
+    hippodrome_code,
+
+    -- Target (victoire ou placé top 3)
+    CASE WHEN place_finale <= 3 THEN 1 ELSE 0 END as target_place,
+    is_win::int as target_win,
+    place_finale,
+
+    -- Cotes
+    cote_reference,
+    cote_finale,
+
+    -- Performances récentes du cheval
+    nb_courses_30j,
+    nb_victoires_30j,
+    nb_places_30j,
+    moyenne_place_30j,
+    nb_courses_90j,
+    nb_victoires_90j,
+    nb_places_90j,
+    moyenne_place_90j,
+    nb_courses_365j,
+    nb_victoires_365j,
+    nb_places_365j,
+    moyenne_place_365j,
+
+    -- Stats de gains
+    total_gains,
+    gains_12_derniers_mois,
+    gains_course_precedente,
+
+    -- Forme récente
+    jours_depuis_derniere_course,
+    place_derniere_course,
+    moyenne_recency_5_courses,
+
+    -- Caractéristiques du cheval
+    age,
+    sexe_code,
+    poids_cheval_kg,
+    handicap_distance,
+    handicap_poids,
+
+    -- Jockey/Entraîneur
+    jockey_nom,
+    jockey_victoires_saison,
+    jockey_taux_victoire,
+    entraineur_nom,
+    entraineur_victoires_saison,
+    entraineur_taux_victoire,
+
+    -- Course
+    discipline,
+    distance_m,
+    nombre_partants,
+    numero_corde,
+
+    -- Conditions
+    etat_piste,
+    meteo_code,
+    temperature_c,
+    vent_kmh,
+
+    -- Stats hippodrome
+    hippodrome_taux_favoris,
+
+    -- Position dans le peloton
+    CASE
+        WHEN cote_reference <= 5 THEN 'favori'
+        WHEN cote_reference <= 10 THEN 'moyen'
+        WHEN cote_reference <= 20 THEN 'outsider'
+        ELSE 'longshot'
+    END as categorie_cote
+
+FROM cheval_courses_seen
+WHERE date_course IS NOT NULL
+  AND cote_reference IS NOT NULL
+  AND cote_reference > 0
+  AND place_finale IS NOT NULL
+  AND date_course >= '2023-01-01'
+ORDER BY date_course ASC
+': column "date_course" does not exist
+LINE 6:     date_course,
+            ^
+HINT:  Perhaps you meant to reference the column "cheval_courses_seen.type_course" or the column "cheval_courses_seen.duree_course".

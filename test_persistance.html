@@ -15,7 +15,7 @@
 </head>
 <body>
     <h1>🧪 Test Persistance Paramètres Utilisateur</h1>
-    
+
     <div class="test-section">
         <h3>Paramètres Actuels</h3>
         <div id="current-params" class="current">Chargement...</div>
@@ -51,7 +51,7 @@
         function loadParams() {
             const bankroll = localStorage.getItem('user_bankroll') || '500';
             const profil = localStorage.getItem('user_profil') || 'STANDARD';
-            
+
             document.getElementById('current-params').innerHTML = `
                 💰 Bankroll: ${bankroll}€<br>
                 🎯 Profil: ${profil}
@@ -63,30 +63,30 @@
         function updateBankroll() {
             const newBankroll = document.getElementById('bankroll-input').value;
             localStorage.setItem('user_bankroll', newBankroll);
-            
+
             // Déclencher l'événement pour notifier les autres pages
             window.dispatchEvent(new CustomEvent('userSettingsChanged', {
-                detail: { 
-                    bankroll: parseInt(newBankroll), 
-                    profil: localStorage.getItem('user_profil') 
+                detail: {
+                    bankroll: parseInt(newBankroll),
+                    profil: localStorage.getItem('user_profil')
                 }
             }));
-            
+
             loadParams();
         }
 
         // Mettre à jour le profil
         function updateProfil(newProfil) {
             localStorage.setItem('user_profil', newProfil);
-            
+
             // Déclencher l'événement
             window.dispatchEvent(new CustomEvent('userSettingsChanged', {
-                detail: { 
-                    bankroll: parseInt(localStorage.getItem('user_bankroll')), 
-                    profil: newProfil 
+                detail: {
+                    bankroll: parseInt(localStorage.getItem('user_bankroll')),
+                    profil: newProfil
                 }
             }));
-            
+
             loadParams();
         }
 
@@ -106,13 +106,13 @@
         async function testAPICall() {
             const bankroll = localStorage.getItem('user_bankroll') || '500';
             const profil = localStorage.getItem('user_profil') || 'STANDARD';
-            
+
             const url = `http://localhost:8000/api/paris/recommandations-jour?bankroll=${bankroll}&profil=${profil}`;
-            
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                
+
                 document.getElementById('api-results').innerHTML = JSON.stringify({
                     profil_utilisateur: data.profil_utilisateur,
                     nb_courses: data.nb_courses,

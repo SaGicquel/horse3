@@ -1,6 +1,6 @@
 /**
  * AnimatedBackground - Backgrounds animés modernes
- * 
+ *
  * Différents effets de fond :
  * - Gradient mesh animé
  * - Particules flottantes
@@ -18,13 +18,13 @@ export const GradientMesh = ({ className = '' }) => {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
       {/* Gradient principal */}
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: 'var(--color-bg)'
         }}
       />
-      
+
       {/* Blob 1 */}
       <motion.div
         className="absolute w-[600px] h-[600px] rounded-full opacity-30"
@@ -45,7 +45,7 @@ export const GradientMesh = ({ className = '' }) => {
           ease: "easeInOut"
         }}
       />
-      
+
       {/* Blob 2 */}
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full opacity-25"
@@ -66,7 +66,7 @@ export const GradientMesh = ({ className = '' }) => {
           ease: "easeInOut"
         }}
       />
-      
+
       {/* Blob 3 */}
       <motion.div
         className="absolute w-[400px] h-[400px] rounded-full opacity-20"
@@ -94,9 +94,9 @@ export const GradientMesh = ({ className = '' }) => {
 /**
  * FloatingParticles - Particules flottantes
  */
-export const FloatingParticles = ({ 
-  count = 20, 
-  className = '' 
+export const FloatingParticles = ({
+  count = 20,
+  className = ''
 }) => {
   const [particles, setParticles] = useState([]);
 
@@ -150,13 +150,13 @@ export const FloatingParticles = ({
 export const GridBackground = ({ className = '' }) => {
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           background: 'var(--color-bg)'
         }}
       />
-      <div 
+      <div
         className="absolute inset-0"
         style={{
           backgroundImage: `
@@ -216,7 +216,7 @@ export const MorphingBlobs = ({ className = '' }) => {
           ease: "easeInOut"
         }}
       />
-      
+
       <motion.div
         className="absolute w-72 h-72"
         style={{
@@ -268,7 +268,7 @@ export const NeonGlow = ({ className = '' }) => {
           repeatDelay: 2
         }}
       />
-      
+
       {/* Ligne verticale */}
       <motion.div
         className="absolute w-px h-full"
@@ -295,9 +295,9 @@ export const NeonGlow = ({ className = '' }) => {
 /**
  * CombinedBackground - Combinaison des effets
  */
-export const CombinedBackground = ({ 
+export const CombinedBackground = ({
   variant = 'default',
-  className = '' 
+  className = ''
 }) => {
   const variants = {
     default: (

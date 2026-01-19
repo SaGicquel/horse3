@@ -1,0 +1,47 @@
+# PRD - Horse 3 : Plateforme de Prédiction et d'Automatisation de Paris Hippiques
+
+## 1. Vision du Produit
+Horse 3 est un écosystème avancé de prédiction pour les courses hippiques françaises (PMU/Equidia). L'objectif est de transformer des données brutes en décisions de paries rentables via un pipeline ML rigoureux doublé d'une surcouche de supervision par Intelligence Artificielle (Agent IA).
+
+## 2. Architecture du Système
+
+### 2.1 Pipeline de Données (Scraping & Enrichissement)
+- **Sources** : PMU.fr, Equidia, Zone-Turf, Turfbzh, et imports IFCE.
+- **Stockage** : SQLite (transition vers PostgreSQL en cours).
+- **Processus** : Scraping quotidien via cron → Normalisation → Calcul des features (forme, jockey, trainer, conditions de piste).
+
+### 2.2 Pipeline Machine Learning (Champion Model)
+- **Cœur** : Modèle XGBoost (v9 actuel) prédisant les probabilités de Win/Place/Show.
+- **Calibration** : Pipeline de calibration Platt pour transformer les scores en probabilités réelles.
+- **Features** : Importance des caractéristiques (Features Importance) intégrée pour l'explicabilité.
+
+### 2.3 Agent IA Supervisor (Surcouche décisionnelle)
+Système en 4 étapes pour sécuriser et optimiser les mises :
+- **Étape A (Algo)** : Génération d'un rapport déterministe basé sur le modèle ML et la `betting_policy`.
+- **Étape B (Analyse LLM)** : Critique du rapport par un LLM (GPT-4o/Gemini) pour détecter des anomalies ou opportunités.
+- **Étape C (Vérification)** : Cross-check des affirmations de l'IA avec les données réelles en base.
+- **Étape D (Final)** : Proposition de mise finale avec score de confiance calculé.
+
+## 3. Stack Technique
+- **Backend** : FastAPI (Python 3.10+), Pydantic, SQLAlchemy.
+- **Frontend** : React (Vite), Tailwind CSS, Lucide React (Icons).
+- **ML/IA** : Scikit-learn, XGBoost, Pandas, Intégration API OpenAI/Gemini.
+- **DevOps** : Docker, Docker-compose, Scripts de déploiement automatisés.
+
+## 4. Fonctionnalités Clés
+- **Dashboard API** : Visualisation en temps réel des courses du jour et des picks.
+- **Gestion de Bankroll** : Profils de risque personnalisables (Prudent, Standard, Agressif) via le critère de Kelly.
+- **Backtesting** : Module complet de test de stratégies sur l'historique des courses.
+- **CLI Interactif** : Interface en ligne de commande pour la gestion administrative et le scraping.
+- **Monitoring** : Alertes de drift (dérive du modèle) et suivi de performance (ROI, Win Rate).
+
+## 5. Roadmap Technique
+- **Phase 1** : Migration complète vers PostgreSQL pour la production.
+- **Phase 2** : Intégration de modèles GNN (Graph Neural Networks) pour modéliser les relations chevaux/jockeys.
+- **Phase 3** : Automatisation totale du cycle de réentraînement sur détection de drift.
+- **Phase 4** : Extension aux paris exotiques (Couplé, Trio) via simulations Monte Carlo.
+
+## 6. Critères de Succès
+- **Précision** : Top-3 accuracy > 25% sur les données validées.
+- **Performance** : Temps de réponse API < 100ms pour les picks standards.
+- **Robustesse** : 0 interruption de scraping sur les 30 derniers jours.

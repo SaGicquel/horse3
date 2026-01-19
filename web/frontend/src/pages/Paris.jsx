@@ -129,8 +129,6 @@ const UserConfigPanel = ({ userSettings, simulation, onRefresh, isAuthenticated 
                     return (
                       <motion.button
                         key={key}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleProfilChange(key)}
                         className={`p-4 rounded-lg border transition-all ${isSelected
                           ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400'

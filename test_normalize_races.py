@@ -4,7 +4,8 @@ Test de la normalisation des races
 """
 
 import sys
-sys.path.insert(0, '/Users/gicquelsacha/horse3')
+
+sys.path.insert(0, "/Users/gicquelsacha/horse3")
 
 from scraper_pmu_simple import normalize_race
 

@@ -1,18 +1,18 @@
 /**
  * Composants Button réutilisables avec effet Glassmorphism parfait
- * 
+ *
  * Caractéristiques :
  * - Effet glassmorphism moderne avec backdrop-blur
  * - Animations fluides au hover et click
  * - Support mode sombre complet
  */
 
-export const PrimaryButton = ({ 
-  children, 
-  onClick, 
+export const PrimaryButton = ({
+  children,
+  onClick,
   disabled = false,
   type = 'button',
-  className = '' 
+  className = ''
 }) => {
   return (
     <button
@@ -20,11 +20,11 @@ export const PrimaryButton = ({
       onClick={onClick}
       disabled={disabled}
       className={`
-        text-white 
+        text-white
         focus:ring-2 focus:outline-none
         disabled:opacity-50 disabled:cursor-not-allowed
-        rounded-xl h-11 px-6 
-        font-medium 
+        rounded-xl h-11 px-6
+        font-medium
         transition-all duration-300
         ${className}
       `}
@@ -55,12 +55,12 @@ export const PrimaryButton = ({
   );
 };
 
-export const SecondaryButton = ({ 
-  children, 
-  onClick, 
+export const SecondaryButton = ({
+  children,
+  onClick,
   disabled = false,
   type = 'button',
-  className = '' 
+  className = ''
 }) => {
   return (
     <button
@@ -70,8 +70,8 @@ export const SecondaryButton = ({
       className={`
         focus:ring-2 focus:outline-none
         disabled:opacity-50 disabled:cursor-not-allowed
-        rounded-xl h-11 px-6 
-        font-medium 
+        rounded-xl h-11 px-6
+        font-medium
         transition-all duration-300
         ${className}
       `}
@@ -105,12 +105,12 @@ export const SecondaryButton = ({
   );
 };
 
-export const GlassButton = ({ 
-  children, 
-  onClick, 
+export const GlassButton = ({
+  children,
+  onClick,
   disabled = false,
   type = 'button',
-  className = '' 
+  className = ''
 }) => {
   return (
     <button
@@ -120,8 +120,8 @@ export const GlassButton = ({
       className={`
         focus:ring-2 focus:outline-none
         disabled:opacity-50 disabled:cursor-not-allowed
-        rounded-xl h-11 px-6 
-        font-medium 
+        rounded-xl h-11 px-6
+        font-medium
         transition-all duration-300
         glass-button
         ${className}
@@ -137,17 +137,17 @@ export const GlassButton = ({
 
 /**
  * Exemple d'utilisation :
- * 
+ *
  * import { PrimaryButton, SecondaryButton, GlassButton } from './components/Button';
- * 
+ *
  * <PrimaryButton onClick={handleSubmit}>
  *   Enregistrer
  * </PrimaryButton>
- * 
+ *
  * <SecondaryButton onClick={handleCancel}>
  *   Annuler
  * </SecondaryButton>
- * 
+ *
  * <GlassButton onClick={handleAction}>
  *   Action
  * </GlassButton>

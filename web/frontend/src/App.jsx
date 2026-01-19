@@ -16,9 +16,9 @@ const Data = lazy(() => import('./pages/Data'));
 // const Landing = lazy(() => import('./pages/Landing'));
 const Courses = lazy(() => import('./pages/Courses'));
 const Conseils = lazy(() => import('./pages/Conseils'));
+const Conseils2 = lazy(() => import('./pages/Conseils2'));
 const MesParis = lazy(() => import('./pages/MesParis'));
 const Settings = lazy(() => import('./pages/Settings'));
-const Calibration = lazy(() => import('./pages/Calibration'));
 const ChevalProfile = lazy(() => import('./pages/ChevalProfile'));
 const Hippodromes = lazy(() => import('./pages/Hippodromes'));
 const Jockeys = lazy(() => import('./pages/Jockeys'));
@@ -27,17 +27,20 @@ const Landing2 = lazy(() => import('./pages/landing2/Landing2'));
 const Landing3 = lazy(() => import('./pages/landing3/Landing3'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const AgentAdmin = lazy(() => import('./pages/AgentAdmin'));
+const SupervisorDashboard = lazy(() => import('./pages/SupervisorDashboard'));
 
 const appRoutes = [
   { id: 'dashboard', path: '/dashboard', element: <Dashboard /> },
+  { id: 'supervisor', path: '/supervisor', element: <SupervisorDashboard /> },
   { id: 'courses', path: '/courses', element: <Courses /> },
   { id: 'conseils', path: '/conseils', element: <Conseils /> },
+  { id: 'conseils2', path: '/conseils2', element: <Conseils2 /> },
   { id: 'analytics', path: '/analytics', element: <Analytics /> },
   { id: 'mesparis', path: '/mes-paris', element: <MesParis /> },
   { id: 'backtest', path: '/backtest', element: <Backtest /> },
   { id: 'data', path: '/data', element: <Data /> },
   { id: 'settings', path: '/settings', element: <Settings /> },
-  { id: 'calibration', path: '/calibration', element: <Calibration /> },
   { id: 'cheval', path: '/cheval', element: <ChevalProfile /> },
   { id: 'chevalDetail', path: '/cheval/:id', element: <ChevalProfile /> },
   { id: 'hippodromes', path: '/hippodromes', element: <Hippodromes /> },
@@ -50,6 +53,7 @@ const appRoutes = [
   { id: 'landing3', path: '/landing3', element: <Landing3 /> },
   { id: 'login', path: '/login', element: <Login /> },
   { id: 'register', path: '/register', element: <Register /> },
+  { id: 'agentadmin', path: '/agent-admin', element: <AgentAdmin /> },
 ];
 
 const pathByPage = appRoutes.reduce((acc, route) => {
@@ -85,16 +89,14 @@ const pageVariants = {
   }
 };
 
-// Composant de chargement avec animation
+// Composant de chargement ultra-léger
 const PageLoader = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950"
-  >
-    <SkeletonDashboard />
-  </motion.div>
+  <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <span className="text-sm text-neutral-500 dark:text-neutral-400">Chargement...</span>
+    </div>
+  </div>
 );
 
 const AppContent = () => {
@@ -156,7 +158,7 @@ const AppContent = () => {
   return (
     <div className="min-h-screen relative">
       {/* Backend smoke check - affiche une alerte si backend down */}
-      <BackendStatus showWhenHealthy position="top" />
+      <BackendStatus showWhenHealthy={false} position="top" />
 
       {/* Background animé */}
       <CombinedBackground variant="minimal" />

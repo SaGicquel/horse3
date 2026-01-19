@@ -93,7 +93,7 @@ const { bankroll, profil } = useUserSettings();
 ```bash
 # 1. Ouvrir http://localhost/settings
 # 2. Modifier bankroll + profil
-# 3. Aller sur http://localhost/conseils  
+# 3. Aller sur http://localhost/conseils
 # 4. → Paramètres conservés ! 🎉
 ```
 

@@ -1,5 +1,6 @@
 from db_connection import get_connection
 
+
 def test_raw_payload_unique():
     con = get_connection()
     cur = con.cursor()

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Wallet, TrendingUp, Trophy, PiggyBank, PlusCircle, LogOut, RefreshCw, ShieldCheck, Clock3, AlertTriangle, Search, Edit3, X, Save, Trash2, LogIn } from 'lucide-react';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
+import { SimulationToggle, SimulationBadge, useSimulationMode } from '../components/SimulationToggle';
 import { betsAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -98,6 +100,9 @@ export default function MesParis() {
   // Utiliser le contexte global d'auth
   const { user, token, isAuthenticated, logout } = useAuth();
 
+  // Mode simulation (stocké dans localStorage)
+  const { isSimulation, toggleSimulation } = useSimulationMode();
+
   const [summary, setSummary] = useState(emptySummary);
   const [betsLoading, setBetsLoading] = useState(false);
 
@@ -117,7 +122,8 @@ export default function MesParis() {
     stake: 10,
     odds: 2,
     status: 'PENDING',
-    notes: ''
+    notes: '',
+    is_simulation: false,  // Mode simulation
   });
 
   // Charger les paris quand l'utilisateur est connecté
@@ -323,12 +329,17 @@ export default function MesParis() {
 
   const displayedBets = useMemo(() => {
     const bets = summary?.bets || [];
-    return [...bets].sort((a, b) => {
+    // Filtrer par mode simulation/réel
+    const filtered = bets.filter(bet => {
+      const betIsSimulation = bet.is_simulation === true;
+      return isSimulation ? betIsSimulation : !betIsSimulation;
+    });
+    return [...filtered].sort((a, b) => {
       const aDate = new Date(a.created_at || a.event_date || 0).getTime();
       const bDate = new Date(b.created_at || b.event_date || 0).getTime();
       return bDate - aDate;
     });
-  }, [summary]);
+  }, [summary, isSimulation]);
 
   return (
     <>
@@ -357,19 +368,13 @@ export default function MesParis() {
         </div>
       )}
 
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1 text-xs font-semibold text-purple-100">
-              <ShieldCheck size={14} /> Portefeuille de paris personnel
-            </div>
-            <h1 className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
-              Compte, paris & PnL en temps réel
-            </h1>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Crée ton compte, enregistre tes mises et suis automatiquement tes performances.
-            </p>
-          </div>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-12 space-y-6">
+        {/* Header unifié */}
+        <PageHeader
+          emoji="💰"
+          title="Mes Paris"
+          subtitle="Crée ton compte, enregistre tes mises et suis automatiquement tes performances."
+        >
           {user && (
             <button
               onClick={logout}
@@ -379,6 +384,19 @@ export default function MesParis() {
               Déconnexion
             </button>
           )}
+        </PageHeader>
+
+        {/* ========== SIMULATION TOGGLE ========== */}
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
+          <div className="flex items-center gap-3">
+            {isSimulation && <SimulationBadge />}
+            <span className="text-sm text-neutral-400">
+              {isSimulation
+                ? "Affichage des paris de simulation (tests)"
+                : "Affichage des paris réels"}
+            </span>
+          </div>
+          <SimulationToggle isSimulation={isSimulation} onToggle={toggleSimulation} />
         </div>
 
         <div className="grid xl:grid-cols-3 gap-6">

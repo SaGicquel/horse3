@@ -49,7 +49,7 @@ export default function Hippodromes() {
     setSelectedHippodrome(nom);
     setLoadingStats(true);
     setHippodromeStats(null); // Reset pour forcer le re-render
-    
+
     try {
       const response = await fetch(`${API_BASE}/api/hippodrome/${encodeURIComponent(nom)}/stats`);
       if (response.ok) {
@@ -82,7 +82,7 @@ export default function Hippodromes() {
       .trim();
   };
 
-  const filteredHippodromes = hippodromes.filter(h => 
+  const filteredHippodromes = hippodromes.filter(h =>
     h.nom.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -173,7 +173,7 @@ export default function Hippodromes() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.03 }}
             >
-              <GlassCard 
+              <GlassCard
                 className={`cursor-pointer hover:border-green-500/50 hover:scale-[1.02] transition-all duration-200 ${
                   selectedHippodrome === hippodrome.nom ? 'border-green-500/50 ring-2 ring-green-500/30 bg-green-500/10' : ''
                 }`}
@@ -224,19 +224,19 @@ export default function Hippodromes() {
               <div className="text-2xl font-bold text-[var(--color-text)]">{hippodromeStats.total_courses}</div>
               <div className="text-xs text-gray-400">Courses</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <ChartBarIcon className="h-8 w-8 mx-auto text-blue-400 mb-2" />
               <div className="text-2xl font-bold text-blue-400">{hippodromeStats.taux_favoris}%</div>
               <div className="text-xs text-gray-400">Favoris gagnants</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <div className="text-3xl mb-2">💰</div>
               <div className="text-2xl font-bold text-green-400">{hippodromeStats.cote_moyenne}</div>
               <div className="text-xs text-gray-400">Cote moyenne gagnant</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <CalendarIcon className="h-8 w-8 mx-auto text-purple-400 mb-2" />
               <div className="text-2xl font-bold text-purple-400">{hippodromeStats.derniere_course}</div>
@@ -254,9 +254,9 @@ export default function Hippodromes() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis dataKey="type" stroke="#9CA3AF" fontSize={10} />
                   <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
@@ -275,9 +275,9 @@ export default function Hippodromes() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis dataKey="distance" stroke="#9CA3AF" fontSize={10} />
                   <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
@@ -296,7 +296,7 @@ export default function Hippodromes() {
                 {hippodromeStats.top_chevaux.slice(0, 6).map((cheval, i) => (
                   <div key={i} className="bg-white/5 rounded-lg p-3 flex items-center gap-3">
                     <div className={`text-2xl font-bold ${
-                      i === 0 ? 'text-yellow-400' : 
+                      i === 0 ? 'text-yellow-400' :
                       i === 1 ? 'text-gray-400' :
                       i === 2 ? 'text-orange-400' : 'text-gray-500'
                     }`}>
@@ -322,7 +322,7 @@ export default function Hippodromes() {
                 {hippodromeStats.top_jockeys.slice(0, 6).map((jockey, i) => (
                   <div key={i} className="bg-white/5 rounded-lg p-3 flex items-center gap-3">
                     <div className={`text-2xl font-bold ${
-                      i === 0 ? 'text-yellow-400' : 
+                      i === 0 ? 'text-yellow-400' :
                       i === 1 ? 'text-gray-400' :
                       i === 2 ? 'text-orange-400' : 'text-gray-500'
                     }`}>

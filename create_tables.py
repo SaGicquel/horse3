@@ -2,14 +2,14 @@ import sqlite3
 import os
 
 # Créer le dossier data s'il n'existe pas
-os.makedirs('data', exist_ok=True)
+os.makedirs("data", exist_ok=True)
 
 # Connexion à la base SQLite
-conn = sqlite3.connect('data/database.db')
+conn = sqlite3.connect("data/database.db")
 cursor = conn.cursor()
 
 # Créer la table horses (avec race_id)
-cursor.execute('''
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS horses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -27,10 +27,10 @@ CREATE TABLE IF NOT EXISTS horses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (race_id) REFERENCES races(id)
 )
-''')
+""")
 
 # Créer la table races
-cursor.execute('''
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS races (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT,
@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS races (
     race_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
-''')
+""")
 
 # Créer la table race_results
-cursor.execute('''
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS race_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     race_id INTEGER,
@@ -54,10 +54,10 @@ CREATE TABLE IF NOT EXISTS race_results (
     FOREIGN KEY (horse_id) REFERENCES horses(id),
     UNIQUE(race_id, horse_id)
 )
-''')
+""")
 
 # Créer la table ifce_horses (pour le matching)
-cursor.execute('''
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS ifce_horses (
     horse_key INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
@@ -69,17 +69,17 @@ CREATE TABLE IF NOT EXISTS ifce_horses (
     dam_name TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
-''')
+""")
 
 # Créer la table horse_aliases (pour le cache de matching)
-cursor.execute('''
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS horse_aliases (
     pmu_name_norm TEXT PRIMARY KEY,
     ifce_horse_key INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ifce_horse_key) REFERENCES ifce_horses(horse_key)
 )
-''')
+""")
 
 conn.commit()
 print("✅ Tables créées avec succès dans data/database.db")

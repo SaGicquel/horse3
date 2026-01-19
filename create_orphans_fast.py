@@ -23,7 +23,7 @@ con.commit()
 # Trouver les noms orphelins (simple et rapide)
 print("🔍 Recherche des orphelins...")
 cur.execute("""
-    SELECT DISTINCT nom_norm 
+    SELECT DISTINCT nom_norm
     FROM cheval_courses_seen
     WHERE nom_norm NOT IN (SELECT LOWER(nom) FROM chevaux)
 """)
@@ -40,22 +40,26 @@ print(f"\n⚠️  {len(orphelins)} chevaux orphelins trouvés\n")
 # Créer chaque cheval avec ses stats
 for i, nom in enumerate(orphelins, 1):
     # Récupérer les stats
-    cur.execute("""
-        SELECT 
+    cur.execute(
+        """
+        SELECT
             COUNT(*),
             SUM(is_win),
             SUM(CASE WHEN annee = 2025 THEN 1 ELSE 0 END),
             SUM(CASE WHEN annee = 2025 AND is_win = 1 THEN 1 ELSE 0 END)
         FROM cheval_courses_seen
         WHERE nom_norm = ?
-    """, (nom,))
-    
+    """,
+        (nom,),
+    )
+
     nb_courses, nb_vict, nb_2025, nbv_2025 = cur.fetchone()
-    
+
     print(f"[{i}/{len(orphelins)}] {nom}: {nb_courses} courses, {nb_vict or 0} victoires")
-    
+
     # Créer le cheval
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO chevaux (
             nom,
             nombre_courses_total,
@@ -64,7 +68,9 @@ for i, nom in enumerate(orphelins, 1):
             nombre_victoires_2025,
             created_at
         ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    """, (nom, nb_courses, nb_vict or 0, nb_2025, nbv_2025 or 0))
+    """,
+        (nom, nb_courses, nb_vict or 0, nb_2025, nbv_2025 or 0),
+    )
 
 con.commit()
 con.close()

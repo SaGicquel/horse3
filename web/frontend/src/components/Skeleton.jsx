@@ -1,6 +1,6 @@
 /**
  * Skeleton - Composants de chargement modernes avec Glassmorphism
- * 
+ *
  * Différents types de skeletons pour un chargement élégant :
  * - SkeletonCard
  * - SkeletonText

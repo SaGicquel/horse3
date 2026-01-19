@@ -1,6 +1,6 @@
 /**
  * GlassCard - Composant Card avec effet glassmorphism parfait
- * 
+ *
  * Caractéristiques :
  * - Effet glassmorphism moderne avec backdrop-blur et saturate
  * - Bordures subtiles avec reflets lumineux
@@ -29,7 +29,6 @@ const glassVariants = {
   },
   hover: {
     y: -4,
-    scale: 1.01,
     transition: {
       type: "spring",
       stiffness: 400,
@@ -69,7 +68,6 @@ export const GlassCard = ({
       initial="hidden"
       animate="visible"
       whileHover={hover ? "hover" : undefined}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
       transition={{ delay }}
       onClick={onClick}
     >
@@ -93,8 +91,6 @@ export const GlassCardHeader = ({
         {Icon && (
           <motion.div
             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ec4899] to-[#db2777] shadow-lg shadow-[#ec48994d] border border-white/20"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
           >
             <Icon size={22} className="text-white" />
           </motion.div>
@@ -111,9 +107,7 @@ export const GlassCardHeader = ({
         </div>
       </div>
       {action && (
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          {action}
-        </motion.div>
+        <div>{action}</div>
       )}
     </div>
   );

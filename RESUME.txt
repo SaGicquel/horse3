@@ -29,7 +29,7 @@
    ✅ Si deux chevaux ont le même nom :
       → Différenciation par NOM + DATE DE NAISSANCE
       → Exemple : "BLACK SAXON (27/04/2021)" vs "BLACK SAXON (2021-01-01)"
-   
+
 4. 💾 BASE DE DONNÉES COMPLÈTE
    • Table `chevaux` : 25 752 chevaux enregistrés
    • Table `cheval_courses_seen` : 1 536 courses distinctes
@@ -137,7 +137,7 @@ python -c "from exemples_requetes import chevaux_par_annee; \
            chevaux_par_annee(2022)"
 
 # Requête SQL directe
-sqlite3 data/database.db "SELECT nom, date_naissance, nombre_courses_total 
+sqlite3 data/database.db "SELECT nom, date_naissance, nombre_courses_total
 FROM chevaux WHERE LOWER(nom) LIKE '%nom%' LIMIT 5;"
 
 ================================================================================

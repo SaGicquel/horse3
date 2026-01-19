@@ -1,6 +1,6 @@
 # 🔍 AUDIT COMPLET DES SCRIPTS DE SCRAPING
 
-**Date de l'audit** : 24 novembre 2025  
+**Date de l'audit** : 24 novembre 2025
 **Projet** : Horse3 - Système de scraping PMU
 
 ---
@@ -106,14 +106,14 @@ class AdaptiveRateLimiter:
         self.max_delay = max_delay
         self.current_delay = min_delay
         self.errors_count = 0
-    
+
     def wait(self):
         time.sleep(self.current_delay)
-    
+
     def success(self):
         self.errors_count = 0
         self.current_delay = max(self.min_delay, self.current_delay * 0.9)
-    
+
     def error(self, status_code=None):
         self.errors_count += 1
         if status_code == 429:  # Too Many Requests
@@ -137,7 +137,7 @@ class CircuitBreaker:
         self.reset_timeout = reset_timeout
         self.last_failure_time = None
         self.state = 'CLOSED'  # CLOSED, OPEN, HALF-OPEN
-    
+
     def can_execute(self) -> bool:
         if self.state == 'CLOSED':
             return True
@@ -147,11 +147,11 @@ class CircuitBreaker:
                 return True
             return False
         return True  # HALF-OPEN
-    
+
     def record_success(self):
         self.failure_count = 0
         self.state = 'CLOSED'
-    
+
     def record_failure(self):
         self.failure_count += 1
         self.last_failure_time = time.time()
@@ -224,19 +224,19 @@ class JSONFormatter(logging.Formatter):
 def setup_logging(name: str, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
+
     # Handler console avec emojis
     console = logging.StreamHandler()
     console.setFormatter(logging.Formatter(
         '%(asctime)s [%(levelname)s] %(message)s'
     ))
     logger.addHandler(console)
-    
+
     # Handler fichier JSON
     file_handler = logging.FileHandler(f'logs/{name}.json')
     file_handler.setFormatter(JSONFormatter())
     logger.addHandler(file_handler)
-    
+
     return logger
 ```
 
@@ -265,7 +265,7 @@ class ChevalData:
     nom: str
     date_naissance: Optional[str] = None
     sexe: Optional[str] = None
-    
+
     def __post_init__(self):
         if not self.nom or len(self.nom) < 2:
             raise ValueError(f"Nom de cheval invalide: {self.nom}")
@@ -296,9 +296,9 @@ def process_course(args):
     # Le lock est utilisé pour le cursor mais pas pour le commit
     with db_lock:
         cur = con.cursor()
-    
+
     # ... traitement ...
-    
+
     with db_lock:
         con.commit()  # ⚠️ Pas thread-safe si transaction échoue
 ```
@@ -309,7 +309,7 @@ from psycopg2 import pool
 
 class DatabasePool:
     _pool = None
-    
+
     @classmethod
     def get_pool(cls, min_conn=2, max_conn=10):
         if cls._pool is None:
@@ -322,11 +322,11 @@ class DatabasePool:
                 password='pmu_secure_password_2025'
             )
         return cls._pool
-    
+
     @classmethod
     def get_connection(cls):
         return cls.get_pool().getconn()
-    
+
     @classmethod
     def return_connection(cls, conn):
         cls.get_pool().putconn(conn)
@@ -355,7 +355,7 @@ for base in (BASE, FALLBACK_BASE):
 ```python
 def norm(s: str|None) -> str|None:
     """Normalisation nom: strip accents, collapse spaces, lower."""
-    
+
 def normalize_race(race: str|None) -> str|None:
     """Normalise un nom de race pour éviter les doublons"""
 ```
@@ -452,7 +452,7 @@ from utils.db_pool import DatabasePool
 
 class BaseScraper(ABC):
     """Classe de base pour tous les scrapers."""
-    
+
     def __init__(self, name: str):
         self.name = name
         self.logger = logging.getLogger(name)
@@ -460,7 +460,7 @@ class BaseScraper(ABC):
         self.circuit_breaker = CircuitBreaker()
         self.session = self._create_session()
         self.stats = {'success': 0, 'errors': 0, 'skipped': 0}
-    
+
     def _create_session(self) -> requests.Session:
         session = requests.Session()
         session.headers.update(self.get_headers())
@@ -471,25 +471,25 @@ class BaseScraper(ABC):
         )
         session.mount('https://', adapter)
         return session
-    
+
     @abstractmethod
     def get_headers(self) -> dict:
         """Headers HTTP spécifiques au scraper."""
         pass
-    
+
     @abstractmethod
     def scrape(self, **kwargs):
         """Méthode principale de scraping."""
         pass
-    
+
     def safe_request(self, url: str, **kwargs) -> Optional[dict]:
         """Requête HTTP sécurisée avec rate limiting et circuit breaker."""
         if not self.circuit_breaker.can_execute():
             self.logger.warning(f"Circuit ouvert, requête ignorée: {url}")
             return None
-        
+
         self.rate_limiter.wait()
-        
+
         try:
             response = self.session.get(url, **kwargs)
             response.raise_for_status()

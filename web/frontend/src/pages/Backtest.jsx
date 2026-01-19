@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Chat from '../components/Chat';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
 import { StaggerContainer, StaggerItem, ScrollReveal } from '../components/PageTransition';
 import { Skeleton } from '../components/Skeleton';
 import { API_BASE } from '../config/api';
@@ -84,7 +85,6 @@ const MetricCard = ({ label, value, suffix = '', icon: Icon, color = 'primary', 
       }}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
     >
       <div className="flex items-start justify-between mb-2">
         <div
@@ -251,60 +251,13 @@ const Backtest = () => {
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 sm:space-y-10 px-3 sm:px-6 py-6 sm:py-12">
-      {/* Header */}
-      <motion.div
-        className="flex flex-col gap-2 sm:gap-3"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <motion.span
-          className="text-[10px] sm:text-[11px] uppercase tracking-[0.42em]"
-          style={{ color: 'var(--color-muted)' }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          Stratégies & Analyse
-        </motion.span>
-        <motion.h1
-          className="text-2xl sm:text-3xl md:text-4xl font-semibold flex items-center gap-4"
-          style={{ color: 'var(--color-text)' }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <motion.span
-            animate={{
-              rotate: [0, 10, -10, 0],
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 4 }}
-          >
-            <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: 'var(--color-primary)' }} />
-          </motion.span>
-          Backtest Paramétrable
-        </motion.h1>
-        <motion.p
-          className="text-xs sm:text-sm max-w-xl"
-          style={{ color: 'var(--color-muted)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          Testez vos stratégies sur les données historiques et analysez les performances.
-        </motion.p>
-        <motion.div
-          className="h-1 w-16 sm:w-24 rounded-full"
-          style={{
-            background: `linear-gradient(to right, var(--color-primary), transparent)`
-          }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        />
-      </motion.div>
+    <div className="mx-auto max-w-7xl space-y-6 sm:space-y-10 px-3 sm:px-6 py-6 sm:py-12">
+      {/* Header unifié */}
+      <PageHeader
+        emoji="📈"
+        title="Backtest Paramétrable"
+        subtitle="Testez vos stratégies sur les données historiques et analysez les performances."
+      />
 
       {/* Formulaire Backtest */}
       <motion.div
@@ -524,8 +477,6 @@ const Backtest = () => {
                   background: 'linear-gradient(135deg, var(--color-primary), #9D3656)',
                   boxShadow: '0 4px 20px rgba(157, 54, 86, 0.3)'
                 }}
-                whileHover={{ scale: loading ? 1 : 1.02, boxShadow: '0 6px 30px rgba(157, 54, 86, 0.4)' }}
-                whileTap={{ scale: loading ? 1 : 0.98 }}
               >
                 {loading ? (
                   <>

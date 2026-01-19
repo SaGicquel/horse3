@@ -416,7 +416,7 @@ def calculate_personalized_stake(runner: dict, user_params: UserBettingParams) -
         "kelly_original": kelly_pct * 100,
         "kelly_adjusted": kelly_adjusted * 100,
         "profil_multiplier": config["kelly_multiplier"],
-        "reason": f"Kelly {kelly_pct*100:.1f}% → {kelly_adjusted*100:.1f}% (profil {user_params.profil.value})",
+        "reason": f"Kelly {kelly_pct * 100:.1f}% → {kelly_adjusted * 100:.1f}% (profil {user_params.profil.value})",
     }
 
 
@@ -542,6 +542,56 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ============================================================================
+# AI Analysis Router
+# ============================================================================
+try:
+    from services.ai_analyzer import router as ai_router
+
+    app.include_router(ai_router)
+    print("[INFO] AI Analyzer router loaded")
+except ImportError as e:
+    print(f"[WARN] AI Analyzer not available: {e}")
+
+# ============================================================================
+# Agent IA Router (Rapport Algo)
+# ============================================================================
+try:
+    from services.agent_router import router as agent_router
+
+    app.include_router(agent_router)
+    print("[INFO] Agent IA router loaded")
+except ImportError as e:
+    print(f"[WARN] Agent IA router not available: {e}")
+
+# ============================================================================
+# Superviseur Router (Taches 4-8)
+# ============================================================================
+try:
+    from routers.analysis import router as analysis_router
+    from routers.analysis import init_analysis_services
+
+    app.include_router(analysis_router)
+
+    @app.on_event("startup")
+    async def startup_analysis():
+        init_analysis_services()
+
+    print("[INFO] Superviseur router loaded")
+except ImportError as e:
+    print(f"[WARN] Superviseur router not available: {e}")
+
+# ============================================================================
+# Races Router (Task 2)
+# ============================================================================
+try:
+    from routers.races import router as races_router
+
+    app.include_router(races_router)
+    print("[INFO] Races router loaded")
+except ImportError as e:
+    print(f"[WARN] Races router not available: {e}")
 
 # ============================================================================
 # Health Check
@@ -715,6 +765,7 @@ class BetCreateRequest(BaseModel):
     odds: float = Field(..., gt=0)
     status: Literal["PENDING", "WIN", "LOSE", "VOID"] | None = "PENDING"
     notes: str | None = None
+    is_simulation: bool = False  # Marqueur mode simulation
 
 
 class BetUpdateRequest(BaseModel):
@@ -802,14 +853,52 @@ def normalize_bet_status(status: str | None) -> str:
     return BET_STATUS_MAP.get(key, "PENDING")
 
 
-def compute_bet_pnl(status: str, stake: float, odds: float) -> float:
-    """Calcule le PnL d'un pari en fonction de son statut"""
+def compute_bet_pnl(status: str, stake: float, odds: float, bet_type: str = None) -> float:
+    """
+    Calcule le PnL d'un pari en fonction de son statut et du type de pari.
+
+    Pour les paris E/P (Gagnant-Placé):
+    - La mise est divisée 50/50 entre Gagnant et Placé
+    - Si WIN avec odds < 2: le cheval est placé (2e-3e), seule la partie Placé gagne
+      → PnL = (mise/2 × odds) - mise = mise × (odds/2 - 0.5) pour un cheval placé
+      → Mais la cote stockée devrait déjà être la cote effective (cote_place/2)
+    - Si WIN avec odds >= 2: le cheval est 1er OU la cote n'a pas été ajustée
+      → On doit recalculer pour un E/P placé
+
+    ⚠️ Pour E/P, si l'utilisateur entre manuellement la cote placé (ex: 2.10),
+    le calcul correct pour un cheval placé (2e-3e) est:
+    Retour = (mise/2) × cote_place = 6€ × 2.10 = 12.60€
+    PnL = Retour - mise = 12.60€ - 12€ = +0.60€
+    """
     stake_val = to_float(stake)
     odds_val = to_float(odds)
+    bet_type_upper = (bet_type or "").upper()
+
     if status == "WIN":
-        return round(stake_val * (odds_val - 1), 2)
+        # Vérifier si c'est un pari E/P (Gagnant-Placé)
+        if "E/P" in bet_type_upper or ("GAGNANT" in bet_type_upper and "PLACÉ" in bet_type_upper):
+            # Pour E/P, la cote stockée devrait être:
+            # - Si cheval 1er: (cote_gagnant + cote_place) / 2 → typiquement > 2
+            # - Si cheval 2e-3e: cote_place / 2 → typiquement 1.0 - 1.5
+            #
+            # Si odds >= 1.5, c'est probablement la cote placé brute (non ajustée)
+            # On doit alors calculer comme un E/P placé:
+            # PnL = (stake/2) × odds - stake = stake × (odds/2 - 1)
+            if odds_val >= 1.5:
+                # Cote placé brute - recalculer pour E/P placé (cheval 2e-3e)
+                # Retour = (mise/2) × cote_place
+                # PnL = Retour - mise = (mise/2 × cote) - mise = mise × (cote/2 - 1)
+                return round(stake_val * (odds_val / 2 - 1), 2)
+            else:
+                # Cote déjà ajustée (effective) - utiliser la formule standard
+                return round(stake_val * (odds_val - 1), 2)
+        else:
+            # Paris standard (Gagnant, Placé, etc.)
+            return round(stake_val * (odds_val - 1), 2)
+
     if status == "LOSE":
         return round(-stake_val, 2)
+
     return 0.0
 
 
@@ -1061,7 +1150,8 @@ def serialize_bet_row(row) -> dict[str, Any]:
         except Exception:
             event_date = None
     status = normalize_bet_status(row[8])
-    pnl = compute_bet_pnl(status, row[6], row[7])
+    bet_type = row[5]
+    pnl = compute_bet_pnl(status, row[6], row[7], bet_type)
     created_at = serialize_datetime(row[10])
     return {
         "id": row[0],
@@ -1108,7 +1198,7 @@ def build_monitoring_from_bets(bets: list[dict[str, Any]]) -> MonitoringStats:
     roi = round((pnl_net / resolved_stake) * 100, 2) if resolved_stake > 0 else 0.0
     win_rate = round((wins / finished_bets) * 100, 2) if finished_bets > 0 else 0.0
 
-    history_map: dict[str, float] = {}
+    history_map: dict[str, dict[str, float]] = {}  # {date: {"pnl": x, "stake": y}}
     for b in bets:
         bet_date = b.get("event_date")
         if isinstance(bet_date, datetime):
@@ -1117,14 +1207,27 @@ def build_monitoring_from_bets(bets: list[dict[str, Any]]) -> MonitoringStats:
             bet_date = b["created_at"].date()
         if bet_date:
             key = bet_date.isoformat()
-            history_map[key] = history_map.get(key, 0.0) + b["pnl"]
+            if key not in history_map:
+                history_map[key] = {"pnl": 0.0, "stake": 0.0}
+            history_map[key]["pnl"] += b["pnl"]
+            history_map[key]["stake"] += to_float(b.get("stake", 0))
 
     pnl_history = []
     pnl_cumul = 0.0
+    stake_cumul = 0.0
     for d in sorted(history_map.keys()):
-        pnl_cumul = round(pnl_cumul + history_map[d], 2)
+        pnl_cumul = round(pnl_cumul + history_map[d]["pnl"], 2)
+        stake_cumul = round(stake_cumul + history_map[d]["stake"], 2)
+        # Capital = Mises + Gains (ce que vous avez récupéré)
+        capital_cumul = round(stake_cumul + pnl_cumul, 2)
         pnl_history.append(
-            {"date": d, "pnl_jour": round(history_map[d], 2), "pnl_cumul": pnl_cumul}
+            {
+                "date": d,
+                "pnl_jour": round(history_map[d]["pnl"], 2),
+                "pnl_cumul": pnl_cumul,
+                "stake_cumul": stake_cumul,
+                "capital_cumul": capital_cumul,  # Mises + Gains
+            }
         )
 
     recent_bets = sorted(
@@ -1240,70 +1343,104 @@ def scrape_rapports_definitifs(race_key: str) -> dict:
     ]
     HEADERS = {"User-Agent": "horse-bet-checker/1.0", "Accept": "application/json"}
 
+    # Essayer d'abord les rapports Internet (e-Simple, e-Couplé) car ce sont les cotes en ligne
+    # Puis fallback sur les rapports locaux (points de vente physiques)
+    SPECIALISATIONS = ["INTERNET", None]  # INTERNET first, then default (LOCAL)
+
     for base in BASES:
-        url = f"{base}/programme/{date_pmu}/R{reunion}/C{course}/rapports-definitifs"
-        try:
-            r = requests.get(url, headers=HEADERS, timeout=10)
-            if r.status_code == 200:
-                rapports_list = r.json()
+        for spec in SPECIALISATIONS:
+            if spec:
+                url = f"{base}/programme/{date_pmu}/R{reunion}/C{course}/rapports-definitifs?specialisation={spec}"
+            else:
+                url = f"{base}/programme/{date_pmu}/R{reunion}/C{course}/rapports-definitifs"
 
-                rapports = {}
-                for rapport in rapports_list:
-                    type_pari = rapport.get("typePari", "")
-                    rapports_data = rapport.get("rapports", [])
-
-                    # Pour les paris simples (SIMPLE_GAGNANT, SIMPLE_PLACE)
-                    if type_pari in ("SIMPLE_GAGNANT", "SIMPLE_PLACE"):
-                        rapports[type_pari] = {}
-                        for r_data in rapports_data:
-                            combinaison = r_data.get("combinaison", "")  # ex: "1", "8"
-                            # dividendePourUnEuro est en centimes (1080 = 10.80€)
-                            dividende = r_data.get("dividendePourUnEuro", 0) / 100
-                            if combinaison:
-                                rapports[type_pari][combinaison] = dividende
-
-                    # Pour les paris combinés (COUPLE, TRIO, etc.)
-                    elif type_pari in ("COUPLE_GAGNANT", "COUPLE_PLACE", "DEUX_SUR_QUATRE"):
-                        rapports[type_pari] = {}
-                        for r_data in rapports_data:
-                            combinaison = r_data.get("combinaison", "")  # ex: "1-8"
-                            dividende = r_data.get("dividendePourUnEuro", 0) / 100
-                            if combinaison:
-                                rapports[type_pari][combinaison] = dividende
-
-                    # Pour TIERCE, QUARTE, QUINTE (ordre et désordre)
-                    elif type_pari in ("TIERCE", "QUARTE_PLUS", "QUINTE_PLUS"):
-                        rapports[type_pari] = {"ordre": {}, "desordre": {}, "bonus": {}}
-                        for r_data in rapports_data:
-                            libelle = r_data.get("libelle", "").lower()
-                            combinaison = r_data.get("combinaison", "")
-                            dividende = r_data.get("dividendePourUnEuro", 0) / 100
-                            if "ordre" in libelle:
-                                rapports[type_pari]["ordre"][combinaison] = dividende
-                            elif "désordre" in libelle or "desordre" in libelle:
-                                rapports[type_pari]["desordre"][combinaison] = dividende
-                            elif "bonus" in libelle:
-                                rapports[type_pari]["bonus"][combinaison] = dividende
-
-                    # MULTI
-                    elif type_pari in ("MULTI", "MINI_MULTI"):
-                        rapports[type_pari] = {}
-                        for r_data in rapports_data:
-                            libelle = r_data.get("libelle", "")
-                            combinaison = r_data.get("combinaison", "")
-                            dividende = r_data.get("dividendePourUnEuro", 0) / 100
-                            key = f"{libelle}|{combinaison}"
-                            rapports[type_pari][key] = dividende
-
-                if rapports:
+            try:
+                r = requests.get(url, headers=HEADERS, timeout=10)
+                print(f"[DEBUG] Fetching rapports from: {url} -> status={r.status_code}")
+                if r.status_code == 200:
+                    rapports_list = r.json()
+                    if not rapports_list:
+                        print(f"[DEBUG] Empty rapports list for {spec or 'LOCAL'}")
+                        continue
                     print(
-                        f"[DEBUG] Rapports définitifs trouvés pour {race_key}: {list(rapports.keys())}"
+                        f"[DEBUG] Types from API ({spec or 'LOCAL'}): {[r.get('typePari') for r in rapports_list]}"
                     )
-                    return rapports
 
-        except Exception as e:
-            print(f"[WARN] Erreur récup rapports définitifs ({base}): {e}")
-            continue
+                    rapports = {}
+                    for rapport in rapports_list:
+                        type_pari = rapport.get("typePari", "")
+                        rapports_data = rapport.get("rapports", [])
+
+                        # Mapper les types e- (Internet) vers les types standard
+                        # E_SIMPLE_GAGNANT -> SIMPLE_GAGNANT, etc.
+                        # IMPORTANT: utiliser [2:] pour ne supprimer QUE le préfixe, pas tous les "E_"
+                        type_pari_normalized = (
+                            type_pari[2:] if type_pari.startswith("E_") else type_pari
+                        )
+                        print(
+                            f"[DEBUG] Processing type: {type_pari} -> normalized: {type_pari_normalized}, data_len: {len(rapports_data)}"
+                        )
+
+                        # Pour les paris simples (SIMPLE_GAGNANT, SIMPLE_PLACE, E_SIMPLE_GAGNANT, E_SIMPLE_PLACE)
+                        if type_pari_normalized in ("SIMPLE_GAGNANT", "SIMPLE_PLACE"):
+                            # Utiliser le type normalisé comme clé
+                            rapports[type_pari_normalized] = {}
+                            for r_data in rapports_data:
+                                combinaison = r_data.get("combinaison", "")  # ex: "1", "8"
+                                # dividendePourUnEuro est en centimes (240 = 2.40€)
+                                dividende = r_data.get("dividendePourUnEuro", 0) / 100
+                                if combinaison:
+                                    rapports[type_pari_normalized][combinaison] = dividende
+
+                        # Pour les paris combinés (COUPLE, TRIO, etc.)
+                        elif type_pari_normalized in (
+                            "COUPLE_GAGNANT",
+                            "COUPLE_PLACE",
+                            "DEUX_SUR_QUATRE",
+                        ):
+                            rapports[type_pari_normalized] = {}
+                            for r_data in rapports_data:
+                                combinaison = r_data.get("combinaison", "")  # ex: "1-8"
+                                dividende = r_data.get("dividendePourUnEuro", 0) / 100
+                                if combinaison:
+                                    rapports[type_pari_normalized][combinaison] = dividende
+
+                        # Pour TIERCE, QUARTE, QUINTE (ordre et désordre)
+                        elif type_pari in ("TIERCE", "QUARTE_PLUS", "QUINTE_PLUS"):
+                            rapports[type_pari] = {"ordre": {}, "desordre": {}, "bonus": {}}
+                            for r_data in rapports_data:
+                                libelle = r_data.get("libelle", "").lower()
+                                combinaison = r_data.get("combinaison", "")
+                                dividende = r_data.get("dividendePourUnEuro", 0) / 100
+                                if "ordre" in libelle:
+                                    rapports[type_pari]["ordre"][combinaison] = dividende
+                                elif "désordre" in libelle or "desordre" in libelle:
+                                    rapports[type_pari]["desordre"][combinaison] = dividende
+                                elif "bonus" in libelle:
+                                    rapports[type_pari]["bonus"][combinaison] = dividende
+
+                        # MULTI
+                        elif type_pari in ("MULTI", "MINI_MULTI"):
+                            rapports[type_pari] = {}
+                            for r_data in rapports_data:
+                                libelle = r_data.get("libelle", "")
+                                combinaison = r_data.get("combinaison", "")
+                                dividende = r_data.get("dividendePourUnEuro", 0) / 100
+                                key = f"{libelle}|{combinaison}"
+                                rapports[type_pari][key] = dividende
+
+                    print(f"[DEBUG] Parsed rapports ({spec or 'LOCAL'}): {rapports}")
+                    if rapports:
+                        print(
+                            f"[DEBUG] Rapports définitifs ({spec or 'LOCAL'}) trouvés pour {race_key}: {list(rapports.keys())}"
+                        )
+                        return rapports
+                    else:
+                        print(f"[DEBUG] Empty rapports dict for {spec or 'LOCAL'}, continuing...")
+
+            except Exception as e:
+                print(f"[WARN] Erreur récup rapports définitifs ({base}, {spec}): {e}")
+                continue
 
     return {}
 
@@ -1532,9 +1669,82 @@ def scrape_race_results_from_api(race_key: str) -> dict:
     }
 
     for base in BASES:
+        # D'abord vérifier le statut de la course via l'endpoint programme
+        try:
+            programme_url = f"{base}/programme/{date_pmu}/R{reunion}/C{course}"
+            r_prog = requests.get(programme_url, headers=HEADERS, timeout=10)
+
+            # Si 204 No Content, la course est probablement annulée ou n'existe pas
+            if r_prog.status_code == 204:
+                print(f"[INFO] Course {race_key} retourne 204 (No Content) -> Course ANNULÉE")
+                return {
+                    "course_annulee": True,
+                    "raison_annulation": "Course annulée (204 No Content)",
+                    "participants": {},
+                    "nb_partants": 0,
+                    "arrivee": [],
+                    "course_terminee": True,
+                }
+
+            if r_prog.status_code == 200:
+                prog_data = r_prog.json()
+                # Vérifier si la course est annulée
+                # L'API PMU peut indiquer l'annulation via différents champs
+                course_statut = prog_data.get("statut", "").upper()
+                is_annulee = prog_data.get("courseAnnulee", False)
+                is_reportee = prog_data.get("courseReportee", False)
+                libelle_statut = prog_data.get("libelleStatut", "").upper()
+
+                # Détecter les différentes façons dont une course peut être annulée
+                # COURSE_ANNULEE est le statut officiel de l'API PMU
+                if (
+                    is_annulee
+                    or is_reportee
+                    or course_statut
+                    in (
+                        "ANNULEE",
+                        "ANNULE",
+                        "CANCELLED",
+                        "REPORTEE",
+                        "ABANDONNEE",
+                        "COURSE_ANNULEE",
+                    )
+                    or "ANNUL" in libelle_statut
+                    or "ANNUL" in course_statut
+                    or "REPORT" in libelle_statut
+                ):
+                    raison = libelle_statut or course_statut or "Course annulée"
+                    print(
+                        f"[INFO] Course {race_key} est ANNULÉE (statut: {course_statut}, libelleStatut: {libelle_statut}, courseAnnulee: {is_annulee})"
+                    )
+                    return {
+                        "course_annulee": True,
+                        "raison_annulation": raison,
+                        "participants": {},
+                        "nb_partants": 0,
+                        "arrivee": [],
+                        "course_terminee": True,
+                    }
+        except Exception as e:
+            print(f"[DEBUG] Erreur vérification statut course ({base}): {e}")
+
+        # Récupérer les participants
         url = f"{base}/programme/{date_pmu}/R{reunion}/C{course}/participants"
         try:
             r = requests.get(url, headers=HEADERS, timeout=10)
+
+            # Si 204 sur participants aussi, course annulée
+            if r.status_code == 204:
+                print(f"[INFO] Participants {race_key} retourne 204 -> Course ANNULÉE")
+                return {
+                    "course_annulee": True,
+                    "raison_annulation": "Course annulée (pas de participants)",
+                    "participants": {},
+                    "nb_partants": 0,
+                    "arrivee": [],
+                    "course_terminee": True,
+                }
+
             if r.status_code == 200:
                 data = r.json()
                 participants = data.get("participants", [])
@@ -1729,16 +1939,14 @@ def determine_bet_result(
        → Uniquement 1er
 
     🟦 SIMPLE PLACÉ / E_PLACÉ / E/P (GAGNANT-PLACÉ)
-       → 4 à 7 partants: 1er – 2e
-       → 8 à 15 partants: 1er – 2e – 3e
-       → 16+ partants: 1er – 2e – 3e – 4e
+       → 4 à 7 partants: 1er – 2e (top 2)
+       → 8+ partants: 1er – 2e – 3e (top 3)
 
     🟩 COUPLÉ GAGNANT
-       → Les 2 premiers dans n'importe quel ordre
+       → Les 2 premiers dans n'importe quel ordre (8+ partants)
 
     🟩 COUPLÉ PLACÉ
-       → 4–7 partants: 2 premiers
-       → 8+ partants: 3 premiers
+       → 8+ partants: 2 chevaux parmi les 3 premiers
 
     🟩 COUPLÉ ORDRE
        → Les 2 premiers dans l'ordre exact
@@ -1813,10 +2021,10 @@ def determine_bet_result(
         if place_finale is None:
             return "PENDING"
 
-        # Déterminer le nombre de places payées selon le nombre de partants
-        if nb_partants >= 16:
-            places_payees = 4  # 1er – 2e – 3e – 4e
-        elif nb_partants >= 8:
+        # Déterminer le nombre de places payées selon le nombre de partants (règles PMU)
+        # 8+ partants: top 3 (1er – 2e – 3e)
+        # 4-7 partants: top 2 (1er – 2e)
+        if nb_partants >= 8:
             places_payees = 3  # 1er – 2e – 3e
         else:  # 4 à 7 partants
             places_payees = 2  # 1er – 2e
@@ -2214,15 +2422,16 @@ async def create_bet(payload: BetCreateRequest, authorization: str | None = Head
             payload.odds,
             status,
             payload.notes,
+            payload.is_simulation,  # Marqueur simulation
         )
 
         if USE_POSTGRESQL:
             cur.execute(
                 """
                 INSERT INTO user_bets (
-                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
             """,
                 params,
             )
@@ -2231,15 +2440,15 @@ async def create_bet(payload: BetCreateRequest, authorization: str | None = Head
             cur.execute(
                 adapt_query("""
                 INSERT INTO user_bets (
-                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """),
                 params,
             )
             bet_id = cur.lastrowid
             cur.execute(
                 adapt_query("""
-                SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
                 FROM user_bets
                 WHERE id = %s
             """),
@@ -2423,10 +2632,9 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
        🟦 SIMPLE GAGNANT: place == 1
        🟦 SIMPLE PLACÉ:
           - 4-7 partants: top 2
-          - 8-15 partants: top 3
-          - 16+ partants: top 4
+          - 8+ partants: top 3
        🟩 COUPLÉ GAGNANT: 2 premiers (désordre)
-       🟩 COUPLÉ PLACÉ: 2 parmi top 2-3 selon partants
+       🟩 COUPLÉ PLACÉ: 2 parmi top 3 (8+ partants)
        🟧 TIERCÉ: 3 premiers
        🟥 QUARTÉ: 4 premiers
        🟥 QUINTÉ: 5 premiers
@@ -2482,6 +2690,38 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
         # D'abord essayer de scraper directement l'API PMU
         print(f"[INFO] Scraping résultats pour {race_key}...")
         race_data = scrape_race_results_from_api(race_key)
+
+        # === GESTION COURSE ANNULÉE ===
+        # Si la course entière est annulée, tous les paris sont remboursés (VOID)
+        if race_data and race_data.get("course_annulee"):
+            raison = race_data.get("raison_annulation", "Course annulée")
+            print(
+                f"[INFO] Course {race_key} est ANNULÉE ({raison}) -> Tous les paris sont VOID (remboursés)"
+            )
+
+            if not already_resolved:
+                cur.execute(
+                    adapt_query("""
+                    UPDATE user_bets
+                    SET status = 'VOID', notes = COALESCE(notes, '') || ' [Course annulée: ' || %s || ']'
+                    WHERE id = %s AND user_id = %s
+                """),
+                    (raison, bet_id, user["id"]),
+                )
+                con.commit()
+                print(f"[INFO] Pari #{bet_id} ({selection}): VOID (Course annulée: {raison})")
+
+            # Recharger et retourner le pari mis à jour
+            cur.execute(
+                adapt_query("""
+                SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                FROM user_bets
+                WHERE id = %s AND user_id = %s
+            """),
+                (bet_id, user["id"]),
+            )
+            bet_row = cur.fetchone()
+            return serialize_bet_row(bet_row)
 
         if race_data and "participants" in race_data:
             nb_partants = race_data.get("nb_partants", 8)
@@ -2588,7 +2828,21 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
                 for nom_norm, data in race_data["participants"].items():
                     if selection_norm in nom_norm or nom_norm in selection_norm:
                         num_pmu = str(data.get("numPmu", ""))
+                        print(
+                            f"[DEBUG] E/P - Mapping: '{selection_norm}' -> numPmu={num_pmu} (matched '{nom_norm}')"
+                        )
                         break
+
+            if not num_pmu:
+                print(f"[WARN] E/P - Pas de numPmu trouvé pour '{selection_norm}'")
+
+            # Debug: Afficher les rapports disponibles pour E/P
+            if "SIMPLE_GAGNANT" in rapports_definitifs:
+                print(
+                    f"[DEBUG] SIMPLE_GAGNANT disponibles: {rapports_definitifs['SIMPLE_GAGNANT']}"
+                )
+            if "SIMPLE_PLACE" in rapports_definitifs:
+                print(f"[DEBUG] SIMPLE_PLACE disponibles: {rapports_definitifs['SIMPLE_PLACE']}")
 
             # Récupérer le bon rapport selon le type de pari
             rapport = get_rapport_for_bet_type(rapports_definitifs, bet_type, selection, num_pmu)
@@ -2596,11 +2850,35 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
             if rapport:
                 if isinstance(rapport, dict):
                     # Pour E/P, on a un dict avec gagnant et place
-                    # On stocke la cote gagnant dans odds, la cote placé sera utilisée pour le calcul du gain
-                    updated_odds = float(rapport.get("gagnant", old_odds))
+                    # Calculer la cote effective E/P selon le résultat
+                    # E/P: mise divisée 50/50 entre gagnant et placé
+                    cote_gagnant = float(rapport.get("gagnant", 0))
+                    cote_place = float(rapport.get("place", 0))
+
                     print(
-                        f"[INFO] E/P - Cotes définitives: Gagnant={rapport.get('gagnant')}, Placé={rapport.get('place')}"
+                        f"[INFO] E/P - Cotes définitives: Gagnant={cote_gagnant}, Placé={cote_place}"
                     )
+
+                    if place_finale == 1 and cote_gagnant > 0 and cote_place > 0:
+                        # Cheval gagnant (1er): les deux paris payent
+                        # Retour total = (mise/2 × cote_gagnant) + (mise/2 × cote_place)
+                        # Cote effective = (cote_gagnant + cote_place) / 2
+                        updated_odds = (cote_gagnant + cote_place) / 2
+                        print(
+                            f"[INFO] E/P WIN - Cote effective: ({cote_gagnant} + {cote_place}) / 2 = {updated_odds}"
+                        )
+                    elif place_finale is not None and place_finale <= 3 and cote_place > 0:
+                        # Cheval placé (2e-3e): seul le pari placé paye
+                        # On perd la moitié de la mise (gagnant), on récupère (mise/2 × cote_place)
+                        # Cote effective = cote_place / 2
+                        updated_odds = cote_place / 2
+                        print(
+                            f"[INFO] E/P PLACE - Cote effective: {cote_place} / 2 = {updated_odds}"
+                        )
+                    else:
+                        # Cheval non placé ou pas encore de résultat: garder la cote gagnant pour référence
+                        updated_odds = cote_gagnant if cote_gagnant > 0 else old_odds
+                        print(f"[INFO] E/P - Pas de résultat définitif, cote: {updated_odds}")
                 else:
                     updated_odds = float(rapport)
                     print(f"[INFO] Rapport définitif pour {bet_type}: {updated_odds}")
@@ -3195,7 +3473,7 @@ async def get_dashboard():
                     evolution = f"+{int(proba)}%"
                 elif proba > 20:
                     resultat = "Placé"
-                    evolution = f"+{int(proba/2)}%"
+                    evolution = f"+{int(proba / 2)}%"
                 else:
                     resultat = "À suivre"
                     evolution = f"{int(proba)}%"
@@ -3331,7 +3609,7 @@ async def get_dashboard():
                     evolution = f"+{int(proba)}%"
                 elif musique and len(musique) > 0 and musique[0] in ["2", "3"]:
                     resultat = "Placé"
-                    evolution = f"+{int(proba/2)}%"
+                    evolution = f"+{int(proba / 2)}%"
                 else:
                     resultat = "À suivre"
                     evolution = f"{int(proba)}%"
@@ -3770,11 +4048,14 @@ async def get_analytics_chevaux():
                     LIMIT 10
                 ),
                 top_perf AS (
-                    SELECT c.nom_cheval, s.nb_courses_total, s.nb_victoires,
-                           CAST(s.nb_victoires AS FLOAT) / NULLIF(s.nb_courses_total, 0) * 100 as taux
-                    FROM chevaux c
-                    JOIN stats_chevaux s ON c.id_cheval = s.id_cheval
-                    WHERE s.nb_courses_total >= 3
+                    SELECT nom_norm as nom_cheval,
+                           COUNT(*) as nb_courses_total,
+                           SUM(is_win) as nb_victoires,
+                           AVG(CAST(is_win AS FLOAT) * 100) as taux
+                    FROM cheval_courses_seen
+                    WHERE nom_norm IS NOT NULL
+                    GROUP BY nom_norm
+                    HAVING COUNT(*) >= 10
                     ORDER BY taux DESC
                     LIMIT 10
                 ),
@@ -3849,7 +4130,7 @@ async def get_analytics_chevaux():
                 SELECT nom, nombre_courses_total, nombre_victoires_total,
                        CAST(nombre_victoires_total AS FLOAT) / nombre_courses_total * 100 as taux
                 FROM chevaux
-                WHERE nombre_courses_total >= 3
+                WHERE nombre_courses_total >= 10
                 ORDER BY taux DESC
                 LIMIT 10
             """)
@@ -3931,7 +4212,7 @@ async def get_analytics_jockeys():
                 FROM cheval_courses_seen
                 WHERE driver_jockey IS NOT NULL
                 GROUP BY driver_jockey
-                HAVING COUNT(*) >= 3
+                HAVING COUNT(*) >= 50
                 ORDER BY taux_moyen DESC
                 LIMIT 15
             """)
@@ -3945,7 +4226,7 @@ async def get_analytics_jockeys():
                 FROM chevaux
                 WHERE jockey_habituel IS NOT NULL AND nombre_courses_total > 0
                 GROUP BY jockey_habituel
-                HAVING COUNT(*) >= 3
+                HAVING COUNT(*) >= 50
                 ORDER BY taux_moyen DESC
                 LIMIT 15
             """)
@@ -3986,7 +4267,7 @@ async def get_analytics_entraineurs():
                 FROM cheval_courses_seen
                 WHERE entraineur IS NOT NULL
                 GROUP BY entraineur
-                HAVING COUNT(*) >= 3
+                HAVING COUNT(*) >= 50
                 ORDER BY taux_moyen DESC
                 LIMIT 15
             """)
@@ -4000,7 +4281,7 @@ async def get_analytics_entraineurs():
                 FROM chevaux
                 WHERE entraineur_courant IS NOT NULL AND nombre_courses_total > 0
                 GROUP BY entraineur_courant
-                HAVING COUNT(*) >= 3
+                HAVING COUNT(*) >= 50
                 ORDER BY taux_moyen DESC
                 LIMIT 15
             """)
@@ -6339,7 +6620,7 @@ def format_recommendation_from_generator(
         raison_base = (
             " • ".join(rationale[:3])
             if rationale
-            else f"Value {value_pct:.1f}% avec probabilité {p_win*100:.1f}%"
+            else f"Value {value_pct:.1f}% avec probabilité {p_win * 100:.1f}%"
         )
         if user_params:
             raison = f"{raison_base} • {profil_info}"
@@ -6438,7 +6719,7 @@ def calculate_personalized_stake(runner: dict, user_params: UserBettingParams) -
         "kelly_original": kelly_pct * 100,
         "kelly_adjusted": kelly_adjusted * 100,
         "profil_multiplier": config["kelly_multiplier"],
-        "reason": f"Kelly {kelly_pct*100:.1f}% → {kelly_adjusted*100:.1f}% (profil {user_params.profil.value})",
+        "reason": f"Kelly {kelly_pct * 100:.1f}% → {kelly_adjusted * 100:.1f}% (profil {user_params.profil.value})",
     }
     """
     Convertit la sortie du RacePronosticGenerator en format attendu par le frontend.
@@ -6496,7 +6777,7 @@ def calculate_personalized_stake(runner: dict, user_params: UserBettingParams) -
         raison = (
             " • ".join(rationale[:3])
             if rationale
-            else f"Value {value_pct:.1f}% avec probabilité {p_win*100:.1f}%"
+            else f"Value {value_pct:.1f}% avec probabilité {p_win * 100:.1f}%"
         )
 
         # Extraire hippodrome du race_key si pas dans race_info
@@ -7292,15 +7573,61 @@ async def get_calibration_health():
 
 
 @app.get("/picks/today")
-async def get_picks_today():
+async def get_picks_today(zone: str = None, bankroll: float = None, simulation: bool = False):
     """
     Récupère les picks/recommandations du jour.
     Retourne les chevaux avec value bet positive.
+
+    Args:
+        zone: Zone de bankroll (micro, small, full) pour sélectionner le modèle V2
+        bankroll: Bankroll utilisateur pour déduire la zone automatiquement
+        simulation: Si True, ignore les filtres horaires (pour tester après la fin des courses)
     """
     con = None
+    v2_model = None
+    v2_scaler = None
+    v2_features = None
+    effective_zone = None
+
     try:
         con = get_db_connection()
         cur = con.cursor()
+
+        # Déterminer la zone utilisateur
+        if zone:
+            effective_zone = zone.lower()
+        elif bankroll is not None:
+            if bankroll < 50:
+                effective_zone = "micro"
+            elif bankroll < 500:
+                effective_zone = "small"
+            else:
+                effective_zone = "full"
+
+        # Charger le modèle V2 si zone spécifiée
+        if effective_zone:
+            try:
+                import pickle
+                import json
+                from pathlib import Path
+
+                model_dir = (
+                    Path(__file__).parent.parent.parent
+                    / "data"
+                    / "models"
+                    / "zones_v2"
+                    / effective_zone
+                )
+                if model_dir.exists():
+                    with open(model_dir / "xgboost_model.pkl", "rb") as f:
+                        v2_model = pickle.load(f)
+                    with open(model_dir / "feature_scaler.pkl", "rb") as f:
+                        v2_scaler = pickle.load(f)
+                    with open(model_dir / "feature_names.json") as f:
+                        v2_features = json.load(f)
+                    print(f"✅ Modèle V2 chargé: zone={effective_zone}")
+            except Exception as e:
+                print(f"⚠️ Erreur chargement modèle V2 {effective_zone}: {e}")
 
         today = datetime.now().strftime("%Y-%m-%d")
 
@@ -7335,50 +7662,88 @@ async def get_picks_today():
         now_ms = int(time.time() * 1000)
 
         # Récupérer les chevaux avec analyse (les probabilités seront issues du head Benter)
-        # FILTRES ANTI-FUITE:
+        # FILTRES ANTI-FUITE (désactivés en mode simulation):
         # 1. place_finale IS NULL → course pas encore courue
         # 2. statut_participant = 'PARTANT' → exclut NP pré-départ
         # 3. incident IS NULL → exclut DAI, ARR, TOMBE, etc. (incidents post-départ)
         # 4. cote_finale ET cote_reference < MAX → exclut outsiders extrêmes
         # 5. heure_depart > now → course pas encore partie
-        cur.execute(
-            """
-                SELECT
-                    cs.id_cheval as id_cheval,
-                    cs.nom_norm as nom,
-                    cs.race_key,
-                    cs.hippodrome_nom as hippodrome,
-                    cs.heure_locale as heure,
-                    cs.numero_dossard as numero,
-                    cs.cote_finale as cote,
-                    cs.cote_reference,
-                    cs.tendance_cote,
-                    cs.amplitude_tendance,
-                    cs.est_favori,
-                    cs.avis_entraineur,
-                    cs.driver_jockey as jockey,
-                    cs.entraineur,
-                    cs.discipline,
-                    cs.distance_m,
-                    cs.is_win,
-                    cs.place_finale,
-                    cs.statut_participant,
-                    cs.incident,
-                    cs.heure_depart
-                FROM cheval_courses_seen cs
-            WHERE cs.race_key LIKE %s
-            AND cs.cote_finale IS NOT NULL
-            AND cs.cote_finale > 0
-            AND cs.cote_finale < %s
-            AND (cs.cote_reference IS NULL OR cs.cote_reference < %s)  -- anti-fuite: exclut outsiders extrêmes
-            AND (cs.place_finale IS NULL)  -- anti-fuite: uniquement pré-off
-            AND (cs.statut_participant IS NULL OR UPPER(cs.statut_participant) IN ('PARTANT', 'PARTANTE', 'PART', 'P', ''))  -- anti-fuite: exclut NP pré-départ
-            AND (cs.incident IS NULL)  -- anti-fuite: exclut DAI, ARR, TOMBE, NP tardif (incidents post-départ)
-            AND (cs.heure_depart IS NULL OR cs.heure_depart::bigint > %s)  -- anti-fuite: exclut courses déjà parties
-            ORDER BY cs.race_key, cs.numero_dossard
-        """,
-            (search_date + "%", MAX_PREOFF_COTE, MAX_PREOFF_COTE, now_ms),
-        )
+
+        if simulation:
+            # Mode simulation : ignorer les filtres temporels pour pouvoir tester
+            cur.execute(
+                """
+                    SELECT
+                        cs.id_cheval as id_cheval,
+                        cs.nom_norm as nom,
+                        cs.race_key,
+                        cs.hippodrome_nom as hippodrome,
+                        cs.heure_locale as heure,
+                        cs.numero_dossard as numero,
+                        cs.cote_finale as cote,
+                        cs.cote_reference,
+                        cs.tendance_cote,
+                        cs.amplitude_tendance,
+                        cs.est_favori,
+                        cs.avis_entraineur,
+                        cs.driver_jockey as jockey,
+                        cs.entraineur,
+                        cs.discipline,
+                        cs.distance_m,
+                        cs.is_win,
+                        cs.place_finale,
+                        cs.statut_participant,
+                        cs.incident,
+                        cs.heure_depart
+                    FROM cheval_courses_seen cs
+                WHERE cs.race_key LIKE %s
+                AND cs.cote_finale IS NOT NULL
+                AND cs.cote_finale > 0
+                AND cs.cote_finale < %s
+                AND (cs.statut_participant IS NULL OR UPPER(cs.statut_participant) IN ('PARTANT', 'PARTANTE', 'PART', 'P', ''))
+                ORDER BY cs.race_key, cs.numero_dossard
+            """,
+                (search_date + "%", MAX_PREOFF_COTE),
+            )
+        else:
+            cur.execute(
+                """
+                    SELECT
+                        cs.id_cheval as id_cheval,
+                        cs.nom_norm as nom,
+                        cs.race_key,
+                        cs.hippodrome_nom as hippodrome,
+                        cs.heure_locale as heure,
+                        cs.numero_dossard as numero,
+                        cs.cote_finale as cote,
+                        cs.cote_reference,
+                        cs.tendance_cote,
+                        cs.amplitude_tendance,
+                        cs.est_favori,
+                        cs.avis_entraineur,
+                        cs.driver_jockey as jockey,
+                        cs.entraineur,
+                        cs.discipline,
+                        cs.distance_m,
+                        cs.is_win,
+                        cs.place_finale,
+                        cs.statut_participant,
+                        cs.incident,
+                        cs.heure_depart
+                    FROM cheval_courses_seen cs
+                WHERE cs.race_key LIKE %s
+                AND cs.cote_finale IS NOT NULL
+                AND cs.cote_finale > 0
+                AND cs.cote_finale < %s
+                AND (cs.cote_reference IS NULL OR cs.cote_reference < %s)  -- anti-fuite: exclut outsiders extrêmes
+                AND (cs.place_finale IS NULL)  -- anti-fuite: uniquement pré-off
+                AND (cs.statut_participant IS NULL OR UPPER(cs.statut_participant) IN ('PARTANT', 'PARTANTE', 'PART', 'P', ''))  -- anti-fuite: exclut NP pré-départ
+                AND (cs.incident IS NULL)  -- anti-fuite: exclut DAI, ARR, TOMBE, NP tardif (incidents post-départ)
+                AND (cs.heure_depart IS NULL OR cs.heure_depart::bigint > %s)  -- anti-fuite: exclut courses déjà parties
+                ORDER BY cs.race_key, cs.numero_dossard
+            """,
+                (search_date + "%", MAX_PREOFF_COTE, MAX_PREOFF_COTE, now_ms),
+            )
         rows = cur.fetchall()
         if not rows:
             # Exposer l'état du modèle place (même si pas de courses pré-off)
@@ -8183,7 +8548,7 @@ async def get_picks_today():
                                     "cote_is_estimate": True,
                                     "value": round(value_place_pct, 1),
                                     "kelly": round(kelly_place_pct, 1),
-                                    "description": f"Finir dans les 3 premiers ({p_place*100:.0f}% de chances) - Cote ~{cote_place:.2f} (estimée via marché)",
+                                    "description": f"Finir dans les 3 premiers ({p_place * 100:.0f}% de chances) - Cote ~{cote_place:.2f} (estimée via marché)",
                                 }
                             )
                     if p_win >= 0.15 and p_place >= 0.45:
@@ -8230,7 +8595,7 @@ async def get_picks_today():
                                 "cote_estimee": round(cote, 2) if cote else None,
                                 "value": round(value_pct, 1),
                                 "kelly": round(kelly_pct, 1),
-                                "description": f"Victoire attendue ({p_win*100:.0f}% - cote {cote:.2f})"
+                                "description": f"Victoire attendue ({p_win * 100:.0f}% - cote {cote:.2f})"
                                 if cote
                                 else "Victoire attendue",
                             }
@@ -8533,7 +8898,7 @@ async def get_combined_bets(race_key: str):
                 "selection_names": [top2[0]["nom"], top2[1]["nom"]],
                 "proba_approx": round(p_couple_ordre * 100, 1),
                 "mise_conseillée": "1-2€",
-                "gain_potentiel": f"~{round(1/(p_couple_ordre+0.01))}x la mise",
+                "gain_potentiel": f"~{round(1 / (p_couple_ordre + 0.01))}x la mise",
                 "conseil": "Difficile mais gros gains - petite mise",
             }
         )
@@ -8553,7 +8918,7 @@ async def get_combined_bets(race_key: str):
                 "selection_names": [top3[0]["nom"], top3[1]["nom"]],
                 "proba_approx": round(p_couple_place * 100, 1),
                 "mise_conseillée": "2-5€",
-                "gain_potentiel": f"~{round(1/(p_couple_place+0.01))}x la mise",
+                "gain_potentiel": f"~{round(1 / (p_couple_place + 0.01))}x la mise",
                 "conseil": "Bon compromis risque/gain",
             }
         )
@@ -9766,7 +10131,10 @@ def _adapt_positions_for_bankroll(
 
 @app.get("/portfolio/today")
 async def get_portfolio_today(
-    bankroll: float = 1000.0, kelly_profile: str = None, source: str = "picks"
+    bankroll: float = 1000.0,
+    kelly_profile: str = None,
+    source: str = "picks",
+    simulation: bool = False,
 ):
     """
     Retourne le portefeuille optimisé du jour.
@@ -9776,6 +10144,7 @@ async def get_portfolio_today(
     Args:
         bankroll: Bankroll de l'utilisateur (défaut 1000€)
         kelly_profile: Profil Kelly (SUR, STANDARD, AMBITIEUX, PERSONNALISE)
+        simulation: Si True, ignore les filtres horaires (pour tester après la fin des courses)
 
     Returns:
         - positions: Liste des paris sélectionnés avec stakes arrondis
@@ -9811,11 +10180,29 @@ async def get_portfolio_today(
         takeout_rate = config.get("markets", {}).get("takeout_rate", 0.16)
         betting_policy = config.get("betting_policy", {}) or {}
 
+        # Déterminer la zone selon le bankroll pour utiliser le bon modèle V2
+        if bankroll < 50:
+            zone = "micro"
+            zone_value_cutoff = 0.05  # 5% pour micro
+        elif bankroll < 500:
+            zone = "small"
+            zone_value_cutoff = 0.03  # 3% pour small
+        else:
+            zone = "full"
+            zone_value_cutoff = 0.02  # 2% pour full
+
+        # Utiliser le value_cutoff de la zone si plus permissif
+        value_cutoff = min(value_cutoff, zone_value_cutoff)
+
         source_norm = (source or "picks").lower().strip()
         if source_norm in ("picks", "picks_today", "today"):
             from services.betting_policy import select_portfolio_from_picks
 
-            picks_payload = await get_picks_today()
+            # Passer zone et bankroll pour utiliser le modèle V2 correspondant
+            # Et simulation pour ignorer les filtres horaires si mode simu
+            picks_payload = await get_picks_today(
+                zone=zone, bankroll=bankroll, simulation=simulation
+            )
             picks = (picks_payload.get("picks") or []) if isinstance(picks_payload, dict) else []
 
             policy_result = select_portfolio_from_picks(

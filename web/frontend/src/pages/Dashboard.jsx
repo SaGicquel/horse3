@@ -1,6 +1,6 @@
 import { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, DollarSign, BarChart2, Zap, Activity, BarChartHorizontal, RefreshCw, Target, AlertTriangle, Percent } from 'lucide-react';
+import { TrendingUp, DollarSign, BarChart2, Zap, Activity, BarChartHorizontal, RefreshCw, Percent } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import AnimatedStatCard from '../components/AnimatedStatCard';
@@ -8,6 +8,7 @@ import { GlassCard, GlassCardHeader } from '../components/GlassCard';
 import { SkeletonDashboard, Skeleton, SkeletonStatCard } from '../components/Skeleton';
 import { StaggerContainer, StaggerItem } from '../components/PageTransition';
 import BackendStatus from '../components/BackendStatus';
+import PageHeader from '../components/PageHeader';
 import { API_BASE } from '../config/api';
 
 // Composant Performance Item avec animation et glassmorphism (Mémorisé)
@@ -49,7 +50,6 @@ const PerformanceItem = memo(({ name, percentage, result, change, index }) => {
       <div className="text-center w-24">
         <motion.p
           className={`font-bold text-xs px-3 py-1.5 rounded-lg border backdrop-blur-sm ${resultClasses}`}
-          whileHover={{ scale: 1.05 }}
         >
           {result}
         </motion.p>
@@ -115,30 +115,9 @@ const Dashboard = () => {
   const [token, setToken] = useState(() => localStorage.getItem('hrp_token'));
   const [dashboardData, setDashboardData] = useState(null);
   const [monitoringData, setMonitoringData] = useState(null);
-  const [calibrationData, setCalibrationData] = useState(null);
-  const [calibrationLoading, setCalibrationLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-
-  // Charger les données de calibration
-  const loadCalibrationData = useCallback(async () => {
-    try {
-      setCalibrationLoading(true);
-      const response = await fetch(`${API_BASE}/calibration/health`);
-      if (response.ok) {
-        const data = await response.json();
-        setCalibrationData(data);
-      } else {
-        setCalibrationData(null);
-      }
-    } catch (error) {
-      console.error('Erreur chargement calibration:', error);
-      setCalibrationData(null);
-    } finally {
-      setCalibrationLoading(false);
-    }
-  }, []);
 
   // Charger les données avec useCallback pour éviter les rerenderings
   const loadDashboardData = useCallback(async (forceRefresh = false) => {
@@ -163,16 +142,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData(false);
-    loadCalibrationData();
-  }, [loadDashboardData, loadCalibrationData]);
+  }, [loadDashboardData]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     // Invalider le cache et forcer le rechargement
     dashboardAPI.refresh();
-    await Promise.all([loadDashboardData(true), loadCalibrationData()]);
+    await loadDashboardData(true);
     setRefreshing(false);
-  }, [loadDashboardData, loadCalibrationData]);
+  }, [loadDashboardData]);
 
   // Synchroniser le token stocké (utilisé pour les données personnelles)
   useEffect(() => {
@@ -185,49 +163,6 @@ const Dashboard = () => {
       window.removeEventListener('storage', syncToken);
     };
   }, []);
-
-  // Calcule si la calibration a des alertes
-  const calibrationAlert = useMemo(() => {
-    if (!calibrationData) return null;
-
-    const ece = calibrationData.ece_7d ?? calibrationData.ece;
-    const lastCalibration = calibrationData.last_calibration;
-
-    let alerts = [];
-
-    // Alerte si ECE > 0.02
-    if (ece !== undefined && ece > 0.02) {
-      alerts.push(`ECE élevé: ${(ece * 100).toFixed(2)}% (seuil: 2%)`);
-    }
-
-    // Alerte si dernière calibration > 7 jours
-    if (lastCalibration) {
-      const lastDate = new Date(lastCalibration);
-      const daysSince = Math.floor((Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSince > 7) {
-        alerts.push(`Calibration obsolète: ${daysSince} jours`);
-      }
-    }
-
-    return alerts.length > 0 ? alerts : null;
-  }, [calibrationData]);
-
-  // Formate une date en format humain
-  const formatDateHuman = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMinutes < 60) return `Il y a ${diffMinutes} min`;
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffDays === 1) return 'Hier';
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-  };
 
   if (loading) {
     return <SkeletonDashboard />;
@@ -264,39 +199,15 @@ const Dashboard = () => {
       {/* Backend Status en en-tête */}
       <BackendStatus showWhenHealthy={false} position="top" />
 
-      {/* Header avec animation */}
-      <motion.header
-        className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      {/* Header unifié */}
+      <PageHeader
+        emoji="🏠"
+        title="Dashboard"
+        subtitle="Vue d'ensemble des performances et analyses"
       >
-        <div>
-          <motion.h1
-            className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-neutral-100"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            Horse3 Champion
-          </motion.h1>
-          <motion.p
-            className="text-sm sm:text-base mt-1 text-neutral-700 dark:text-neutral-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            Vue d'ensemble des performances et analyses
-          </motion.p>
-        </div>
         <motion.button
           onClick={handleRefresh}
           className="glass-button text-[#db2777] dark:text-[#f472b6] hover:bg-white/10"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
         >
           <motion.div
             animate={refreshing ? { rotate: 360 } : {}}
@@ -306,7 +217,7 @@ const Dashboard = () => {
           </motion.div>
           Actualiser
         </motion.button>
-      </motion.header>
+      </PageHeader>
 
       {/* Stats Cards avec animations stagger */}
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
@@ -354,123 +265,44 @@ const Dashboard = () => {
         </StaggerItem>
       </StaggerContainer>
 
-      {/* Calibration & KPIs Section */}
+      {/* KPIs Section */}
       <motion.div
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+        className="mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.5 }}
       >
-        {/* Carte Calibration */}
-        <GlassCard hover={false}>
-          <GlassCardHeader
-            icon={Target}
-            title="Santé Calibration"
-            subtitle="Qualité des probabilités"
-          />
-
-          {calibrationLoading ? (
-            <div className="space-y-4">
-              <Skeleton width="100%" height={60} borderRadius={12} />
-              <div className="grid grid-cols-3 gap-3">
-                <Skeleton width="100%" height={70} borderRadius={8} />
-                <Skeleton width="100%" height={70} borderRadius={8} />
-                <Skeleton width="100%" height={70} borderRadius={8} />
-              </div>
-            </div>
-          ) : calibrationData ? (
-            <div className="space-y-4">
-              {/* Alerte si seuils dépassés */}
-              {calibrationAlert && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-3 rounded-lg flex items-start gap-3 bg-warning/15 border border-warning/30"
-                >
-                  <AlertTriangle size={20} className="text-warning flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-warning">Attention requise</p>
-                    <ul className="text-xs text-warning/80 mt-1 space-y-0.5">
-                      {calibrationAlert.map((alert, i) => (
-                        <li key={i}>• {alert}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Métriques */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">ECE 7j</p>
-                  <p className={`text-xl font-bold ${(calibrationData.ece_7d ?? calibrationData.ece) > 0.02
-                    ? 'text-warning'
-                    : 'text-success'
-                    }`}>
-                    {((calibrationData.ece_7d ?? calibrationData.ece ?? 0) * 100).toFixed(2)}%
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Brier 7j</p>
-                  <p className="text-xl font-bold text-info">
-                    {((calibrationData.brier_7d ?? calibrationData.brier ?? 0) * 100).toFixed(2)}%
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Dernière sync</p>
-                  <p className="text-sm font-bold text-secondary-600 dark:text-secondary-400">
-                    {formatDateHuman(calibrationData.last_calibration)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Target size={32} className="mx-auto text-neutral-600 dark:text-neutral-500 mb-2" />
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">Données de calibration non disponibles</p>
-            </div>
-          )}
-        </GlassCard>
-
         {/* Carte KPIs */}
         <GlassCard hover={false}>
           <GlassCardHeader
             icon={Percent}
             title="KPIs Betting"
-            subtitle="Indicateurs clés"
+            subtitle="Indicateurs clés de performance"
           />
 
-          {calibrationLoading ? (
-            <div className="grid grid-cols-3 gap-3">
-              <Skeleton width="100%" height={70} borderRadius={8} />
-              <Skeleton width="100%" height={70} borderRadius={8} />
-              <Skeleton width="100%" height={70} borderRadius={8} />
-            </div>
-          ) : (calibrationData?.kpis || monitoringData) ? (
+          {monitoringData ? (
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
                 <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">ROI</p>
-                <p className={`text-xl font-bold ${(calibrationData?.kpis?.roi ?? monitoringData?.roi ?? 0) >= 0
+                <p className={`text-xl font-bold ${(monitoringData?.roi ?? 0) >= 0
                   ? 'text-success'
                   : 'text-error'
                   }`}>
-                  {(calibrationData?.kpis?.roi ?? monitoringData?.roi ?? 0).toFixed(1)}%
+                  {(monitoringData?.roi ?? 0).toFixed(1)}%
                 </p>
               </div>
 
               <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Hit Rate</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Win Rate</p>
                 <p className="text-xl font-bold text-info">
-                  {(calibrationData?.kpis?.hit_rate ?? monitoringData?.win_rate ?? 0).toFixed(1)}%
+                  {(monitoringData?.win_rate ?? 0).toFixed(1)}%
                 </p>
               </div>
 
               <div className="p-3 rounded-lg text-center glass-panel border border-neutral-200/50 dark:border-white/10">
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Turnover</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-1">Paris Total</p>
                 <p className="text-xl font-bold text-secondary-600 dark:text-secondary-400">
-                  {formatNumber(calibrationData?.kpis?.turnover ?? monitoringData?.total_bets ?? 0)}
+                  {formatNumber(monitoringData?.total_bets ?? 0)}
                 </p>
               </div>
             </div>
@@ -626,8 +458,8 @@ const Dashboard = () => {
             <GlassCard hover={false} className="overflow-hidden">
               <GlassCardHeader
                 icon={TrendingUp}
-                title="Évolution du P&L Cumulé"
-                subtitle={monitoringData?.data_scope === 'user' ? 'PNL réel basé sur vos paris' : 'Performance historique (paper trading)'}
+                title="Évolution du Capital"
+                subtitle={monitoringData?.data_scope === 'user' ? 'Capital (P&L) vs Mises cumulées' : 'Performance historique (paper trading)'}
               />
               <div className="h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -636,6 +468,10 @@ const Dashboard = () => {
                       <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
                         <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="stakeGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" opacity={0.3} />
@@ -651,9 +487,22 @@ const Dashboard = () => {
                       axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                     />
                     <Tooltip content={<CustomChartTooltip />} />
+                    {/* Courbe pointillée des mises cumulées */}
                     <Area
                       type="monotone"
-                      dataKey="pnl_cumul"
+                      dataKey="stake_cumul"
+                      name="Mises cumulées"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      fill="url(#stakeGradient)"
+                      dot={false}
+                    />
+                    {/* Courbe principale du Capital (Mises + Gains) */}
+                    <Area
+                      type="monotone"
+                      dataKey="capital_cumul"
+                      name="Capital (Mises + Gains)"
                       stroke="var(--color-primary)"
                       strokeWidth={3}
                       fill="url(#pnlGradient)"
@@ -662,6 +511,17 @@ const Dashboard = () => {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
+              </div>
+              {/* Légende */}
+              <div className="flex justify-center gap-6 pt-2 pb-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5 bg-[var(--color-primary)]"></div>
+                  <span className="text-neutral-600 dark:text-neutral-400">Capital (Mises + Gains)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5 border-t-2 border-dashed border-amber-500"></div>
+                  <span className="text-neutral-600 dark:text-neutral-400">Mises cumulées</span>
+                </div>
               </div>
             </GlassCard>
           </motion.div>

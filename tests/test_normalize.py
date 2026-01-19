@@ -1,5 +1,6 @@
 from lib.normalize import normalize_name, birth_year_from_date
 
+
 def test_normalize_basic():
     assert normalize_name("Éclair d'Ô") == "ECLAIR D O"
     assert normalize_name("Cheval   Bleu!!") == "CHEVAL BLEU"

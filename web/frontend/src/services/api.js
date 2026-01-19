@@ -10,7 +10,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 45000,
 });
 
 api.interceptors.response.use(
@@ -22,8 +22,20 @@ api.interceptors.response.use(
     if (error?.code === 'ERR_NETWORK' || error?.message?.includes('Network Error')) {
       return Promise.reject(new Error('API indisponible. Vérifiez l\'URL et que le backend est démarré.'));
     }
-    const message = error?.response?.data?.message || error.message || 'Une erreur est survenue';
-    return Promise.reject(new Error(message));
+    // FastAPI returns errors in 'detail' field, not 'message'
+    const status = error?.response?.status;
+    const detail = error?.response?.data?.detail;
+    const message = detail || error?.response?.data?.message || error.message || 'Une erreur est survenue';
+
+    // Add context for auth errors
+    if (status === 401) {
+      console.error('[API] Auth error (401):', message);
+    }
+
+    // Create error with status info for better debugging
+    const enhancedError = new Error(message);
+    enhancedError.status = status;
+    return Promise.reject(enhancedError);
   }
 );
 
@@ -89,7 +101,7 @@ export const dashboardAPI = {
       forceRefresh
     );
   },
-  
+
   getMonitoringData: async (token, signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/monitoring', { auth: token ? token.slice(0, 10) : 'public' });
     return cachedFetch(
@@ -105,7 +117,7 @@ export const dashboardAPI = {
       forceRefresh
     );
   },
-  
+
   refresh: () => {
     invalidateCache('/dashboard');
     invalidateCache('/monitoring');
@@ -132,7 +144,7 @@ export const chevauxAPI = {
       forceRefresh
     );
   },
-  
+
   getChevalDetails: async (nom, signal, forceRefresh = false) => {
     const cacheKey = getCacheKey(`/chevaux/${nom}`);
     return cachedFetch(
@@ -182,7 +194,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   getAnalyticsJockeys: async (signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/analytics/jockeys');
     return cachedFetch(
@@ -195,7 +207,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   getAnalyticsEntraineurs: async (signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/analytics/entraineurs');
     return cachedFetch(
@@ -208,7 +220,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   getAnalyticsHippodromes: async (signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/analytics/hippodromes');
     return cachedFetch(
@@ -221,7 +233,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   getAnalyticsEvolution: async (signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/analytics/evolution');
     return cachedFetch(
@@ -234,7 +246,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   getTauxParRace: async (signal, forceRefresh = false) => {
     const cacheKey = getCacheKey('/analytics/taux-par-race');
     return cachedFetch(
@@ -286,7 +298,7 @@ export const analyticsAPI = {
       forceRefresh
     );
   },
-  
+
   refresh: () => {
     invalidateCache('/analytics');
   },

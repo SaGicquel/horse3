@@ -35,10 +35,10 @@ scrape_configs:
         labels:
           service: 'prediction-api'
           version: '1.0.0'
-    
+
     # Timeout pour éviter blocages
     scrape_timeout: 10s
-    
+
     # Métriques à conserver
     metric_relabel_configs:
       - source_labels: [__name__]

@@ -70,4 +70,3 @@ export const resolveBetMetrics = (bet: any): ResolvedBetMetrics => {
   const fallbackKelly = toNumber(bet?.kelly) ?? toNumber(bet?.kelly_pct) ?? null;
   return { betType, source: 'unknown', p: pWin, odds: winOdds, valuePercent: fallbackValue, kellyPercent: fallbackKelly };
 };
-

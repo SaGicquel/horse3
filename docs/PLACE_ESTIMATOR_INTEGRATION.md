@@ -148,16 +148,16 @@ place_estimators:
   temperature_plat: 0.95
   temperature_trot: 1.05
   temperature_obstacle: 1.10
-  
+
   # Paramètres estimateurs
   henery_gamma: 0.81
   stern_lambda: 0.15
-  
+
   # Sélection auto par discipline
   estimator_plat: henery
   estimator_trot: lbs
   estimator_obstacle: stern
-  
+
   # Simulations
   n_simulations_default: 20000
   takeout_rate: 0.16

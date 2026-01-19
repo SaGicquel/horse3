@@ -39,18 +39,18 @@ const colors = {
   primary: '#9D3656',
   primaryHover: '#812C47',
   accent: '#F5C3CE',
-  
+
   // Couleurs de fond
   white: '#FFFFFF',
   dark: '#0F172A',
-  
+
   // Échelle de gris
   gray900: '#111827',
   gray700: '#374151',
   gray600: '#4B5563',
   gray400: '#9CA3AF',
   gray300: '#D1D5DB',
-  
+
   // Couleurs sémantiques
   red600: '#DC2626',
   red500: '#EF4444',
@@ -61,30 +61,30 @@ const contrastTests = [
   // Boutons primaires
   { name: 'Bouton primaire (texte blanc sur #9D3656)', fg: 'white', bg: 'primary', minRatio: 4.5, level: 'AA' },
   { name: 'Bouton primaire hover (texte blanc sur #812C47)', fg: 'white', bg: 'primaryHover', minRatio: 4.5, level: 'AA' },
-  
+
   // Boutons secondaires
   { name: 'Bouton secondaire (#9D3656 sur blanc)', fg: 'primary', bg: 'white', minRatio: 4.5, level: 'AA' },
   { name: 'Bouton secondaire hover (#9D3656 sur #F5C3CE)', fg: 'primary', bg: 'accent', minRatio: 4.5, level: 'AA' },
-  
+
   // Focus rings
   { name: 'Focus ring (#F5C3CE sur blanc)', fg: 'accent', bg: 'white', minRatio: 3.0, level: 'AA Large' },
-  
+
   // Texte sur fond blanc (Card)
   { name: 'Texte principal (gray-900 sur blanc)', fg: 'gray900', bg: 'white', minRatio: 7.0, level: 'AAA' },
   { name: 'Texte secondaire (gray-600 sur blanc)', fg: 'gray600', bg: 'white', minRatio: 7.0, level: 'AAA' },
   { name: 'Labels (gray-700 sur blanc)', fg: 'gray700', bg: 'white', minRatio: 7.0, level: 'AAA' },
   { name: 'Placeholders (gray-400 sur blanc)', fg: 'gray400', bg: 'white', minRatio: 4.5, level: 'AA' },
-  
+
   // Borders
   { name: 'Border input (gray-300 sur blanc)', fg: 'gray300', bg: 'white', minRatio: 3.0, level: 'AA Large' },
-  
+
   // StatCard - tendance positive
   { name: 'StatCard positif - icône (#9D3656 sur bg-[#9D3656]/15)', fg: 'primary', bg: 'accent', minRatio: 3.0, level: 'AA Large' },
   { name: 'StatCard positif - texte (#9D3656 sur blanc)', fg: 'primary', bg: 'white', minRatio: 4.5, level: 'AA' },
-  
+
   // StatCard - tendance négative
   { name: 'StatCard négatif - texte (red-600 sur blanc)', fg: 'red600', bg: 'white', minRatio: 4.5, level: 'AA' },
-  
+
   // Navigation (fond sombre)
   { name: 'Navigation - titre (blanc sur #0F172A)', fg: 'white', bg: 'dark', minRatio: 7.0, level: 'AAA' },
 ];
@@ -112,13 +112,13 @@ contrastTests.forEach(test => {
   const ratio = getContrastRatio(fgRgb, bgRgb);
   const level = getWCAGLevel(ratio, test.minRatio);
   const status = ratio >= test.minRatio ? '✅ PASS' : '❌ FAIL';
-  
+
   if (ratio >= test.minRatio) {
     passed++;
   } else {
     failed++;
   }
-  
+
   results.push({
     name: test.name,
     ratio: ratio.toFixed(2),

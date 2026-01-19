@@ -26,11 +26,11 @@ const DEFAULT_OPTIONS: UseBackendHealthOptions = {
 
 /**
  * Hook pour surveiller la santé du backend
- * 
+ *
  * @example
  * ```tsx
  * const { health, isHealthy, checkHealth } = useBackendHealth();
- * 
+ *
  * if (!isHealthy) {
  *   return <Alert>Backend indisponible</Alert>;
  * }
@@ -38,22 +38,22 @@ const DEFAULT_OPTIONS: UseBackendHealthOptions = {
  */
 export function useBackendHealth(options: UseBackendHealthOptions = {}) {
   const { pollInterval, timeout, checkOnMount } = { ...DEFAULT_OPTIONS, ...options };
-  
+
   const [health, setHealth] = useState<BackendHealth>({
     status: 'unknown',
   });
 
   const checkHealth = useCallback(async (): Promise<BackendHealth> => {
     setHealth(prev => ({ ...prev, status: 'checking' }));
-    
+
     const startTime = performance.now();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
       // Utiliser /api/health ou /healthz selon la config nginx
       const healthUrl = `${env.API_BASE_URL.replace(/\/api$/, '')}/healthz`;
-      
+
       const response = await fetch(healthUrl, {
         method: 'GET',
         signal: controller.signal,
@@ -61,10 +61,10 @@ export function useBackendHealth(options: UseBackendHealthOptions = {}) {
           'Accept': 'application/json',
         },
       });
-      
+
       clearTimeout(timeoutId);
       const latencyMs = Math.round(performance.now() - startTime);
-      
+
       if (response.ok) {
         const data = await response.json().catch(() => ({}));
         const newHealth: BackendHealth = {
@@ -88,7 +88,7 @@ export function useBackendHealth(options: UseBackendHealthOptions = {}) {
     } catch (error) {
       clearTimeout(timeoutId);
       const latencyMs = Math.round(performance.now() - startTime);
-      
+
       const isTimeout = error instanceof Error && error.name === 'AbortError';
       const newHealth: BackendHealth = {
         status: 'unhealthy',
@@ -111,7 +111,7 @@ export function useBackendHealth(options: UseBackendHealthOptions = {}) {
   // Polling automatique
   useEffect(() => {
     if (!pollInterval || pollInterval <= 0) return;
-    
+
     const intervalId = setInterval(checkHealth, pollInterval);
     return () => clearInterval(intervalId);
   }, [pollInterval, checkHealth]);

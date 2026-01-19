@@ -206,8 +206,17 @@ def select_portfolio_from_picks(
         stake = _round_to_increment(stake, rounding)
         stake = min(stake, max_stake_per_bet)
 
-        if rounding > 0 and stake > 0:
-            stake = max(rounding, stake)
+        # Mise minimum = 1€ (garde-fou)
+        MIN_STAKE_EUR = 1.0
+        if stake > 0 and stake < MIN_STAKE_EUR:
+            stake = MIN_STAKE_EUR
+
+        # Exclure les paris avec mise nulle ou insuffisante
+        if stake < MIN_STAKE_EUR:
+            excluded.append(
+                {**cand, "excludeReason": f"mise calculée {stake:.2f}€ < min {MIN_STAKE_EUR}€"}
+            )
+            continue
 
         if daily_budget > 0 and total_stake + stake > daily_budget:
             remaining = daily_budget - total_stake
@@ -215,10 +224,10 @@ def select_portfolio_from_picks(
             remaining = (
                 math.floor(remaining / rounding) * rounding if rounding > 0 else round(remaining, 2)
             )
-            if remaining <= 0:
+            if remaining < MIN_STAKE_EUR:
                 excluded.append({**cand, "excludeReason": "budget jour épuisé"})
                 continue
-            stake = remaining
+            stake = max(remaining, MIN_STAKE_EUR)
 
         ev_decimal = (cand.get("_value_pct") or 0.0) / 100.0
         updated = {k: v for k, v in cand.items() if not str(k).startswith("_")}

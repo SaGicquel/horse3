@@ -43,46 +43,46 @@ start_api() {
     echo "=============================================================================="
     echo "🚀 DÉMARRAGE API PRÉDICTION"
     echo "=============================================================================="
-    
+
     if is_running; then
         print_error "L'API est déjà en cours d'exécution (PID: $(cat $PID_FILE))"
         exit 1
     fi
-    
+
     # Créer dossier logs si nécessaire
     mkdir -p logs
-    
+
     # Activer virtualenv
     if [ ! -d ".venv" ]; then
         print_error "Virtualenv .venv introuvable. Exécutez: python3 -m venv .venv"
         exit 1
     fi
-    
+
     source .venv/bin/activate
-    
+
     # Vérifier dépendances
     print_info "Vérification des dépendances..."
     if ! python -c "import fastapi, uvicorn" 2>/dev/null; then
         print_error "Dépendances manquantes. Installez-les avec: pip install -r requirements-prod.txt"
         exit 1
     fi
-    
+
     # Vérifier modèle
     if [ ! -f "data/models/ensemble_stacking.pkl" ]; then
         print_error "Modèle introuvable: data/models/ensemble_stacking.pkl"
         exit 1
     fi
-    
+
     # Démarrer API en arrière-plan
     print_info "Démarrage de l'API sur http://$API_HOST:$API_PORT..."
     nohup python api_prediction.py --host "$API_HOST" --port "$API_PORT" > "$LOG_FILE" 2>&1 &
-    
+
     # Sauvegarder PID
     echo $! > "$PID_FILE"
-    
+
     # Attendre démarrage
     sleep 3
-    
+
     # Vérifier healthcheck
     if curl -s http://localhost:$API_PORT/health > /dev/null; then
         print_success "API démarrée avec succès !"
@@ -95,7 +95,7 @@ start_api() {
         print_info "Vérifiez les logs: cat $LOG_FILE"
         exit 1
     fi
-    
+
     echo "=============================================================================="
 }
 
@@ -104,18 +104,18 @@ stop_api() {
     echo "=============================================================================="
     echo "🛑 ARRÊT API PRÉDICTION"
     echo "=============================================================================="
-    
+
     if ! is_running; then
         print_error "L'API n'est pas en cours d'exécution"
         exit 1
     fi
-    
+
     PID=$(cat "$PID_FILE")
     print_info "Arrêt de l'API (PID: $PID)..."
-    
+
     # Graceful shutdown
     kill "$PID"
-    
+
     # Attendre max 10s
     for i in {1..10}; do
         if ! ps -p "$PID" > /dev/null 2>&1; then
@@ -126,7 +126,7 @@ stop_api() {
         fi
         sleep 1
     done
-    
+
     # Force kill si toujours actif
     print_info "Force kill..."
     kill -9 "$PID"
@@ -140,20 +140,20 @@ status_api() {
     echo "=============================================================================="
     echo "📊 STATUS API PRÉDICTION"
     echo "=============================================================================="
-    
+
     if is_running; then
         PID=$(cat "$PID_FILE")
         print_success "L'API est en cours d'exécution"
         print_info "PID: $PID"
         print_info "URL: http://localhost:$API_PORT"
-        
+
         # Requête healthcheck
         if command -v curl &> /dev/null; then
             echo ""
             print_info "Healthcheck:"
             curl -s http://localhost:$API_PORT/health | python3 -m json.tool 2>/dev/null || echo "  N/A"
         fi
-        
+
         # Stats processus
         echo ""
         print_info "Ressources:"
@@ -161,7 +161,7 @@ status_api() {
     else
         print_error "L'API n'est pas en cours d'exécution"
     fi
-    
+
     echo "=============================================================================="
 }
 
@@ -171,7 +171,7 @@ logs_api() {
         print_error "Fichier de logs introuvable: $LOG_FILE"
         exit 1
     fi
-    
+
     echo "=============================================================================="
     echo "📋 LOGS API (appuyez sur Ctrl+C pour quitter)"
     echo "=============================================================================="
@@ -183,19 +183,19 @@ test_api() {
     echo "=============================================================================="
     echo "🧪 TEST API PRÉDICTION"
     echo "=============================================================================="
-    
+
     if ! is_running; then
         print_error "L'API n'est pas en cours d'exécution. Démarrez-la avec: $0 start"
         exit 1
     fi
-    
+
     source .venv/bin/activate
-    
+
     if [ ! -f "test_api.py" ]; then
         print_error "Script de test introuvable: test_api.py"
         exit 1
     fi
-    
+
     python test_api.py --url "http://localhost:$API_PORT" --verbose
 }
 

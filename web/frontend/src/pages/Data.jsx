@@ -4,14 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chevauxAPI, coursesAPI } from '../services/api';
 import {
-  Search, 
-  Activity, 
-  Trophy, 
-  Calendar, 
-  ChevronUp, 
-  ChevronDown, 
-  X, 
-  RefreshCw, 
+  Search,
+  Activity,
+  Trophy,
+  Calendar,
+  ChevronUp,
+  ChevronDown,
+  X,
+  RefreshCw,
   Database,
   ArrowRight,
   Loader2,
@@ -35,9 +35,9 @@ const rowVariants = {
 
 const modalVariants = {
   hidden: { opacity: 0, scale: 0.95, y: 20 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
+  visible: {
+    opacity: 1,
+    scale: 1,
     y: 0,
     transition: { type: "spring", damping: 25, stiffness: 300 }
   },
@@ -90,7 +90,7 @@ const Data = () => {
   const [listHeight, setListHeight] = useState(computeListHeight());
   const isAdmin = userRole === 'admin';
   const shouldVirtualize = pagination.total > VIRTUALIZATION_THRESHOLD;
-  
+
   // Refs
   const observerTarget = useRef(null);
   const searchTimeout = useRef(null);
@@ -123,15 +123,15 @@ const Data = () => {
       setLoading(true);
       setError(null);
 
-      const apiCall = activeTab === 'chevaux' 
-        ? chevauxAPI.getAllChevaux 
+      const apiCall = activeTab === 'chevaux'
+        ? chevauxAPI.getAllChevaux
         : coursesAPI.getCoursesVues;
-      
+
       const response = await apiCall(
-        pagination.limit, 
-        offset, 
-        sortConfig.key, 
-        sortConfig.direction, 
+        pagination.limit,
+        offset,
+        sortConfig.key,
+        sortConfig.direction,
         searchTerm,
         controller.signal
       );
@@ -144,7 +144,7 @@ const Data = () => {
       } else {
         setData(prev => [...prev, ...newItems]);
       }
-      
+
       setPagination(prev => ({
         ...prev,
         offset: offset + prev.limit,
@@ -180,7 +180,7 @@ const Data = () => {
   useEffect(() => {
     if (!isAdmin) return;
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
-    
+
     searchTimeout.current = setTimeout(() => {
       resetAndLoad();
     }, 500);
@@ -342,7 +342,7 @@ const Data = () => {
       <Wrapper className="p-4 text-center text-[var(--color-muted)]">{item.reunion} {item.course}</Wrapper>
       <Wrapper className="p-4 text-center">
         {item.victoire ? (
-          <span 
+          <span
             className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-500"
           >
             <Trophy size={12} /> Victoire
@@ -437,10 +437,10 @@ const Data = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] p-4 sm:p-8 font-sans text-[var(--color-text)]">
-      
+
       {/* Header Section */}
       <div className="max-w-7xl mx-auto mb-8">
-        <motion.div 
+        <motion.div
           className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -464,8 +464,8 @@ const Data = () => {
               Accès admin
             </div>
           </div>
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center gap-2 p-1 rounded-xl"
             style={{
               background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.55)',
@@ -481,12 +481,10 @@ const Data = () => {
             <motion.button
               onClick={() => setActiveTab('chevaux')}
               className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                activeTab === 'chevaux' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-lg' 
+                activeTab === 'chevaux'
+                  ? 'bg-[var(--color-primary)] text-white shadow-lg'
                   : 'text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-secondary)]'
               }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <Activity size={16} />
               Chevaux
@@ -494,12 +492,10 @@ const Data = () => {
             <motion.button
               onClick={() => setActiveTab('courses')}
               className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                activeTab === 'courses' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-lg' 
+                activeTab === 'courses'
+                  ? 'bg-[var(--color-primary)] text-white shadow-lg'
                   : 'text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-secondary)]'
               }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <Calendar size={16} />
               Courses
@@ -525,7 +521,7 @@ const Data = () => {
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all"
               />
               {searchTerm && (
-                <button 
+                <button
                   onClick={() => setSearchTerm('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-text)]"
                 >
@@ -533,9 +529,9 @@ const Data = () => {
                 </button>
               )}
             </div>
-            
+
             <div className="flex items-center gap-3">
-              <motion.div 
+              <motion.div
                 className="px-4 py-2.5 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] text-sm text-[var(--color-muted)] whitespace-nowrap"
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
@@ -548,12 +544,10 @@ const Data = () => {
                   Virtualisation 10k+
                 </div>
               )}
-              <motion.button 
+              <motion.button
                 onClick={resetAndLoad}
                 className="p-2.5 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all"
                 title="Actualiser"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               </motion.button>
@@ -570,12 +564,12 @@ const Data = () => {
         >
           <GlassCard className="overflow-hidden">
             {error ? (
-              <motion.div 
+              <motion.div
                 className="p-12 text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <motion.div 
+                <motion.div
                   className="text-red-500 mb-4 flex justify-center"
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 0.5 }}
@@ -584,11 +578,9 @@ const Data = () => {
                 </motion.div>
                 <h3 className="text-lg font-semibold mb-2">Une erreur est survenue</h3>
                 <p className="text-[var(--color-muted)] mb-6">{error}</p>
-                <motion.button 
+                <motion.button
                   onClick={resetAndLoad}
                   className="px-6 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-all"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   Réessayer
                 </motion.button>
@@ -596,7 +588,7 @@ const Data = () => {
             ) : (
               <div className="overflow-x-auto">
                 <div className="min-w-[960px]">
-                  <div 
+                  <div
                     className="grid text-sm font-semibold border-b"
                     style={{
                       gridTemplateColumns: gridTemplate,
@@ -638,8 +630,8 @@ const Data = () => {
                   ) : (
                     <div>
                       {data.map((item, idx) => (
-                        <div 
-                          key={item.race_key || item.nom || item.id || idx} 
+                        <div
+                          key={item.race_key || item.nom || item.id || idx}
                           onClick={() => activeTab === 'chevaux' ? setSelectedItem(item) : undefined}
                           className={`grid items-center border-b border-[var(--color-border)] hover:bg-[var(--color-secondary)]/50 transition-colors ${activeTab === 'chevaux' ? 'cursor-pointer' : ''}`}
                           style={{ gridTemplateColumns: gridTemplate }}
@@ -652,12 +644,12 @@ const Data = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Loading Indicator / Infinite Scroll Target */}
             {!shouldVirtualize && (
               <div ref={observerTarget} className="p-6 flex justify-center">
                 {loading && (
-                  <motion.div 
+                  <motion.div
                     className="flex items-center gap-3 text-[var(--color-muted)]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -670,7 +662,7 @@ const Data = () => {
             )}
             {shouldVirtualize && loading && (
               <div className="p-4 flex justify-center">
-                <motion.div 
+                <motion.div
                   className="flex items-center gap-3 text-[var(--color-muted)]"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -687,14 +679,14 @@ const Data = () => {
       {/* Detail Modal */}
       <AnimatePresence>
         {selectedItem && (
-          <motion.div 
+          <motion.div
             className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedItem(null)}
           >
-            <motion.div 
+            <motion.div
               className="rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               style={{
                 background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.85)',
@@ -722,20 +714,18 @@ const Data = () => {
                   </h2>
                   <p className="text-[var(--color-muted)] mt-1">{selectedItem.race || '-'} • {selectedItem.sexe || '-'}</p>
                 </div>
-                <motion.button 
-                  onClick={() => setSelectedItem(null)} 
+                <motion.button
+                  onClick={() => setSelectedItem(null)}
                   className="p-2 hover:bg-[var(--color-secondary)] rounded-full transition-colors"
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
                 >
                   <X size={20} />
                 </motion.button>
               </div>
-              
+
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <motion.div 
+                <motion.div
                   className="p-5 rounded-xl text-center"
-                  style={{ 
+                  style={{
                     background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.5)',
                     backdropFilter: 'blur(16px)',
                     border: '1px solid rgba(var(--color-border-rgb), 0.1)',
@@ -748,9 +738,9 @@ const Data = () => {
                   <div className="text-[var(--color-muted)] text-xs uppercase tracking-wider mb-2">Courses</div>
                   <div className="text-3xl font-bold">{selectedItem.nombre_courses_total || 0}</div>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   className="p-5 rounded-xl text-center"
-                  style={{ 
+                  style={{
                     background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.5)',
                     backdropFilter: 'blur(16px)',
                     border: '1px solid rgba(var(--color-border-rgb), 0.1)',
@@ -763,9 +753,9 @@ const Data = () => {
                   <div className="text-[var(--color-muted)] text-xs uppercase tracking-wider mb-2">Victoires</div>
                   <div className="text-3xl font-bold text-green-500">{selectedItem.nombre_victoires_total || 0}</div>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   className="p-5 rounded-xl text-center"
-                  style={{ 
+                  style={{
                     background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.5)',
                     backdropFilter: 'blur(16px)',
                     border: '1px solid rgba(var(--color-border-rgb), 0.1)',
@@ -778,8 +768,8 @@ const Data = () => {
                   <div className="text-[var(--color-muted)] text-xs uppercase tracking-wider mb-2">Réussite</div>
                   <div className="text-3xl font-bold text-[var(--color-primary)]">{formatValue(selectedItem.taux_victoire || 0, 'percent')}</div>
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="col-span-full mt-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -794,13 +784,11 @@ const Data = () => {
                   </div>
                 </motion.div>
               </div>
-              
+
               <div className="p-6 border-t border-[var(--color-border)] bg-[var(--color-secondary)]/30 flex justify-end">
-                <motion.button 
+                <motion.button
                   onClick={() => setSelectedItem(null)}
                   className="px-6 py-2.5 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl hover:bg-[var(--color-secondary)] transition-colors"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   Fermer
                 </motion.button>

@@ -1,6 +1,6 @@
 /**
  * Configuration d'environnement centralisée pour le frontend
- * 
+ *
  * Priorité de résolution de l'URL API :
  * 1. window.__APP_CONFIG__ (injection runtime via /app-config.js)
  * 2. import.meta.env.VITE_API_URL (variable d'env Vite au build)
@@ -41,7 +41,7 @@ const resolveApiBaseUrl = (): string => {
     const { port, hostname } = window.location;
     const isProduction = !port || port === '80' || port === '443';
     const isNotLocalDev = hostname !== 'localhost' || isProduction;
-    
+
     if (isNotLocalDev) {
       return '/api';
     }
@@ -57,18 +57,18 @@ const resolveApiBaseUrl = (): string => {
 export const env = {
   /** URL de base de l'API (sans trailing slash) */
   API_BASE_URL: resolveApiBaseUrl(),
-  
+
   /** URL racine du backend (sans /api) */
   get API_BASE(): string {
     return this.API_BASE_URL.replace(/\/api$/, '') || 'http://localhost:8000';
   },
-  
+
   /** Mode développement */
   isDevelopment: import.meta.env.DEV ?? false,
-  
+
   /** Mode production */
   isProduction: import.meta.env.PROD ?? true,
-  
+
   /** Version de l'app */
   version: import.meta.env.VITE_APP_VERSION || '1.0.0',
 } as const;
@@ -79,8 +79,8 @@ export const env = {
 if (env.isDevelopment) {
   const source = (typeof window !== 'undefined' && window.__APP_CONFIG__?.apiBaseUrl)
     ? 'runtime-injection'
-    : import.meta.env.VITE_API_URL 
-      ? 'vite-env' 
+    : import.meta.env.VITE_API_URL
+      ? 'vite-env'
       : 'auto-detect';
 
   console.log('[env] Configuration chargée:', {

@@ -38,12 +38,10 @@ const EntityHeader = ({
             <motion.button
               onClick={onCta}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-lg shadow-purple-500/10"
-              style={{ 
+              style={{
                 background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
                 color: '#0b1021'
               }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <ArrowRightIcon className="h-4 w-4" />
               {ctaLabel}
@@ -68,8 +66,8 @@ const EntityHeader = ({
             <LineChart data={safeTrend}>
               <Line type="monotone" dataKey="value" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
               <Tooltip
-                contentStyle={{ 
-                  backgroundColor: 'var(--color-bg, #0b1021)', 
+                contentStyle={{
+                  backgroundColor: 'var(--color-bg, #0b1021)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '12px',
                   color: 'var(--color-text)'

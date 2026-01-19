@@ -3,7 +3,7 @@
 ################################################################################
 # SCRAPING HISTORIQUE EN CONTINU
 ################################################################################
-# 
+#
 # Ce script lance le scraping en boucle continue jusqu'à complétion
 # Dès qu'une session de 10 périodes est terminée, une nouvelle démarre
 #
@@ -56,51 +56,51 @@ while true; do
         rm -f "$STOP_FILE"
         break
     fi
-    
+
     # Vérifier le statut actuel
     STATUS=$($PYTHON "$PROJECT_DIR/scraper_historique_auto.py" --status 2>/dev/null | grep "status:" | awk '{print $2}')
-    
+
     if [ "$STATUS" = "completed" ]; then
         echo ""
         echo "🎉 SCRAPING HISTORIQUE TERMINÉ !"
         echo "   Toutes les données sur 5 ans ont été récupérées."
         break
     fi
-    
+
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     LOG_FILE="$LOG_DIR/continu_${TIMESTAMP}.log"
-    
+
     echo ""
     echo "============================================================"
     echo "📦 SESSION $SESSION - $(date '+%Y-%m-%d %H:%M:%S')"
     echo "============================================================"
-    
+
     # Afficher progression avant
     echo "📊 Progression avant session:"
     $PYTHON "$PROJECT_DIR/scraper_historique_auto.py" --status 2>/dev/null | grep -E "(progress_percent|remaining_days|last_scraped)"
-    
+
     echo ""
     echo "🔄 Lancement de $PERIODS périodes..."
-    
+
     # Lancer le scraping
     $PYTHON "$PROJECT_DIR/scraper_historique_auto.py" --periods $PERIODS 2>&1 | tee "$LOG_FILE"
-    
+
     EXIT_CODE=$?
-    
+
     if [ $EXIT_CODE -ne 0 ]; then
         echo "⚠️  Erreur détectée (code $EXIT_CODE), pause de 60s avant retry..."
         sleep 60
     else
         echo "✅ Session $SESSION terminée avec succès"
     fi
-    
+
     # Afficher progression après
     echo ""
     echo "📊 Progression après session:"
     $PYTHON "$PROJECT_DIR/scraper_historique_auto.py" --status 2>/dev/null | grep -E "(progress_percent|remaining_days|last_scraped)"
-    
+
     SESSION=$((SESSION + 1))
-    
+
     # Petite pause pour ne pas surcharger l'API
     echo ""
     echo "⏳ Pause de ${PAUSE_BETWEEN}s avant prochaine session..."

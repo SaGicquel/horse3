@@ -1,11 +1,11 @@
 /**
  * Composant ThemeToggle pour basculer entre mode clair et mode sombre
  * Avec effet Glassmorphism parfait
- * 
+ *
  * Utilise les variables CSS définies dans index.css :
  * - Mode clair : fond #F9FAFB, texte #111827
  * - Mode sombre : fond #0B0F1A, texte #E5E7EB
- * 
+ *
  * Contraste validé AA pour l'accessibilité
  */
 
@@ -54,11 +54,10 @@ const ThemeToggle = () => {
         border: '1px solid rgba(255, 255, 255, 0.15)',
         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
       }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.05,
         boxShadow: '0 8px 24px rgba(var(--color-primary-rgb), 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
       }}
-      whileTap={{ scale: 0.95 }}
       aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
       title={isDark ? 'Mode clair' : 'Mode sombre'}
     >

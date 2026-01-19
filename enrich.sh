@@ -27,21 +27,21 @@ if [ $? -eq 0 ]; then
     echo ""
     echo -e "${GREEN}✅ Enrichissement terminé avec succès !${NC}"
     echo ""
-    
+
     # Afficher les statistiques
     echo -e "${BLUE}📊 Statistiques de la base:${NC}"
     docker exec -i pmuBDD psql -U postgres -d pmubdd -c "
-        SELECT 
+        SELECT
             COUNT(*) as total_participations,
             COUNT(course_id) as avec_metadata,
             COUNT(handicap_valeur) as avec_handicap,
             COUNT(entraineur_winrate_90j) as avec_connections
         FROM cheval_courses_seen;
     "
-    
+
     echo ""
     docker exec -i pmuBDD psql -U postgres -d pmubdd -c "
-        SELECT 
+        SELECT
             COUNT(*) as total_chevaux,
             COUNT(nb_places_12m) as avec_stats_perf,
             COUNT(score_forme_recent) as avec_forme

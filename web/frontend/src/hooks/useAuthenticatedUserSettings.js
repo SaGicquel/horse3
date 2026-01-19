@@ -85,10 +85,10 @@ export default function useAuthenticatedUserSettings() {
       }
 
       setUserSettings(newSettings);
-      
+
       // Émettre un événement pour synchroniser avec les autres composants
-      window.dispatchEvent(new CustomEvent('userSettingsChanged', { 
-        detail: newSettings 
+      window.dispatchEvent(new CustomEvent('userSettingsChanged', {
+        detail: newSettings
       }));
 
       return await response.json();
@@ -101,7 +101,7 @@ export default function useAuthenticatedUserSettings() {
   // Fonction pour mettre à jour un champ spécifique
   const updateSetting = async (field, value) => {
     if (!userSettings) return;
-    
+
     const updatedSettings = { ...userSettings, [field]: value };
     await saveUserSettings(updatedSettings);
   };
@@ -109,7 +109,7 @@ export default function useAuthenticatedUserSettings() {
   // Fonction pour mettre à jour plusieurs champs
   const updateSettings = async (updates) => {
     if (!userSettings) return;
-    
+
     const updatedSettings = { ...userSettings, ...updates };
     await saveUserSettings(updatedSettings);
   };
@@ -180,7 +180,15 @@ export default function useAuthenticatedUserSettings() {
     takeoutRate,
 
     // Setters pour les valeurs individuelles (pratique)
-    setBankroll: (value) => updateSetting('bankroll', value),
+    // setBankroll supporte un second paramètre pour différer la sauvegarde (slider)
+    setBankroll: (value, shouldSave = true) => {
+      // Mettre à jour l'état local immédiatement pour le rendu
+      setUserSettings(prev => prev ? { ...prev, bankroll: value } : prev);
+      // Sauvegarder seulement si demandé (onMouseUp/onTouchEnd/onBlur)
+      if (shouldSave && userSettings) {
+        saveUserSettings({ ...userSettings, bankroll: value });
+      }
+    },
     setProfilRisque: (value) => updateSetting('profil_risque', value),
     setKellyProfile: (value) => updateSetting('kelly_profile', value),
     setCustomKellyFraction: (value) => updateSetting('custom_kelly_fraction', value),

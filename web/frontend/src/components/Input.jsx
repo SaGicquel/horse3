@@ -1,6 +1,6 @@
 /**
  * Composants Input réutilisables avec effet Glassmorphism parfait
- * 
+ *
  * Caractéristiques :
  * - Effet glassmorphism avec backdrop-blur
  * - Focus : border primaire avec ring glass
@@ -9,7 +9,7 @@
  * - Contraste AA validé
  */
 
-export const Input = ({ 
+export const Input = ({
   label,
   type = 'text',
   value,
@@ -18,12 +18,12 @@ export const Input = ({
   required = false,
   disabled = false,
   error = '',
-  className = '' 
+  className = ''
 }) => {
   return (
     <div className="w-full">
       {label && (
-        <label 
+        <label
           className="block font-medium text-sm mb-2"
           style={{ color: 'var(--color-text)' }}
         >
@@ -39,7 +39,7 @@ export const Input = ({
         required={required}
         disabled={disabled}
         className={`
-          w-full rounded-xl py-3 px-4 
+          w-full rounded-xl py-3 px-4
           text-sm transition-all duration-300
           focus:outline-none
           disabled:opacity-50 disabled:cursor-not-allowed
@@ -62,19 +62,19 @@ export const Input = ({
   );
 };
 
-export const SearchInput = ({ 
+export const SearchInput = ({
   value,
   onChange,
   placeholder = 'Rechercher...',
   icon: Icon,
-  className = '' 
+  className = ''
 }) => {
   return (
     <div className="relative">
       {Icon && (
-        <Icon 
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" 
-          size={18} 
+        <Icon
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
+          size={18}
           style={{ color: 'var(--color-muted)' }}
         />
       )}
@@ -84,8 +84,8 @@ export const SearchInput = ({
         onChange={onChange}
         placeholder={placeholder}
         className={`
-          w-full rounded-xl 
-          py-3 ${Icon ? 'pl-12' : 'pl-4'} pr-4 
+          w-full rounded-xl
+          py-3 ${Icon ? 'pl-12' : 'pl-4'} pr-4
           text-sm
           transition-all duration-300
           focus:outline-none
@@ -104,7 +104,7 @@ export const SearchInput = ({
   );
 };
 
-export const TextArea = ({ 
+export const TextArea = ({
   label,
   value,
   onChange,
@@ -113,12 +113,12 @@ export const TextArea = ({
   disabled = false,
   rows = 4,
   error = '',
-  className = '' 
+  className = ''
 }) => {
   return (
     <div className="w-full">
       {label && (
-        <label 
+        <label
           className="block font-medium text-sm mb-2"
           style={{ color: 'var(--color-text)' }}
         >
@@ -134,8 +134,8 @@ export const TextArea = ({
         disabled={disabled}
         rows={rows}
         className={`
-          w-full rounded-xl 
-          py-3 px-4 
+          w-full rounded-xl
+          py-3 px-4
           text-sm
           transition-all duration-300
           focus:outline-none
@@ -162,24 +162,24 @@ export const TextArea = ({
 
 /**
  * Exemple d'utilisation :
- * 
+ *
  * import { Input, SearchInput, TextArea } from './components/Input';
  * import { Search } from 'lucide-react';
- * 
+ *
  * <Input
  *   label="Nom"
  *   value={name}
  *   onChange={(e) => setName(e.target.value)}
  *   required
  * />
- * 
+ *
  * <SearchInput
  *   icon={Search}
  *   value={search}
  *   onChange={(e) => setSearch(e.target.value)}
  *   placeholder="Rechercher un cheval..."
  * />
- * 
+ *
  * <TextArea
  *   label="Description"
  *   value={description}

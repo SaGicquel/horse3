@@ -79,7 +79,11 @@ def load_policy(config_path: Path, profile: str, bankroll: float) -> Policy:
     betting_defaults = cfg.get("betting_defaults", {}) or {}
     policy = cfg.get("betting_policy", {}) or {}
 
-    kmap = betting_defaults.get("kelly_fraction_map", {}) or {"SUR": 0.25, "STANDARD": 0.33, "AMBITIEUX": 0.5}
+    kmap = betting_defaults.get("kelly_fraction_map", {}) or {
+        "SUR": 0.25,
+        "STANDARD": 0.33,
+        "AMBITIEUX": 0.5,
+    }
     daily_budget_rate = float(betting_defaults.get("daily_budget_rate", 0.12) or 0.12)
     cap_per_bet = float(betting_defaults.get("cap_per_bet", 0.02) or 0.02)
     rounding = float(betting_defaults.get("rounding_increment_eur", 0.5) or 0.5)
@@ -95,8 +99,16 @@ def load_policy(config_path: Path, profile: str, bankroll: float) -> Policy:
     mult_map = policy.get("profile_value_multiplier", {}) or {}
     profile_mult = float(mult_map.get(profile, mult_map.get("STANDARD", 1.0)) or 1.0)
 
-    stake_scale_by_bucket = policy.get("stake_scale_by_bucket", {}) or {"SÛR": 1.0, "ÉQUILIBRÉ": 0.7, "RISQUÉ": 0.25}
-    stake_scale_by_zone = policy.get("stake_scale_by_zone", {}) or {"micro": 0.5, "small": 0.8, "full": 1.0}
+    stake_scale_by_bucket = policy.get("stake_scale_by_bucket", {}) or {
+        "SÛR": 1.0,
+        "ÉQUILIBRÉ": 0.7,
+        "RISQUÉ": 0.25,
+    }
+    stake_scale_by_zone = policy.get("stake_scale_by_zone", {}) or {
+        "micro": 0.5,
+        "small": 0.8,
+        "full": 1.0,
+    }
 
     return Policy(
         daily_budget_rate=daily_budget_rate,
@@ -115,7 +127,11 @@ def load_policy(config_path: Path, profile: str, bankroll: float) -> Policy:
 
 
 def cutoff_for(policy: Policy, zone: str, bucket: str) -> float:
-    zmap = policy.value_min_pct_by_zone.get(zone, {}) if isinstance(policy.value_min_pct_by_zone, dict) else {}
+    zmap = (
+        policy.value_min_pct_by_zone.get(zone, {})
+        if isinstance(policy.value_min_pct_by_zone, dict)
+        else {}
+    )
     bmap = zmap.get(bucket, {}) if isinstance(zmap.get(bucket, {}), dict) else {}
     base = float(bmap.get("win", 8) or 8)
     return base * policy.profile_value_multiplier
@@ -134,7 +150,9 @@ def run_backtest(df: pd.DataFrame, bankroll: float, profile: str, policy: Policy
     peak = bankroll
     max_dd = 0.0
 
-    results_by_bucket = {b: {"stake": 0.0, "profit": 0.0, "bets": 0} for b in ["SÛR", "ÉQUILIBRÉ", "RISQUÉ"]}
+    results_by_bucket = {
+        b: {"stake": 0.0, "profit": 0.0, "bets": 0} for b in ["SÛR", "ÉQUILIBRÉ", "RISQUÉ"]
+    }
     bets_per_day = []
 
     for day, day_df in df.groupby("date_course", sort=True):
@@ -156,7 +174,11 @@ def run_backtest(df: pd.DataFrame, bankroll: float, profile: str, policy: Policy
 
         # Trier: bucket (SÛR first), puis value desc
         bucket_rank = {"SÛR": 0, "ÉQUILIBRÉ": 1, "RISQUÉ": 2}
-        tmp = tmp.sort_values(by=["bucket", "value_pct"], ascending=[True, False], key=lambda s: s.map(bucket_rank) if s.name == "bucket" else s)
+        tmp = tmp.sort_values(
+            by=["bucket", "value_pct"],
+            ascending=[True, False],
+            key=lambda s: s.map(bucket_rank) if s.name == "bucket" else s,
+        )
 
         for _, row in tmp.iterrows():
             if day_bets >= policy.max_bets_per_day:
@@ -215,7 +237,9 @@ def run_backtest(df: pd.DataFrame, bankroll: float, profile: str, policy: Policy
         "bankroll": bankroll,
         "zone": zone,
         "total_bets": int(sum(v["bets"] for v in results_by_bucket.values())),
-        "avg_bets_per_day": round(sum(bets_per_day) / len(bets_per_day), 2) if bets_per_day else 0.0,
+        "avg_bets_per_day": round(sum(bets_per_day) / len(bets_per_day), 2)
+        if bets_per_day
+        else 0.0,
         "total_stake": round(total_stake, 2),
         "total_profit": round(total_profit, 2),
         "roi_pct": round((total_profit / total_stake) * 100.0, 2) if total_stake > 0 else 0.0,
@@ -266,4 +290,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

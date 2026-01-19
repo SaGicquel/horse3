@@ -3,24 +3,25 @@
 Module de connexion à la base de données.
 Utilise PostgreSQL par défaut (conteneur Docker pmuBDD).
 """
+
 import os
 import psycopg2
 import psycopg2.extras
 
 # Configuration PostgreSQL par défaut
 DB_CONFIG = {
-    'host': os.getenv('PGHOST', 'localhost'),
-    'port': int(os.getenv('PGPORT', '54624')),  # Port Docker du conteneur pmuBDD
-    'database': os.getenv('PGDATABASE', 'pmu_database'),
-    'user': os.getenv('PGUSER', 'pmu_user'),
-    'password': os.getenv('PGPASSWORD', 'pmu_secure_password_2025'),
+    "host": os.getenv("PGHOST", "localhost"),
+    "port": int(os.getenv("PGPORT", "54624")),  # Port Docker du conteneur pmuBDD
+    "database": os.getenv("PGDATABASE", "pmu_database"),
+    "user": os.getenv("PGUSER", "pmu_user"),
+    "password": os.getenv("PGPASSWORD", "pmu_secure_password_2025"),
 }
 
 
 def get_connection():
     """
     Retourne une connexion PostgreSQL.
-    
+
     Returns:
         psycopg2.connection: Connexion à la base de données PostgreSQL
     """
@@ -36,22 +37,22 @@ def get_connection():
 def get_cursor(conn=None, dict_cursor=True):
     """
     Retourne un curseur pour la connexion.
-    
+
     Args:
         conn: Connexion existante (si None, en crée une nouvelle)
         dict_cursor: Si True, retourne un DictCursor (accès par nom de colonne)
-    
+
     Returns:
         tuple: (connection, cursor)
     """
     if conn is None:
         conn = get_connection()
-    
+
     if dict_cursor:
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     else:
         cursor = conn.cursor()
-    
+
     return conn, cursor
 
 
@@ -64,7 +65,7 @@ def test_connection():
         version = cur.fetchone()[0]
         cur.close()
         conn.close()
-        print(f"✅ Connexion PostgreSQL OK")
+        print("✅ Connexion PostgreSQL OK")
         print(f"   Version : {version[:50]}...")
         return True
     except Exception as e:
@@ -72,5 +73,5 @@ def test_connection():
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_connection()

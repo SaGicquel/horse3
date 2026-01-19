@@ -8,12 +8,10 @@ from .loader import (
     reload_config,
     coherent_params,
     config_summary,
-    
     # Artifacts
     get_latest_calibration_report,
     get_calibration_params_from_artifacts,
     update_config_from_calibration,
-    
     # Config classes
     ProBettingConfig,
     CalibrationConfig,
@@ -25,47 +23,41 @@ from .loader import (
     BacktestConfig,
     ArtifactsConfig,
     NormalizationConfig,  # Alias pour SimulationConfig
-    
     # Paths
     PROJECT_ROOT,
     CONFIG_PATH,
     ARTIFACTS_DIR,
-    
     # Version
     __version__,
 )
 
 __all__ = [
     # Core
-    'get_config',
-    'load_config',
-    'clear_config_cache',
-    'reload_config', 
-    'coherent_params',
-    'config_summary',
-    
+    "get_config",
+    "load_config",
+    "clear_config_cache",
+    "reload_config",
+    "coherent_params",
+    "config_summary",
     # Artifacts
-    'get_latest_calibration_report',
-    'get_calibration_params_from_artifacts',
-    'update_config_from_calibration',
-    
+    "get_latest_calibration_report",
+    "get_calibration_params_from_artifacts",
+    "update_config_from_calibration",
     # Config classes
-    'ProBettingConfig',
-    'CalibrationConfig',
-    'SimulationConfig',
-    'MarketsConfig',
-    'KellyConfig',
-    'PortfolioConfig',
-    'ExoticsConfig',
-    'BacktestConfig',
-    'ArtifactsConfig',
-    'NormalizationConfig',
-    
+    "ProBettingConfig",
+    "CalibrationConfig",
+    "SimulationConfig",
+    "MarketsConfig",
+    "KellyConfig",
+    "PortfolioConfig",
+    "ExoticsConfig",
+    "BacktestConfig",
+    "ArtifactsConfig",
+    "NormalizationConfig",
     # Paths
-    'PROJECT_ROOT',
-    'CONFIG_PATH',
-    'ARTIFACTS_DIR',
-    
+    "PROJECT_ROOT",
+    "CONFIG_PATH",
+    "ARTIFACTS_DIR",
     # Version
-    '__version__',
+    "__version__",
 ]

@@ -12,16 +12,16 @@ from .scraper_common import (
     normalize_race,
     map_sexe,
     get_json_safe,
-    ScraperSession
+    ScraperSession,
 )
 
 __all__ = [
-    'AdaptiveRateLimiter',
-    'CircuitBreaker',
-    'resolve_hippodrome_identifiers',
-    'normalize_name',
-    'normalize_race',
-    'map_sexe',
-    'get_json_safe',
-    'ScraperSession'
+    "AdaptiveRateLimiter",
+    "CircuitBreaker",
+    "resolve_hippodrome_identifiers",
+    "normalize_name",
+    "normalize_race",
+    "map_sexe",
+    "get_json_safe",
+    "ScraperSession",
 ]

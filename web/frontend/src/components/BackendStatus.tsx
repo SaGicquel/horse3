@@ -14,16 +14,16 @@ interface BackendStatusProps {
 
 /**
  * Composant de smoke check pour afficher l'état du backend
- * 
+ *
  * Affiche un banner "Backend OK" ou une alerte si le backend est indisponible.
- * 
+ *
  * @example
  * ```tsx
  * // Dans App.jsx ou un layout
  * <BackendStatus showWhenHealthy={false} />
  * ```
  */
-export const BackendStatus = memo(({ 
+export const BackendStatus = memo(({
   showWhenHealthy = false,
   position = 'top',
   onStatusChange,
@@ -43,8 +43,8 @@ export const BackendStatus = memo(({
     return null;
   }
 
-  const positionClasses = position === 'top' 
-    ? 'top-0 left-0 right-0' 
+  const positionClasses = position === 'top'
+    ? 'top-0 left-0 right-0'
     : 'bottom-0 left-0 right-0';
 
   return (
@@ -130,8 +130,6 @@ export const BackendStatus = memo(({
             <motion.button
               onClick={() => checkHealth()}
               className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
               title="Réessayer"
             >
               <RefreshCw size={16} className="text-red-400" />

@@ -15,14 +15,14 @@ while true; do
         echo "================================================"
         date "+%Y-%m-%d %H:%M:%S"
         echo ""
-        
+
         # Afficher l'état
         python3 watch_progress.py
-        
+
         echo ""
         echo "⏳ Prochaine mise à jour dans 60 secondes..."
         echo "   (Ctrl+C pour arrêter la surveillance)"
-        
+
         sleep 60
     else
         # Le processus est terminé
@@ -31,22 +31,22 @@ while true; do
         echo "================================================"
         date "+%Y-%m-%d %H:%M:%S"
         echo ""
-        
+
         # État final
         python3 watch_progress.py
-        
+
         echo ""
         echo "📊 Lancement de l'analyse finale..."
         echo ""
-        
+
         # Analyse finale
         python3 analyse_finale_enrichissement.py
-        
+
         echo ""
         echo "🎉 TERMINÉ ! Analyse complète disponible dans:"
         echo "   • ANALYSE_ENRICHISSEMENT_OCTOBRE_2024.txt"
         echo ""
-        
+
         break
     fi
 done

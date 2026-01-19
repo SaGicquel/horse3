@@ -1,6 +1,6 @@
 /**
  * AnimatedStatCard - Carte de statistiques avec animations avancées
- * 
+ *
  * Caractéristiques :
  * - Animation du compteur numérique
  * - Effet glassmorphism
@@ -176,7 +176,6 @@ const AnimatedStatCard = ({
                     ? 'bg-primary-500/10 border-primary-500/20 text-primary-600 dark:text-primary-400'
                     : 'bg-error/10 border-error/20 text-error'
                   }`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 <Icon size={20} />
               </motion.div>

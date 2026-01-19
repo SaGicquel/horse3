@@ -3,7 +3,7 @@
 ################################################################################
 # SCRIPT CRON - ENRICHISSEMENT HEBDOMADAIRE COMPLET
 ################################################################################
-# 
+#
 # Description : Enrichissement complet de la semaine écoulée + maintenance DB
 #
 # Fréquence recommandée : Dimanche 2h00 du matin (faible charge système)
@@ -129,7 +129,7 @@ print()
 
 # Stats par jour
 cur.execute(\"\"\"
-    SELECT 
+    SELECT
         SUBSTRING(c.id_course, 1, 8) as date_course,
         COUNT(DISTINCT c.id_course) as nb_courses,
         COUNT(p.id_performance) as nb_perfs,
@@ -176,7 +176,7 @@ print('-' * 80)
 
 # Stats totales
 cur.execute(\"\"\"
-    SELECT 
+    SELECT
         COUNT(*) as total,
         COUNT(CASE WHEN cote_turfbzh IS NOT NULL THEN 1 END) as avec_turf,
         COUNT(CASE WHEN musique IS NOT NULL THEN 1 END) as avec_musique,

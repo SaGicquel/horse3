@@ -1,16 +1,16 @@
 /**
  * Hook personnalisé pour accéder aux couleurs du thème
- * 
+ *
  * Permet d'utiliser facilement les variables CSS du thème dans les composants React,
  * notamment pour les graphiques Recharts qui nécessitent des couleurs dynamiques.
- * 
+ *
  * Usage :
  * ```jsx
  * import { useThemeColors } from '../hooks/useThemeColors';
- * 
+ *
  * const MyComponent = () => {
  *   const colors = useThemeColors();
- *   
+ *
  *   return <div style={{ color: colors.primary }}>Hello</div>;
  * };
  * ```
@@ -57,7 +57,7 @@ export const useThemeColors = () => {
 
     // Mise à jour initiale
     updateColors();
-    
+
     // Observer les changements de classe 'dark' sur <html>
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -80,7 +80,7 @@ export const useThemeColors = () => {
 
 /**
  * Hook pour savoir si le mode sombre est actif
- * 
+ *
  * Usage :
  * ```jsx
  * const isDark = useIsDarkMode();

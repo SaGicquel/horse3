@@ -13,45 +13,46 @@ import sys
 from datetime import date, timedelta
 from db_connection import get_connection
 
+
 class StatsCalculator:
     """Calcule les statistiques agrégées."""
-    
+
     def __init__(self):
         self.conn = None
         self.cur = None
         self.stats = {
-            'chevaux_updated': 0,
-            'personnes_updated': 0,
+            "chevaux_updated": 0,
+            "personnes_updated": 0,
         }
-    
+
     def connect(self):
         """Connexion BDD."""
         self.conn = get_connection()
         self.cur = self.conn.cursor()
-    
+
     def close(self):
         """Fermeture BDD."""
         if self.cur:
             self.cur.close()
         if self.conn:
             self.conn.close()
-    
+
     def calcul_stats_chevaux(self, id_cheval: int = None):
         """
         Calcule les stats pour tous les chevaux ou un cheval spécifique.
-        
+
         Args:
             id_cheval: ID du cheval (None = tous)
         """
         print("\n🐴 Calcul des statistiques chevaux...")
-        
+
         where_clause = ""
         params = []
-        
+
         if id_cheval:
             where_clause = "WHERE ch.id_cheval = %s"
             params = [id_cheval]
-        
+
         # Stats globales carrière
         query = f"""
             INSERT INTO stats_chevaux (
@@ -60,7 +61,7 @@ class StatsCalculator:
                 tx_victoire, tx_place, gain_total,
                 forme_5c, nb_courses_5c, nb_victoires_5c
             )
-            SELECT 
+            SELECT
                 ch.id_cheval,
                 CURRENT_DATE,
                 COUNT(*) as nb_courses,
@@ -131,38 +132,39 @@ class StatsCalculator:
                 nb_courses_5c = EXCLUDED.nb_courses_5c,
                 nb_victoires_5c = EXCLUDED.nb_victoires_5c
         """
-        
+
         self.cur.execute(query, params)
-        self.stats['chevaux_updated'] = self.cur.rowcount
+        self.stats["chevaux_updated"] = self.cur.rowcount
         self.conn.commit()
-        
+
         print(f"✅ {self.stats['chevaux_updated']} chevaux mis à jour")
-    
+
     def calcul_aptitudes_chevaux(self, id_cheval: int = None):
         """
         Calcule les aptitudes (distance, piste, hippodrome) pour les chevaux.
-        
+
         Args:
             id_cheval: ID du cheval (None = tous)
         """
         print("\n📊 Calcul des aptitudes chevaux...")
-        
+
         # Pour chaque cheval
         where_clause = ""
         params = []
-        
+
         if id_cheval:
             where_clause = "WHERE id_cheval = %s"
             params = [id_cheval]
-        
+
         self.cur.execute(f"SELECT id_cheval FROM chevaux {where_clause}", params)
         chevaux = self.cur.fetchall()
-        
+
         for (cheval_id,) in chevaux:
             # Aptitude distance (% places sur distance ±10%)
-            self.cur.execute("""
+            self.cur.execute(
+                """
                 WITH perf_cheval AS (
-                    SELECT 
+                    SELECT
                         p.id_performance,
                         c.distance,
                         p.place
@@ -171,46 +173,52 @@ class StatsCalculator:
                     WHERE p.id_cheval = %s
                     AND p.non_partant = FALSE
                 )
-                SELECT 
+                SELECT
                     AVG(CASE WHEN pc2.place THEN 100.0 ELSE 0.0 END) as aptitude_distance
                 FROM perf_cheval pc1
                 CROSS JOIN perf_cheval pc2
                 WHERE ABS(pc2.distance - pc1.distance) <= pc1.distance * 0.1
                 LIMIT 1
-            """, (cheval_id,))
-            
+            """,
+                (cheval_id,),
+            )
+
             aptitude_distance = self.cur.fetchone()
             if aptitude_distance and aptitude_distance[0]:
-                self.cur.execute("""
-                    UPDATE stats_chevaux 
+                self.cur.execute(
+                    """
+                    UPDATE stats_chevaux
                     SET aptitude_distance = %s
                     WHERE id_cheval = %s AND date_calcul = CURRENT_DATE
-                """, (round(aptitude_distance[0], 2), cheval_id))
-        
+                """,
+                    (round(aptitude_distance[0], 2), cheval_id),
+                )
+
         self.conn.commit()
         print(f"✅ Aptitudes calculées pour {len(chevaux)} chevaux")
-    
-    def calcul_stats_personnes(self, periode: str = '12M'):
+
+    def calcul_stats_personnes(self, periode: str = "12M"):
         """
         Calcule les stats pour jockeys et entraîneurs.
-        
+
         Args:
             periode: '12M', '3M', '1M'
         """
         print(f"\n👤 Calcul des statistiques personnes (période: {periode})...")
-        
+
         # Calculer la date limite selon la période
-        if periode == '12M':
+        if periode == "12M":
             date_limite = date.today() - timedelta(days=365)
-        elif periode == '3M':
+        elif periode == "3M":
             date_limite = date.today() - timedelta(days=90)
-        elif periode == '1M':
+        elif periode == "1M":
             date_limite = date.today() - timedelta(days=30)
         else:
             date_limite = date.today() - timedelta(days=365)
-        
+
         # Stats jockeys
-        self.cur.execute("""
+        self.cur.execute(
+            """
             INSERT INTO stats_personnes (
                 id_personne, date_calcul, periode,
                 nb_courses, nb_victoires, nb_places,
@@ -219,7 +227,7 @@ class StatsCalculator:
                 nb_courses_obstacle, tx_victoire_obstacle,
                 nb_courses_trot, tx_victoire_trot
             )
-            SELECT 
+            SELECT
                 per.id_personne,
                 CURRENT_DATE,
                 %s,
@@ -270,18 +278,21 @@ class StatsCalculator:
                 tx_victoire_obstacle = EXCLUDED.tx_victoire_obstacle,
                 nb_courses_trot = EXCLUDED.nb_courses_trot,
                 tx_victoire_trot = EXCLUDED.tx_victoire_trot
-        """, (periode, date_limite))
-        
+        """,
+            (periode, date_limite),
+        )
+
         nb_jockeys = self.cur.rowcount
-        
+
         # Stats entraîneurs
-        self.cur.execute("""
+        self.cur.execute(
+            """
             INSERT INTO stats_personnes (
                 id_personne, date_calcul, periode,
                 nb_courses, nb_victoires, nb_places,
                 tx_victoire, tx_place
             )
-            SELECT 
+            SELECT
                 per.id_personne,
                 CURRENT_DATE,
                 %s,
@@ -308,16 +319,18 @@ class StatsCalculator:
                 nb_places = EXCLUDED.nb_places,
                 tx_victoire = EXCLUDED.tx_victoire,
                 tx_place = EXCLUDED.tx_place
-        """, (periode, date_limite))
-        
+        """,
+            (periode, date_limite),
+        )
+
         nb_entraineurs = self.cur.rowcount
-        
+
         self.conn.commit()
-        self.stats['personnes_updated'] = nb_jockeys + nb_entraineurs
-        
+        self.stats["personnes_updated"] = nb_jockeys + nb_entraineurs
+
         print(f"✅ {nb_jockeys} jockeys mis à jour")
         print(f"✅ {nb_entraineurs} entraîneurs mis à jour")
-    
+
     def show_stats(self):
         """Affiche les stats du calcul."""
         print("\n" + "=" * 70)
@@ -327,43 +340,51 @@ class StatsCalculator:
             print(f"   {key:25s} : {value:6d}")
         print("=" * 70)
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Calcul des statistiques agrégées')
-    parser.add_argument('--chevaux', action='store_true', help='Calculer stats chevaux')
-    parser.add_argument('--personnes', action='store_true', help='Calculer stats personnes')
-    parser.add_argument('--all', action='store_true', help='Calculer toutes les stats')
-    parser.add_argument('--cheval-id', type=int, help='ID cheval spécifique')
-    parser.add_argument('--periode', type=str, default='12M', 
-                       choices=['1M', '3M', '12M'], help='Période pour stats personnes')
-    
+    parser = argparse.ArgumentParser(description="Calcul des statistiques agrégées")
+    parser.add_argument("--chevaux", action="store_true", help="Calculer stats chevaux")
+    parser.add_argument("--personnes", action="store_true", help="Calculer stats personnes")
+    parser.add_argument("--all", action="store_true", help="Calculer toutes les stats")
+    parser.add_argument("--cheval-id", type=int, help="ID cheval spécifique")
+    parser.add_argument(
+        "--periode",
+        type=str,
+        default="12M",
+        choices=["1M", "3M", "12M"],
+        help="Période pour stats personnes",
+    )
+
     args = parser.parse_args()
-    
+
     if not any([args.chevaux, args.personnes, args.all, args.cheval_id]):
         parser.print_help()
         sys.exit(1)
-    
+
     calc = StatsCalculator()
     calc.connect()
-    
+
     try:
         if args.all or args.chevaux or args.cheval_id:
             calc.calcul_stats_chevaux(id_cheval=args.cheval_id)
             if not args.cheval_id:  # Aptitudes = calcul lourd, skip si ID spécifique
                 calc.calcul_aptitudes_chevaux()
-        
+
         if args.all or args.personnes:
             calc.calcul_stats_personnes(periode=args.periode)
-        
+
         calc.show_stats()
         print("\n✅ Calculs terminés avec succès !")
-        
+
     except Exception as e:
         print(f"\n❌ Erreur lors des calculs : {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
     finally:
         calc.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

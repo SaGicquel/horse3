@@ -1,6 +1,6 @@
 # 🎯 AVANCEMENT PLAN D'ENRICHISSEMENT COMPLET
 
-**Date:** 3 novembre 2025  
+**Date:** 3 novembre 2025
 **Statut:** ✅ Phase 1 en cours (SCRAPER 1 opérationnel)
 
 ---
@@ -45,7 +45,7 @@
 ## 🚀 EN COURS
 
 ### SCRAPER 2 - Cheval détails
-**Fichier:** `scrapers/cheval_details.py`  
+**Fichier:** `scrapers/cheval_details.py`
 **Objectif:** Enrichir handicap, matériel, ferrure, ELO
 
 **Champs à récupérer (10):**
@@ -59,32 +59,32 @@
 ## 📋 À FAIRE
 
 ### SCRAPER 3 - Statistiques performances
-**Fichier:** `scrapers/perf_stats.py`  
+**Fichier:** `scrapers/perf_stats.py`
 **Calculs internes (13 champs):**
 - Indices de forme, RK, SF, records, consistance
 
 ### SCRAPER 4 - Conditions jour
-**Fichier:** `scrapers/conditions_jour.py`  
+**Fichier:** `scrapers/conditions_jour.py`
 **Analyse bias (8 champs):**
 - Gate score, pace map, topographie
 
 ### SCRAPER 5 - Cotes marché
-**Fichier:** `scrapers/cotes_marche.py`  
+**Fichier:** `scrapers/cotes_marche.py`
 **Évolution cotes (5 champs):**
 - Ouverture, live, finale, delta, overround
 
 ### SCRAPER 6 - Sectionnels
-**Fichier:** `scrapers/sectionnels.py`  
+**Fichier:** `scrapers/sectionnels.py`
 **Chronos détaillés (15 champs):**
 - 5 sectionnels, vitesses, speed figures
 
 ### SCRAPER 7 - Features ML
-**Fichier:** `scrapers/features_ml.py`  
+**Fichier:** `scrapers/features_ml.py`
 **Modèle prédictif (20 champs):**
 - Indices, probas, edge, kelly
 
 ### SCRAPER 8 - Connections
-**Fichier:** `scrapers/connections.py`  
+**Fichier:** `scrapers/connections.py`
 **Stats pros (5 champs):**
 - Winrates, synergies, expérience
 
@@ -137,10 +137,10 @@ python -m scrapers.metadata_course 2025-11-02
 
 # Vérifier enrichissement
 docker exec -i pmuBDD psql -U postgres -d pmubdd -c "
-SELECT COUNT(*) as total, 
+SELECT COUNT(*) as total,
        COUNT(course_id) as avec_course_id,
        COUNT(type_course) as avec_type_course
-FROM cheval_courses_seen 
+FROM cheval_courses_seen
 WHERE race_key LIKE '2025-11-02|%';
 "
 
@@ -152,8 +152,8 @@ docker exec -i pmuBDD psql -U postgres -d pmubdd -c "\d cheval_courses_seen"
 
 ## 🏆 OBJECTIF FINAL
 
-**100%** des 139 champs du dictionnaire PMU récupérés  
-→ Base de données complète pour ML/prédictions  
+**100%** des 139 champs du dictionnaire PMU récupérés
+→ Base de données complète pour ML/prédictions
 → Value betting rentable !
 
 **Estimation:** 3-4 semaines pour tout compléter

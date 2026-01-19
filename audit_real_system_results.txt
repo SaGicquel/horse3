@@ -1,0 +1,23 @@
+WARNING:ai_supervisor:AiSupervisor: No AI provider available
+========================================================================================================================
+AUDIT SYSTÈME RÉEL - ALGO + AI SUPERVISOR
+========================================================================================================================
+
+[STEP 1/4] Chargement des données...
+✓ 291,972 courses chargées
+
+[STEP 2/4] Initialisation AiSupervisor...
+⚠️  AiSupervisor en mode rule-based (LLM non disponible)
+
+[STEP 3/4] Tests sur périodes...
+
+========================================================================================================================
+PÉRIODE: Aout 2025
+========================================================================================================================
+Train: 254,631 | Test: 8,270
+  → Paris: 0
+Traceback (most recent call last):
+  File "/Users/gicquelsacha/horse3/audit_real_system.py", line 364, in <module>
+    print(f"  → Win rate: {result['win_rate']:.1f}% (baseline {result['baseline_rate']:.1f}%)")
+                                                               ~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'baseline_rate'

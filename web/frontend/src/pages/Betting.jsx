@@ -151,7 +151,7 @@ export default function Betting() {
               <div className="text-xs text-gray-400">Paris Forts</div>
             </GlassCard>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <GlassCard className="text-center">
               <BoltIcon className="h-8 w-8 mx-auto text-yellow-400 mb-2" />
@@ -159,7 +159,7 @@ export default function Betting() {
               <div className="text-xs text-gray-400">Paris Moyens</div>
             </GlassCard>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <GlassCard className="text-center">
               <ChartPieIcon className="h-8 w-8 mx-auto text-blue-400 mb-2" />
@@ -167,7 +167,7 @@ export default function Betting() {
               <div className="text-xs text-gray-400">Total</div>
             </GlassCard>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <GlassCard className="text-center">
               <ArrowTrendingUpIcon className="h-8 w-8 mx-auto text-purple-400 mb-2" />
@@ -175,7 +175,7 @@ export default function Betting() {
               <div className="text-xs text-gray-400">Value Moyenne</div>
             </GlassCard>
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <GlassCard className="text-center">
               <CheckBadgeIcon className="h-8 w-8 mx-auto text-pink-400 mb-2" />
@@ -193,7 +193,7 @@ export default function Betting() {
             <AdjustmentsHorizontalIcon className="h-5 w-5 text-blue-400" />
             Filtres
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-2">Score minimum</label>
@@ -207,7 +207,7 @@ export default function Betting() {
               />
               <div className="text-center text-blue-400 font-bold">{filters.minScore}</div>
             </div>
-            
+
             <div>
               <label className="block text-sm text-gray-400 mb-2">Value minimum (%)</label>
               <input
@@ -220,7 +220,7 @@ export default function Betting() {
               />
               <div className="text-center text-green-400 font-bold">{filters.minValue}%</div>
             </div>
-            
+
             <div>
               <label className="block text-sm text-gray-400 mb-2">Cote maximum</label>
               <input
@@ -241,7 +241,7 @@ export default function Betting() {
             <CurrencyDollarIcon className="h-5 w-5 text-green-400" />
             Bankroll
           </h3>
-          
+
           <input
             type="number"
             value={bankroll}
@@ -260,7 +260,7 @@ export default function Betting() {
         >
           <GlassCard className="border border-green-500/30 bg-green-500/5">
             <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">🎰 Votre sélection ({selectedBets.length} paris)</h3>
-            
+
             <div className="space-y-2 mb-4">
               {selectedBets.map((bet, i) => (
                 <div key={i} className="flex items-center justify-between p-2 bg-white/5 rounded-lg">
@@ -272,7 +272,7 @@ export default function Betting() {
                 </div>
               ))}
             </div>
-            
+
             <div className="flex justify-between items-center pt-4 border-t border-white/10">
               <div>
                 <span className="text-gray-400">Mise totale:</span>
@@ -304,10 +304,10 @@ export default function Betting() {
           {recommendations.map((rec, index) => {
             const style = getNiveauStyle(rec.recommendation?.niveau);
             const isSelected = selectedBets.some(b => b.nom === rec.nom && b.race_key === rec.race_key);
-            
+
             return (
               <motion.div key={`${rec.race_key}-${rec.nom}`} variants={itemVariants}>
-                <GlassCard 
+                <GlassCard
                   className={`h-full transition-all cursor-pointer ${style.bg} border ${style.border} ${
                     isSelected ? 'ring-2 ring-green-500' : ''
                   }`}

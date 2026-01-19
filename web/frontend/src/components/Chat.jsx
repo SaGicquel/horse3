@@ -1,6 +1,6 @@
 /**
  * Composant Chat GPT spécialisé pour l'analyse des courses hippiques
- * 
+ *
  * Fonctionnalités :
  * - Interface de chat moderne avec messages
  * - Suggestions intelligentes basées sur les données disponibles
@@ -16,9 +16,9 @@ import { API_BASE } from '../config/api';
 
 const messageVariants = {
   initial: { opacity: 0, y: 20, scale: 0.95 },
-  animate: { 
-    opacity: 1, 
-    y: 0, 
+  animate: {
+    opacity: 1,
+    y: 0,
     scale: 1,
     transition: { type: "spring", damping: 25, stiffness: 300 }
   },
@@ -27,7 +27,7 @@ const messageVariants = {
 
 const typingVariants = {
   initial: { opacity: 0 },
-  animate: { 
+  animate: {
     opacity: 1,
     transition: { staggerChildren: 0.1 }
   }
@@ -135,7 +135,7 @@ const Chat = () => {
       }
 
       const data = await response.json();
-      
+
       const assistantMessage = {
         role: 'assistant',
         content: data.response || 'Je n\'ai pas pu générer de réponse. Veuillez réessayer.',
@@ -166,9 +166,9 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-full max-h-[800px]">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="flex items-center gap-3 p-4 border-b"
-        style={{ 
+        style={{
           borderColor: 'rgba(var(--color-border-rgb), 0.1)',
           background: 'rgba(var(--color-card-rgb, 255, 255, 255), 0.55)',
           backdropFilter: 'blur(24px)',
@@ -177,29 +177,28 @@ const Chat = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <motion.div 
+        <motion.div
           className="flex h-10 w-10 items-center justify-center rounded-xl relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))',
             color: 'white'
           }}
-          whileHover={{ scale: 1.1, rotate: 5 }}
         >
           <Sparkles size={20} />
           <div className="absolute inset-0 bg-white/20 animate-shimmer" />
         </motion.div>
         <div className="flex-1">
-          <h3 
+          <h3
             className="text-sm font-semibold"
             style={{ color: 'var(--color-text)' }}
           >
             Assistant IA - Analyse Hippique
           </h3>
-          <p 
+          <p
             className="text-xs flex items-center gap-1"
             style={{ color: 'var(--color-muted)' }}
           >
-            <motion.span 
+            <motion.span
               className="w-2 h-2 rounded-full bg-green-500"
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -210,7 +209,7 @@ const Chat = () => {
       </motion.div>
 
       {/* Messages Area */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto p-4 space-y-4"
         style={{ backgroundColor: 'var(--color-bg)' }}
       >
@@ -226,61 +225,58 @@ const Chat = () => {
               layout
             >
               {message.role === 'assistant' && (
-                <motion.div 
+                <motion.div
                   className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
                   style={{
                     background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))',
                     color: 'white'
                   }}
-                  whileHover={{ scale: 1.1 }}
                 >
                   <Bot size={16} />
                 </motion.div>
               )}
-              
-              <motion.div 
+
+              <motion.div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                  message.role === 'user' 
-                    ? 'rounded-br-sm' 
+                  message.role === 'user'
+                    ? 'rounded-br-sm'
                     : 'rounded-bl-sm'
                 }`}
                 style={{
-                  backgroundColor: message.role === 'user' 
-                    ? 'var(--color-primary)' 
+                  backgroundColor: message.role === 'user'
+                    ? 'var(--color-primary)'
                     : 'var(--color-card)',
-                  color: message.role === 'user' 
-                    ? 'white' 
+                  color: message.role === 'user'
+                    ? 'white'
                     : 'var(--color-text)',
-                  border: message.role === 'assistant' 
-                    ? '1px solid var(--color-border)' 
+                  border: message.role === 'assistant'
+                    ? '1px solid var(--color-border)'
                     : 'none',
-                  boxShadow: message.role === 'user' 
-                    ? '0 4px 15px rgba(var(--color-primary-rgb), 0.3)' 
+                  boxShadow: message.role === 'user'
+                    ? '0 4px 15px rgba(var(--color-primary-rgb), 0.3)'
                     : '0 2px 10px rgba(0,0,0,0.05)'
                 }}
-                whileHover={{ scale: 1.01 }}
               >
                 <p className="text-sm whitespace-pre-wrap leading-relaxed">
                   {message.content}
                 </p>
-                <p 
+                <p
                   className="text-xs mt-2 opacity-70"
                 >
-                  {message.timestamp.toLocaleTimeString('fr-FR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {message.timestamp.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </p>
               </motion.div>
 
               {message.role === 'user' && (
-                <motion.div 
+                <motion.div
                   className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
                   style={{
                     backgroundColor: 'var(--color-secondary)',
                     color: 'var(--color-primary)'
                   }}
-                  whileHover={{ scale: 1.1 }}
                 >
                   <User size={16} />
                 </motion.div>
@@ -292,14 +288,14 @@ const Chat = () => {
         {/* Loading indicator with typing animation */}
         <AnimatePresence>
           {isLoading && (
-            <motion.div 
+            <motion.div
               className="flex gap-3 justify-start"
               variants={messageVariants}
               initial="initial"
               animate="animate"
               exit="exit"
             >
-              <motion.div 
+              <motion.div
                 className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
                 style={{
                   background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))',
@@ -310,14 +306,14 @@ const Chat = () => {
               >
                 <Bot size={16} />
               </motion.div>
-              <div 
+              <div
                 className="rounded-2xl rounded-bl-sm px-4 py-3"
                 style={{
                   backgroundColor: 'var(--color-card)',
                   border: '1px solid var(--color-border)'
                 }}
               >
-                <motion.div 
+                <motion.div
                   className="flex gap-1 items-center"
                   variants={typingVariants}
                   initial="initial"
@@ -348,9 +344,9 @@ const Chat = () => {
       {/* Suggestions */}
       <AnimatePresence>
         {showSuggestions && messages.length === 1 && (
-          <motion.div 
+          <motion.div
             className="p-4 border-t"
-            style={{ 
+            style={{
               borderColor: 'var(--color-border)',
               backgroundColor: 'var(--color-card)'
             }}
@@ -358,7 +354,7 @@ const Chat = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <p 
+            <p
               className="text-xs uppercase tracking-wider mb-3 flex items-center gap-2"
               style={{ color: 'var(--color-muted)' }}
             >
@@ -381,14 +377,13 @@ const Chat = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    whileHover={{ 
-                      scale: 1.02, 
+                    whileHover={{
+                      scale: 1.02,
                       borderColor: suggestion.color,
                       backgroundColor: 'var(--color-secondary)'
                     }}
-                    whileTap={{ scale: 0.98 }}
                   >
-                    <div 
+                    <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
                       style={{ backgroundColor: `${suggestion.color}20` }}
                     >
@@ -396,7 +391,7 @@ const Chat = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{suggestion.title}</p>
-                      <p 
+                      <p
                         className="text-xs truncate"
                         style={{ color: 'var(--color-muted)' }}
                       >
@@ -412,9 +407,9 @@ const Chat = () => {
       </AnimatePresence>
 
       {/* Input Area */}
-      <motion.div 
+      <motion.div
         className="p-4 border-t backdrop-blur-md"
-        style={{ 
+        style={{
           borderColor: 'var(--color-border)',
           backgroundColor: 'rgba(var(--color-card-rgb), 0.9)'
         }}
@@ -436,7 +431,7 @@ const Chat = () => {
               color: 'var(--color-text)'
             }}
             disabled={isLoading}
-            whileFocus={{ 
+            whileFocus={{
               boxShadow: '0 0 0 3px rgba(var(--color-primary-rgb), 0.2)',
               borderColor: 'var(--color-primary)'
             }}
@@ -446,13 +441,11 @@ const Chat = () => {
             disabled={!input.trim() || isLoading}
             className="px-4 py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
             style={{
-              background: input.trim() && !isLoading 
-                ? 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))' 
+              background: input.trim() && !isLoading
+                ? 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))'
                 : 'var(--color-muted)',
               color: 'white'
             }}
-            whileHover={{ scale: input.trim() && !isLoading ? 1.05 : 1 }}
-            whileTap={{ scale: input.trim() && !isLoading ? 0.95 : 1 }}
           >
             {isLoading ? (
               <Loader2 size={20} className="animate-spin" />
@@ -461,7 +454,7 @@ const Chat = () => {
             )}
           </motion.button>
         </div>
-        <p 
+        <p
           className="text-xs mt-2 text-center"
           style={{ color: 'var(--color-muted)' }}
         >
@@ -473,4 +466,3 @@ const Chat = () => {
 };
 
 export default Chat;
-

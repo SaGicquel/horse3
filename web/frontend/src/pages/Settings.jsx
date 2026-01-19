@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, Info, AlertTriangle, Check, RefreshCw, Shield, Zap, Target, Settings as SettingsIcon, User, DollarSign, LogIn, UserPlus } from 'lucide-react';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
 import { motion } from 'framer-motion';
 import useAuthenticatedUserSettings from '../hooks/useAuthenticatedUserSettings';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +19,8 @@ const Settings = () => {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
 
   // Utiliser le contexte d'auth global pour vérifier l'authentification
   const { isAuthenticated: authIsAuthenticated, isLoading: authIsLoading } = useAuth();
@@ -158,8 +161,6 @@ const Settings = () => {
               <motion.button
                 onClick={() => navigate('/login')}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <LogIn size={18} />
                 Se connecter
@@ -168,8 +169,6 @@ const Settings = () => {
               <motion.button
                 onClick={() => navigate('/register')}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold border-2 border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <UserPlus size={18} />
                 Créer un compte
@@ -214,16 +213,363 @@ const Settings = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
+      {/* Header unifié */}
+      <PageHeader
+        emoji="⚙️"
+        title="Paramètres de Trading"
+        subtitle="Politique de mise par défaut et gestion du risque"
+      />
+
+      {/* ============================================ */}
+      {/* SECTION STRATÉGIE RECOMMANDÉE */}
+      {/* ============================================ */}
       <motion.div
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="mb-8"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">Paramètres de Trading</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-1">Politique de mise par défaut et gestion du risque</p>
-        </div>
+        <GlassCard className="border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 to-green-500/5">
+          <div className="p-6">
+            {/* Header avec badge */}
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-xl bg-emerald-500/20">
+                  <Shield className="w-8 h-8 text-emerald-500" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                      Stratégie Ultra-Conservateur
+                    </h2>
+                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      RECOMMANDÉE
+                    </span>
+                  </div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                    Validée par backtest sur 5 ans de données (661k courses)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats du backtest */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/5 border border-emerald-500/20">
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">ROI sur 1 an</div>
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">+31%</div>
+              </div>
+              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/5 border border-emerald-500/20">
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">Sharpe Ratio</div>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">3.67</div>
+              </div>
+              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/5 border border-emerald-500/20">
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">Semaines +</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">78%</div>
+              </div>
+              <div className="p-3 rounded-lg bg-white/50 dark:bg-white/5 border border-emerald-500/20">
+                <div className="text-xs text-neutral-500 dark:text-neutral-400">Max Drawdown</div>
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">27%</div>
+              </div>
+            </div>
+
+            {/* Paramètres clés */}
+            <div className="bg-neutral-100 dark:bg-neutral-800/50 rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">
+                📋 Paramètres optimaux utilisés
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Kelly: <strong className="text-neutral-900 dark:text-white">12%</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Value min: <strong className="text-neutral-900 dark:text-white">15%</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Cotes max: <strong className="text-neutral-900 dark:text-white">6</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Paris/jour: <strong className="text-neutral-900 dark:text-white">3 max</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Type: <strong className="text-neutral-900 dark:text-white">PLACÉ uniquement</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-500">✓</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Proba min: <strong className="text-neutral-900 dark:text-white">18%</strong></span>
+                </div>
+              </div>
+            </div>
+
+            {/* Note explicative */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+              <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Pourquoi cette stratégie ?</strong> Elle offre le meilleur équilibre entre régularité (78% de semaines positives)
+                et rendement (+31% ROI). Vous réduisez les séries de pertes tout en maintenant une croissance stable.
+                <span className="block mt-1 text-blue-600 dark:text-blue-400">
+                  Vous pouvez personnaliser ces paramètres ci-dessous si vous le souhaitez.
+                </span>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* ============================================ */}
+      {/* SECTION GESTION AUTOMATIQUE DU BANKROLL */}
+      {/* ============================================ */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="mb-8"
+      >
+        <GlassCard className="border-2 border-purple-500/30 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 rounded-xl bg-purple-500/20">
+                <DollarSign className="w-8 h-8 text-purple-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                  💰 Gestion Automatique du Bankroll
+                </h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                  Comment vos gains/pertes sont réintégrés au capital
+                </p>
+              </div>
+            </div>
+
+            {/* Explication des zones */}
+            <div className="space-y-4 mb-6">
+              {/* Zone Micro/Small */}
+              <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🚀</span>
+                  <div>
+                    <h4 className="font-semibold text-emerald-700 dark:text-emerald-300 mb-1">
+                      Zones Micro (&lt;50€) et Small (50-500€)
+                    </h4>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-2">
+                      <strong>Compound automatique</strong> - Vos gains sont ajoutés immédiatement à votre bankroll.
+                    </p>
+                    <ul className="text-xs text-emerald-600 dark:text-emerald-400 space-y-1">
+                      <li>✓ Mise fixe (2€ ou 5€), donc risque contrôlé</li>
+                      <li>✓ Permet de passer plus vite en zone supérieure</li>
+                      <li>✓ Les pertes sont également soustraites immédiatement</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Zone Full */}
+              <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">⚖️</span>
+                  <div>
+                    <h4 className="font-semibold text-amber-700 dark:text-amber-300 mb-1">
+                      Zone Full (&gt;500€)
+                    </h4>
+                    <p className="text-sm text-amber-600 dark:text-amber-400 mb-2">
+                      <strong>Mise à jour hebdomadaire avec réserve</strong> - Plus prudent car mises proportionnelles.
+                    </p>
+                    <ul className="text-xs text-amber-600 dark:text-amber-400 space-y-1">
+                      <li>✓ <strong>Profit &gt; 0</strong>: BK = BK + 50% du profit (50% en réserve)</li>
+                      <li>✓ <strong>Perte &lt; 10%</strong>: BK inchangé (absorber le choc)</li>
+                      <li>✓ <strong>Perte &gt; 10%</strong>: BK = BK réel (descendre de zone si &lt;500€)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Votre zone actuelle */}
+            <div className="bg-neutral-100 dark:bg-neutral-800/50 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">
+                📊 Votre situation actuelle
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-3 rounded-lg bg-white/50 dark:bg-white/5">
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">Bankroll</div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{bankroll}€</div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-white/50 dark:bg-white/5">
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">Zone</div>
+                  <div className={`text-2xl font-bold ${bankroll < 50 ? 'text-red-500' :
+                    bankroll < 500 ? 'text-amber-500' : 'text-emerald-500'
+                    }`}>
+                    {bankroll < 50 ? 'MICRO' : bankroll < 500 ? 'SMALL' : 'FULL'}
+                  </div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-white/50 dark:bg-white/5">
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">Mode</div>
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {bankroll < 500 ? 'Compound Auto' : 'Hebdo +50%'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Conseil personnalisé */}
+              <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <div className="text-sm text-blue-700 dark:text-blue-300">
+                  {bankroll < 50 ? (
+                    <>
+                      <strong>💡 Conseil Micro:</strong> Misez 2€ fixe par pari. Votre objectif: atteindre 50€ pour passer en zone Small.
+                      {' '}À chaque gain, votre BK augmente automatiquement.
+                    </>
+                  ) : bankroll < 500 ? (
+                    <>
+                      <strong>💡 Conseil Small:</strong> Misez 5€ fixe par pari. Votre objectif: atteindre 500€ pour passer en zone Full.
+                      {' '}Les gains sont ajoutés automatiquement à votre capital.
+                    </>
+                  ) : (
+                    <>
+                      <strong>💡 Conseil Full:</strong> Vos mises sont calculées avec Kelly 12%.
+                      {' '}Mettez à jour votre bankroll chaque dimanche en ajoutant 50% de vos gains de la semaine.
+                      {' '}Gardez 50% en réserve de sécurité.
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bouton de synchronisation */}
+            <div className="mt-6 pt-4 border-t border-purple-200 dark:border-purple-800">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <button
+                  onClick={async () => {
+                    setSyncLoading(true);
+                    setSyncResult(null);
+                    try {
+                      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                      const token = localStorage.getItem('authToken');
+                      const response = await fetch(`${API_BASE}/api/bets/summary`, {
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        }
+                      });
+                      if (!response.ok) throw new Error('Erreur lors de la récupération des paris');
+                      const data = await response.json();
+                      const pnl = data.pnl_net || 0;
+                      const totalBets = data.total_bets || 0;
+                      const finishedBets = data.finished_bets || 0;
+
+                      // Règles par zone
+                      const currentBK = bankroll;
+                      let newBK = currentBK;
+                      let rule = '';
+
+                      if (currentBK < 500) {
+                        // MICRO/SMALL: compound automatique
+                        newBK = Math.max(10, currentBK + pnl);
+                        rule = 'Compound auto: BK + PnL';
+                      } else {
+                        // FULL: règles hebdomadaires
+                        if (pnl > 0) {
+                          newBK = currentBK + (pnl * 0.5);
+                          rule = 'Profit: +50% des gains (50% en réserve)';
+                        } else if (pnl < 0 && Math.abs(pnl) < currentBK * 0.1) {
+                          newBK = currentBK; // Absorber les petites pertes
+                          rule = 'Perte <10%: BK inchangé (absorption)';
+                        } else if (pnl < 0) {
+                          newBK = Math.max(10, currentBK + pnl);
+                          rule = 'Perte >10%: BK réel appliqué';
+                        }
+                      }
+
+                      setSyncResult({
+                        success: true,
+                        pnl: pnl,
+                        oldBK: currentBK,
+                        newBK: Math.round(newBK * 100) / 100,
+                        rule: rule,
+                        totalBets: totalBets,
+                        finishedBets: finishedBets
+                      });
+                    } catch (err) {
+                      setSyncResult({ success: false, error: err.message });
+                    } finally {
+                      setSyncLoading(false);
+                    }
+                  }}
+                  disabled={syncLoading}
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-5 h-5 ${syncLoading ? 'animate-spin' : ''}`} />
+                  {syncLoading ? 'Calcul en cours...' : '🔄 Synchroniser mon BK'}
+                </button>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Calcule automatiquement votre nouveau bankroll basé sur vos résultats de paris
+                </p>
+              </div>
+
+              {/* Résultat de la synchronisation */}
+              {syncResult && (
+                <div className={`mt-4 p-4 rounded-lg ${syncResult.success
+                  ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+                  }`}>
+                  {syncResult.success ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                        <Check className="w-5 h-5" />
+                        <span className="font-semibold">Calcul terminé !</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div>
+                          <div className="text-neutral-500 dark:text-neutral-400">Paris terminés</div>
+                          <div className="font-bold text-neutral-900 dark:text-white">{syncResult.finishedBets}</div>
+                        </div>
+                        <div>
+                          <div className="text-neutral-500 dark:text-neutral-400">P&L Net</div>
+                          <div className={`font-bold ${syncResult.pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                            {syncResult.pnl >= 0 ? '+' : ''}{syncResult.pnl.toFixed(2)}€
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-neutral-500 dark:text-neutral-400">BK Actuel</div>
+                          <div className="font-bold text-neutral-900 dark:text-white">{syncResult.oldBK}€</div>
+                        </div>
+                        <div>
+                          <div className="text-neutral-500 dark:text-neutral-400">Nouveau BK</div>
+                          <div className="font-bold text-purple-600 dark:text-purple-400">{syncResult.newBK}€</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                        <strong>Règle appliquée:</strong> {syncResult.rule}
+                      </div>
+                      {syncResult.newBK !== syncResult.oldBK && (
+                        <button
+                          onClick={() => {
+                            setBankroll(syncResult.newBK, true);
+                            setSyncResult(null);
+                          }}
+                          className="w-full mt-2 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-all"
+                        >
+                          ✅ Appliquer le nouveau BK ({syncResult.newBK}€)
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span>Erreur: {syncResult.error}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </GlassCard>
       </motion.div>
 
       {/* Section Paramètres Utilisateur */}
@@ -248,16 +594,18 @@ const Settings = () => {
               </label>
               <input
                 type="range"
-                min="100"
+                min="10"
                 max="50000"
-                step="100"
+                step="10"
                 value={bankroll}
-                onChange={(e) => setBankroll(parseInt(e.target.value))}
+                onChange={(e) => setBankroll(parseInt(e.target.value), false)}
+                onMouseUp={(e) => setBankroll(parseInt(e.target.value), true)}
+                onTouchEnd={(e) => setBankroll(parseInt(e.target.value), true)}
                 className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                <span>100€</span>
-                <span>5000€</span>
+                <span>10€</span>
+                <span>500€</span>
                 <span>50000€</span>
               </div>
             </div>
@@ -352,10 +700,11 @@ const Settings = () => {
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                step="100"
-                min="100"
+                step="10"
+                min="10"
                 value={bankroll}
-                onChange={(e) => setBankroll(parseFloat(e.target.value) || 1000)}
+                onChange={(e) => setBankroll(parseFloat(e.target.value) || 100)}
+                onBlur={(e) => setBankroll(parseFloat(e.target.value) || 100, true)}
                 className="w-32 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-xl font-bold text-right focus:outline-none focus:ring-2 focus:ring-white/30 placeholder-white/50"
               />
               <span className="text-2xl font-bold">€</span>
@@ -578,74 +927,55 @@ const Settings = () => {
           </div>
         </GlassCard>
 
-        {/* Market Settings */}
-        <GlassCard hover={false} animate={true} delay={0.4}>
-          <div className="mb-6 border-b border-neutral-200 dark:border-neutral-700 pb-4 p-6 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Marché & Environnement</h2>
-            <div className="text-neutral-400" title="Configuration de l'environnement de pari">
-              <Info className="h-5 w-5 cursor-help" />
-            </div>
-          </div>
-          <div className="px-6 pb-6">
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Mode de Marché</label>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setMarketMode('parimutuel')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all w-full ${marketMode === 'parimutuel'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 text-neutral-600 dark:text-neutral-400'
-                  }`}
-              >
-                PMU (Parimutuel) - {(takeoutRate * 100).toFixed(0)}% prélèvement
-              </button>
-              <button
-                type="button"
-                onClick={() => setMarketMode('exchange')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all w-full ${marketMode === 'exchange'
-                  ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 font-medium'
-                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 text-neutral-600 dark:text-neutral-400'
-                  }`}
-              >
-                Book (Exchange)
-              </button>
-            </div>
-          </div>
-        </GlassCard>
 
-        {/* Summary Panel */}
+        {/* Summary Panel - Adapté à la zone */}
         <GlassCard
           className="bg-neutral-900 text-white border-neutral-800"
           hover={false}
           animate={true}
-          delay={0.5}
+          delay={0.4}
         >
           <div className="p-6">
             <h2 className="text-lg font-bold mb-4">📊 Résumé de la Politique</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                <div className="text-neutral-400">Profil</div>
-                <div className="text-xl font-bold">{kellyProfile}</div>
-                <div className="text-xs text-neutral-400">{(getCurrentKellyFraction() * 100).toFixed(0)}% Kelly</div>
+                <div className="text-neutral-400">Zone</div>
+                <div className={`text-xl font-bold ${bankroll < 50 ? 'text-red-400' : bankroll < 500 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  {bankroll < 50 ? 'MICRO' : bankroll < 500 ? 'SMALL' : 'FULL'}
+                </div>
+                <div className="text-xs text-neutral-400">
+                  {bankroll < 50 ? 'Flat 2€' : bankroll < 500 ? 'Flat 5€' : 'Kelly 12%'}
+                </div>
               </div>
               <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                <div className="text-neutral-400">Cap / Pari</div>
-                <div className="text-xl font-bold">{(bankroll * capPerBet).toFixed(0)}€</div>
-                <div className="text-xs text-neutral-400">{(capPerBet * 100).toFixed(1)}% bankroll</div>
+                <div className="text-neutral-400">Mise / Pari</div>
+                <div className="text-xl font-bold">
+                  {bankroll < 50 ? '2€' : bankroll < 500 ? '5€' : `${Math.min(bankroll * 0.03, 30).toFixed(0)}€`}
+                </div>
+                <div className="text-xs text-neutral-400">
+                  {bankroll < 500 ? 'Mise fixe' : 'Max 3% BK'}
+                </div>
               </div>
               <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                <div className="text-neutral-400">Budget / Jour</div>
-                <div className="text-xl font-bold">{(bankroll * dailyBudgetRate).toFixed(0)}€</div>
-                <div className="text-xs text-neutral-400">{(dailyBudgetRate * 100).toFixed(0)}% bankroll</div>
+                <div className="text-neutral-400">Paris / Jour</div>
+                <div className="text-xl font-bold">
+                  {bankroll < 50 ? '2 max' : bankroll < 500 ? '3 max' : '3 max'}
+                </div>
+                <div className="text-xs text-neutral-400">Limite quotidienne</div>
               </div>
               <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
                 <div className="text-neutral-400">Value Min</div>
-                <div className="text-xl font-bold">{(valueCutoff * 100).toFixed(0)}%</div>
+                <div className="text-xl font-bold">
+                  {bankroll < 50 ? '15%' : bankroll < 500 ? '12%' : '15%'}
+                </div>
                 <div className="text-xs text-neutral-400">EV cutoff</div>
               </div>
             </div>
             <div className="mt-4 text-xs text-neutral-500">
-              Formule Kelly: f* = (p×(o-1) - (1-p)) / (o-1) • Mise = bankroll × min(kelly_fraction × f*, cap_per_bet)
+              {bankroll < 500
+                ? 'Mode Flat: mise fixe pour contrôler la variance. Compound automatique des gains.'
+                : 'Mode Kelly: mise = bankroll × kelly_fraction × f*. Mise à jour hebdo avec réserve 50%.'
+              }
             </div>
           </div>
         </GlassCard>
@@ -654,7 +984,7 @@ const Settings = () => {
         {/* Notification de succès automatique */}
         {success && (
           <motion.div
-            className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 
+            className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700
                      rounded-lg p-4 flex items-center mb-6"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -667,7 +997,7 @@ const Settings = () => {
         )}
 
         {/* Note informative */}
-        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700
                       rounded-lg p-4 flex items-start">
           <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5" />
           <div className="text-blue-700 dark:text-blue-300">

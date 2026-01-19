@@ -14,15 +14,15 @@
 </head>
 <body>
     <h1>🔐 Test de l'authentification Horse3</h1>
-    
+
     <h2>1. Créer un utilisateur de test</h2>
     <button onclick="createUser()">Créer utilisateur</button>
     <div id="user-result" class="result" style="display: none;"></div>
-    
+
     <h2>2. Se connecter à l'application</h2>
     <p>Une fois le token généré, copiez-le dans le localStorage de votre application React :</p>
     <button onclick="setTokenInApp()">Ouvrir l'application et définir le token</button>
-    
+
     <h2>3. Tester l'API</h2>
     <button onclick="testAPI()">Tester récupération des settings</button>
     <button onclick="testSaveAPI()">Tester sauvegarde des settings</button>
@@ -41,10 +41,10 @@
                         password: 'testpass123'
                     })
                 });
-                
+
                 const data = await response.json();
                 currentToken = data.token;
-                
+
                 document.getElementById('user-result').style.display = 'block';
                 document.getElementById('user-result').innerHTML = `
                     <h3>✅ Utilisateur créé !</h3>
@@ -62,12 +62,12 @@
                 alert('Créez d\'abord un utilisateur pour obtenir un token');
                 return;
             }
-            
+
             const script = `localStorage.setItem('authToken', '${currentToken}'); alert('Token défini ! Rechargez la page Settings.');`;
-            
+
             // Ouvrir l'application dans un nouvel onglet avec le script
             const newWindow = window.open('http://localhost:80', '_blank');
-            
+
             // Attendre que la page se charge puis exécuter le script
             setTimeout(() => {
                 try {
@@ -83,14 +83,14 @@
                 alert('Créez d\'abord un utilisateur');
                 return;
             }
-            
+
             try {
                 const response = await fetch('http://localhost:8000/api/user/settings', {
                     headers: { 'Authorization': `Bearer ${currentToken}` }
                 });
-                
+
                 const data = await response.json();
-                
+
                 document.getElementById('api-result').style.display = 'block';
                 document.getElementById('api-result').innerHTML = `
                     <h3>✅ Settings récupérés !</h3>
@@ -106,13 +106,13 @@
                 alert('Créez d\'abord un utilisateur');
                 return;
             }
-            
+
             try {
                 const response = await fetch('http://localhost:8000/api/user/settings', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}` 
+                        'Authorization': `Bearer ${currentToken}`
                     },
                     body: JSON.stringify({
                         bankroll: 2500,
@@ -120,9 +120,9 @@
                         kelly_profile: 'AMBITIEUX'
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 document.getElementById('api-result').style.display = 'block';
                 document.getElementById('api-result').innerHTML = `
                     <h3>✅ Settings sauvegardés !</h3>

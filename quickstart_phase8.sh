@@ -83,7 +83,7 @@ case $choice in
         echo "🔥 LANCEMENT TEST COMPLET"
         echo "========================="
         echo ""
-        
+
         # Test 1: Drift Detection
         echo "📊 Test 1/4: Drift Detection..."
         python detect_drift.py \
@@ -92,24 +92,24 @@ case $choice in
             --output drift_report_test.json \
             --threshold-ks 0.3 \
             --threshold-js 0.15 2>&1 | tail -10
-        
+
         if [ -f "drift_report_test.json" ]; then
             echo "   ✅ Rapport drift généré"
             echo "   📄 Voir: drift_report_test.json"
         fi
         echo ""
-        
+
         # Test 2: API A/B Testing
         echo "🚀 Test 2/4: API avec A/B Testing..."
         echo "   Démarrage API (port 8000)..."
-        
+
         AB_TEST_ENABLED=true CHALLENGER_TRAFFIC_PERCENT=10 \
             uvicorn api_prediction:app --port 8000 --log-level warning &
         API_PID=$!
-        
+
         echo "   Attente démarrage (5s)..."
         sleep 5
-        
+
         # Vérification API
         if curl -s http://localhost:8000/health > /dev/null 2>&1; then
             echo "   ✅ API démarrée (PID $API_PID)"
@@ -119,14 +119,14 @@ case $choice in
             exit 1
         fi
         echo ""
-        
+
         # Test 3: Distribution A/B
         echo "📈 Test 3/4: Validation distribution A/B..."
         echo "   20 prédictions pour vérifier split 90/10..."
-        
+
         champion_count=0
         challenger_count=0
-        
+
         for i in {1..20}; do
             if [ -f "data/sample_course.json" ]; then
                 model_version=$(curl -s http://localhost:8000/predict \
@@ -139,39 +139,39 @@ case $choice in
                     -d '{"features":[1,2,3]}' 2>/dev/null | \
                     jq -r '.model_version' 2>/dev/null || echo "unknown")
             fi
-            
+
             if [ "$model_version" = "champion" ]; then
                 ((champion_count++))
             elif [ "$model_version" = "challenger" ]; then
                 ((challenger_count++))
             fi
-            
+
             printf "."
         done
         echo ""
-        
+
         echo "   Champion: $champion_count/20 (attendu ~18)"
         echo "   Challenger: $challenger_count/20 (attendu ~2)"
-        
+
         if [ $champion_count -ge 15 ] && [ $challenger_count -ge 1 ]; then
             echo "   ✅ Distribution A/B validée"
         else
             echo "   ⚠️  Distribution hors norme (OK avec 20 échantillons)"
         fi
         echo ""
-        
+
         # Test 4: Model Comparison
         echo "📊 Test 4/4: Model Comparison..."
         python compare_models.py --days 7 --dry-run 2>&1 | tail -15
         echo ""
-        
+
         # Arrêt API
         echo "🛑 Arrêt API..."
         kill $API_PID 2>/dev/null || true
         wait $API_PID 2>/dev/null || true
         echo "   ✅ API arrêtée"
         echo ""
-        
+
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "🎉 TEST COMPLET TERMINÉ"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -179,21 +179,21 @@ case $choice in
         echo "✅ Tous les composants Phase 8 sont opérationnels !"
         echo ""
         ;;
-        
+
     2)
         echo ""
         echo "⚡ LANCEMENT TEST RAPIDE API A/B"
         echo "================================="
         echo ""
-        
+
         # Démarrage API
         echo "🚀 Démarrage API avec A/B testing..."
         AB_TEST_ENABLED=true CHALLENGER_TRAFFIC_PERCENT=10 \
             uvicorn api_prediction:app --port 8000 --log-level warning &
         API_PID=$!
-        
+
         sleep 5
-        
+
         if curl -s http://localhost:8000/health > /dev/null 2>&1; then
             echo "   ✅ API opérationnelle"
         else
@@ -201,18 +201,18 @@ case $choice in
             exit 1
         fi
         echo ""
-        
+
         # Tests prédictions
         echo "📊 Test 20 prédictions..."
         champion_count=0
         challenger_count=0
-        
+
         for i in {1..20}; do
             model_version=$(curl -s http://localhost:8000/predict \
                 -H "Content-Type: application/json" \
                 -d '{"features":[1,2,3]}' 2>/dev/null | \
                 jq -r '.model_version' 2>/dev/null || echo "unknown")
-            
+
             if [ "$model_version" = "champion" ]; then
                 ((champion_count++))
                 printf "C"
@@ -225,48 +225,48 @@ case $choice in
         done
         echo ""
         echo ""
-        
+
         echo "📈 Résultats:"
         echo "   Champion (C): $champion_count/20 (attendu ~18)"
         echo "   Challenger (c): $challenger_count/20 (attendu ~2)"
         echo ""
-        
+
         if [ $champion_count -ge 15 ]; then
             echo "   ✅ A/B Testing validé"
         else
             echo "   ⚠️  Distribution anormale (peut arriver avec 20 échantillons)"
         fi
         echo ""
-        
+
         echo "🛑 Arrêt API..."
         kill $API_PID 2>/dev/null
         echo "   ✅ API arrêtée"
         echo ""
-        
+
         echo "🎯 Pour garder l'API active:"
         echo "   AB_TEST_ENABLED=true uvicorn api_prediction:app --port 8000"
         echo ""
         ;;
-        
+
     3)
         echo ""
         echo "📊 LANCEMENT DRIFT DETECTION"
         echo "============================="
         echo ""
-        
+
         python detect_drift.py \
             --baseline data/ml_features_complete.csv \
             --days 7 \
             --output drift_report_$(date +%Y%m%d_%H%M%S).json \
             --threshold-ks 0.3 \
             --threshold-js 0.15
-        
+
         echo ""
         echo "✅ Détection drift terminée"
         echo "📄 Rapport JSON généré"
         echo ""
         ;;
-        
+
     4)
         echo ""
         echo "📈 IMPORT DASHBOARD GRAFANA"
@@ -291,7 +291,7 @@ case $choice in
         echo "⚠️  Ouvre manuellement: http://localhost:3000"
         echo ""
         ;;
-        
+
     5)
         echo ""
         echo "📖 DOCUMENTATION PHASE 8"
@@ -320,7 +320,7 @@ case $choice in
         echo "📄 PHASE8_VALIDATION_REPORT.md"
         echo "   → Rapport validation + recommandations"
         echo ""
-        
+
         # Ouvrir doc
         if command -v code &> /dev/null; then
             echo "Ouvrir dans VS Code ? [y/N]"
@@ -331,7 +331,7 @@ case $choice in
         fi
         echo ""
         ;;
-        
+
     6)
         echo ""
         echo "🚀 PHASE 9 - DEEP LEARNING"
@@ -359,7 +359,7 @@ case $choice in
         echo ""
         echo "Créer roadmap Phase 9 ? [y/N]"
         read -p "> " create_phase9
-        
+
         if [ "$create_phase9" = "y" ]; then
             echo ""
             echo "📝 Génération ROADMAP_PHASE9.md..."
@@ -368,14 +368,14 @@ case $choice in
             echo ""
         fi
         ;;
-        
+
     0)
         echo ""
         echo "👋 À bientôt !"
         echo ""
         exit 0
         ;;
-        
+
     *)
         echo ""
         echo "❌ Choix invalide"

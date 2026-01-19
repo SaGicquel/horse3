@@ -6,6 +6,7 @@ Usage: python3 resume_migration.py
 
 from db_pool import initialize_pool, get_cursor, close_pool
 
+
 def print_banner():
     """Bannière de titre"""
     print("""
@@ -18,51 +19,53 @@ def print_banner():
 ╚═══════════════════════════════════════════════════════════════╝
     """)
 
+
 def get_database_stats():
     """Récupère les statistiques de la base"""
     with get_cursor() as cur:
         # Compter les lignes
         cur.execute("SELECT COUNT(*) FROM chevaux")
         nb_chevaux = cur.fetchone()[0]
-        
+
         cur.execute("SELECT COUNT(*) FROM cheval_courses_seen")
         nb_courses = cur.fetchone()[0]
-        
+
         cur.execute("SELECT COUNT(*) FROM entraineurs")
         nb_entraineurs = cur.fetchone()[0]
-        
+
         cur.execute("SELECT COUNT(*) FROM drivers")
         nb_drivers = cur.fetchone()[0]
-        
+
         cur.execute("SELECT COUNT(*) FROM proprietaires")
         nb_proprietaires = cur.fetchone()[0]
-        
+
         cur.execute("SELECT COUNT(*) FROM hippodromes")
         nb_hippodromes = cur.fetchone()[0]
-        
+
         # Taille de la base
         cur.execute("SELECT pg_size_pretty(pg_database_size('pmubdd'))")
         db_size = cur.fetchone()[0]
-        
+
         # Nombre d'index
         cur.execute("SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public'")
         nb_indexes = cur.fetchone()[0]
-        
+
         # Dernière course
         cur.execute("SELECT MAX(race_key) FROM cheval_courses_seen")
         last_race = cur.fetchone()[0]
-        
+
         return {
-            'chevaux': nb_chevaux,
-            'courses': nb_courses,
-            'entraineurs': nb_entraineurs,
-            'drivers': nb_drivers,
-            'proprietaires': nb_proprietaires,
-            'hippodromes': nb_hippodromes,
-            'db_size': db_size,
-            'indexes': nb_indexes,
-            'last_race': last_race
+            "chevaux": nb_chevaux,
+            "courses": nb_courses,
+            "entraineurs": nb_entraineurs,
+            "drivers": nb_drivers,
+            "proprietaires": nb_proprietaires,
+            "hippodromes": nb_hippodromes,
+            "db_size": db_size,
+            "indexes": nb_indexes,
+            "last_race": last_race,
         }
+
 
 def print_stats(stats):
     """Affiche les statistiques"""
@@ -80,6 +83,7 @@ def print_stats(stats):
     print(f"│  Dernière course: {stats['last_race']:<31} │")
     print("└─────────────────────────────────────────────────────────┘")
 
+
 def print_performance():
     """Affiche les gains de performance"""
     print("\n⚡ GAINS DE PERFORMANCE")
@@ -96,6 +100,7 @@ def print_performance():
     print("│  Connexions:     < 5ms latence (vs 50-100ms)           │")
     print("│                  🚀 10-20x PLUS RAPIDE                  │")
     print("└─────────────────────────────────────────────────────────┘")
+
 
 def print_optimizations():
     """Affiche les optimisations"""
@@ -119,6 +124,7 @@ def print_optimizations():
     print("│  TOTAL: 11/17 optimisations (65% complété)             │")
     print("└─────────────────────────────────────────────────────────┘")
 
+
 def print_modules():
     """Affiche les modules créés"""
     print("\n📦 MODULES CRÉÉS")
@@ -136,6 +142,7 @@ def print_modules():
     print("│  SUCCES_MIGRATION.md             Résumé visuel         │")
     print("│  INDEX_POSTGRESQL.md             Navigation            │")
     print("└─────────────────────────────────────────────────────────┘")
+
 
 def print_quick_start():
     """Affiche les commandes de démarrage"""
@@ -155,6 +162,7 @@ def print_quick_start():
     print("│     GUIDE_POSTGRESQL.md (usage)                        │")
     print("└─────────────────────────────────────────────────────────┘")
 
+
 def print_footer():
     """Affiche le pied de page"""
     print("\n╔═══════════════════════════════════════════════════════════╗")
@@ -170,41 +178,43 @@ def print_footer():
     print("║                                                           ║")
     print("╚═══════════════════════════════════════════════════════════╝\n")
 
+
 def main():
     """Fonction principale"""
     try:
         print_banner()
-        
+
         # Initialiser le pool
         print("🔌 Connexion à PostgreSQL...")
         initialize_pool(minconn=2, maxconn=5)
-        
+
         # Récupérer et afficher les stats
         stats = get_database_stats()
         print_stats(stats)
-        
+
         # Afficher les performances
         print_performance()
-        
+
         # Afficher les optimisations
         print_optimizations()
-        
+
         # Afficher les modules
         print_modules()
-        
+
         # Afficher le démarrage rapide
         print_quick_start()
-        
+
         # Footer
         print_footer()
-        
+
     except Exception as e:
         print(f"\n❌ Erreur: {e}")
         print("\n💡 Assurez-vous que PostgreSQL est démarré:")
         print("   docker start pmuBDD\n")
-    
+
     finally:
         close_pool()
+
 
 if __name__ == "__main__":
     main()

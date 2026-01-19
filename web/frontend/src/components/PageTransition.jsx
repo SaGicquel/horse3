@@ -1,6 +1,6 @@
 /**
  * PageTransition - Wrapper pour transitions de page fluides
- * 
+ *
  * Utilise Framer Motion AnimatePresence pour des transitions
  * entre les pages avec différents effets disponibles.
  */
@@ -60,14 +60,14 @@ const defaultTransition = {
 
 /**
  * PageTransition Component
- * 
+ *
  * @param {string} variant - Type de transition (fade, slideUp, slideDown, etc.)
  * @param {string} pageKey - Clé unique pour la page (utilisée pour AnimatePresence)
  * @param {number} duration - Durée de la transition
  * @param {ReactNode} children - Contenu de la page
  */
-export const PageTransition = ({ 
-  children, 
+export const PageTransition = ({
+  children,
   pageKey,
   variant = 'slideUp',
   duration = 0.5,
@@ -98,10 +98,10 @@ export const PageTransition = ({
 /**
  * StaggerContainer - Container pour animations stagger
  */
-export const StaggerContainer = ({ 
-  children, 
+export const StaggerContainer = ({
+  children,
   staggerDelay = 0.1,
-  className = '' 
+  className = ''
 }) => {
   return (
     <motion.div
@@ -127,39 +127,39 @@ export const StaggerContainer = ({
 /**
  * StaggerItem - Élément enfant pour StaggerContainer
  */
-export const StaggerItem = ({ 
-  children, 
+export const StaggerItem = ({
+  children,
   className = '',
   variant = 'fadeUp'
 }) => {
   const itemVariants = {
     fadeUp: {
       hidden: { opacity: 0, y: 20 },
-      visible: { 
-        opacity: 1, 
+      visible: {
+        opacity: 1,
         y: 0,
         transition: { type: "spring", stiffness: 100, damping: 15 }
       }
     },
     fadeIn: {
       hidden: { opacity: 0 },
-      visible: { 
+      visible: {
         opacity: 1,
         transition: { duration: 0.5 }
       }
     },
     scaleIn: {
       hidden: { opacity: 0, scale: 0.8 },
-      visible: { 
-        opacity: 1, 
+      visible: {
+        opacity: 1,
         scale: 1,
         transition: { type: "spring", stiffness: 200, damping: 20 }
       }
     },
     slideIn: {
       hidden: { opacity: 0, x: -20 },
-      visible: { 
-        opacity: 1, 
+      visible: {
+        opacity: 1,
         x: 0,
         transition: { type: "spring", stiffness: 100, damping: 15 }
       }
@@ -179,8 +179,8 @@ export const StaggerItem = ({
 /**
  * ScrollReveal - Animation au scroll
  */
-export const ScrollReveal = ({ 
-  children, 
+export const ScrollReveal = ({
+  children,
   className = '',
   direction = 'up',
   delay = 0,
@@ -196,14 +196,14 @@ export const ScrollReveal = ({
   return (
     <motion.div
       className={className}
-      initial={{ 
-        opacity: 0, 
+      initial={{
+        opacity: 0,
         ...directions[direction]
       }}
-      whileInView={{ 
-        opacity: 1, 
-        y: 0, 
-        x: 0 
+      whileInView={{
+        opacity: 1,
+        y: 0,
+        x: 0
       }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{
@@ -220,10 +220,10 @@ export const ScrollReveal = ({
 /**
  * ParallaxSection - Section avec effet parallax
  */
-export const ParallaxSection = ({ 
-  children, 
+export const ParallaxSection = ({
+  children,
   className = '',
-  speed = 0.5 
+  speed = 0.5
 }) => {
   return (
     <motion.div
@@ -247,8 +247,8 @@ export const ParallaxSection = ({
 /**
  * HoverCard - Card avec effet 3D au hover
  */
-export const HoverCard = ({ 
-  children, 
+export const HoverCard = ({
+  children,
   className = '',
   intensity = 10
 }) => {

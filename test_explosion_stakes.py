@@ -13,12 +13,12 @@ initial_bankroll = 1000
 total_bets = 1627
 total_staked = 688000
 
-print(f"📊 CONFIG:")
+print("📊 CONFIG:")
 print(f"   Kelly fraction: {kelly_fraction}")
 print(f"   Max stake %: {max_stake_pct}%")
 print(f"   Bankroll initiale: {initial_bankroll}€")
 
-print(f"\n🔥 SIMULATION RAPIDE:")
+print("\n🔥 SIMULATION RAPIDE:")
 
 bankroll = initial_bankroll
 cumul_staked = 0
@@ -26,20 +26,21 @@ bets_simulated = 0
 
 # Simule une séquence de paris avec 60% de win rate et EV moyen de 20%
 import random
+
 random.seed(42)
 
 for i in range(50):  # Simule 50 premiers paris
     # Stakes max = 5% de la bankroll
     max_stake = bankroll * max_stake_pct
-    
+
     # Suppose Kelly optimise entre 1% et 5%
     kelly_stake = bankroll * random.uniform(0.01, max_stake_pct)
     stake = min(kelly_stake, max_stake)
-    
+
     # Pari
     cumul_staked += stake
     bets_simulated += 1
-    
+
     # 60% de chance de gagner avec cote moyenne ~2.5
     if random.random() < 0.6:
         # Gagne : profit = stake * (2.5 - 1) = stake * 1.5
@@ -48,13 +49,13 @@ for i in range(50):  # Simule 50 premiers paris
     else:
         # Perd
         bankroll -= stake
-    
+
     if i < 10:
         print(f"   Pari {i+1:2d}: Mise={stake:6.0f}€  Bankroll={bankroll:8.0f}€")
     elif i == 10:
-        print(f"   ...")
+        print("   ...")
 
-print(f"\n📈 RÉSULTATS SIMULATION:")
+print("\n📈 RÉSULTATS SIMULATION:")
 print(f"   Paris simulés: {bets_simulated}")
 print(f"   Mise moyenne: {cumul_staked/bets_simulated:.0f}€")
 print(f"   Bankroll finale: {bankroll:.0f}€")
@@ -67,13 +68,13 @@ print(f"   Moyenne simulée: {avg_simulated:.0f}€")
 print(f"   Moyenne réelle: {avg_real:.0f}€")
 print(f"   Ratio: {avg_real/avg_simulated:.1f}x")
 
-print(f"\n⚠️ PROBLÈME IDENTIFIÉ:")
-print(f"   → Pas de CAP ABSOLU sur les mises")
-print(f"   → Avec une bankroll de 500k€, 5% = 25k€ par pari !!")
-print(f"   → Kelly + croissance exponentielle = explosion des mises")
+print("\n⚠️ PROBLÈME IDENTIFIÉ:")
+print("   → Pas de CAP ABSOLU sur les mises")
+print("   → Avec une bankroll de 500k€, 5% = 25k€ par pari !!")
+print("   → Kelly + croissance exponentielle = explosion des mises")
 
-print(f"\n✅ SOLUTIONS POSSIBLES:")
-print(f"   1. CAP ABSOLU: max 100€ par pari")
-print(f"   2. KELLY plus conservateur: 10% au lieu de 25%")
-print(f"   3. MAX_STAKE plus petit: 2% au lieu de 5%")
-print(f"   4. Réinitialiser bankroll périodiquement")
+print("\n✅ SOLUTIONS POSSIBLES:")
+print("   1. CAP ABSOLU: max 100€ par pari")
+print("   2. KELLY plus conservateur: 10% au lieu de 25%")
+print("   3. MAX_STAKE plus petit: 2% au lieu de 5%")
+print("   4. Réinitialiser bankroll périodiquement")

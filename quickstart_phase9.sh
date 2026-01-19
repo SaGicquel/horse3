@@ -66,58 +66,58 @@ case $choice in
         echo ""
         echo "🔄 LANCEMENT PIPELINE COMPLET"
         echo "============================="
-        
+
         echo "1. Préparation des données..."
         python3 prepare_temporal_data.py
-        
+
         echo "2. Entraînement Transformer..."
         python3 train_transformer.py
-        
+
         echo "3. Entraînement GNN..."
         python3 train_gnn.py
-        
+
         echo "4. Entraînement Fusion..."
         python3 train_fusion.py
-        
+
         echo ""
         echo "✅ Pipeline terminé avec succès !"
         ;;
-        
+
     2)
         echo ""
         echo "💾 PRÉPARATION DES DONNÉES"
         python3 prepare_temporal_data.py
         ;;
-        
+
     3)
         echo ""
         echo "🤖 ENTRAÎNEMENT TRANSFORMER"
         python3 train_transformer.py
         ;;
-        
+
     4)
         echo ""
         echo "🕸️  ENTRAÎNEMENT GNN"
         python3 train_gnn.py
         ;;
-        
+
     5)
         echo ""
         echo "🧬 ENTRAÎNEMENT FUSION"
         python3 train_fusion.py
         ;;
-        
+
     6)
         echo ""
         echo "🧪 TESTS UNITAIRES"
         pytest tests/phase9/
         ;;
-        
+
     0)
         echo "Au revoir !"
         exit 0
         ;;
-        
+
     *)
         echo "Choix invalide."
         exit 1

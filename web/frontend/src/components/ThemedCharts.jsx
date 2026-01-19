@@ -1,9 +1,9 @@
 /**
  * Exemple de composant de graphique compatible avec le mode sombre
- * 
+ *
  * Utilise le hook useThemeColors pour adapter automatiquement
  * les couleurs des graphiques Recharts au thème actif.
- * 
+ *
  * Tous les éléments (axes, grille, tooltips, légendes) sont adaptés
  * pour maintenir un contraste AA en mode clair et sombre.
  */
@@ -47,27 +47,27 @@ export const ThemedLineChart = ({ data, dataKeys = ['value'], height = 300 }) =>
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        <CartesianGrid 
-          strokeDasharray="3 3" 
+        <CartesianGrid
+          strokeDasharray="3 3"
           stroke={colors.border}
           opacity={0.3}
         />
-        <XAxis 
+        <XAxis
           dataKey="name"
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <YAxis 
+        <YAxis
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <Tooltip 
+        <Tooltip
           content={<CustomTooltip colors={colors} />}
           cursor={{ stroke: colors.primary, strokeWidth: 1 }}
         />
-        <Legend 
+        <Legend
           wrapperStyle={{ color: colors.text }}
           iconType="line"
         />
@@ -102,27 +102,27 @@ export const ThemedAreaChart = ({ data, dataKeys = ['value'], height = 300 }) =>
             <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid 
-          strokeDasharray="3 3" 
+        <CartesianGrid
+          strokeDasharray="3 3"
           stroke={colors.border}
           opacity={0.3}
         />
-        <XAxis 
+        <XAxis
           dataKey="name"
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <YAxis 
+        <YAxis
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <Tooltip 
+        <Tooltip
           content={<CustomTooltip colors={colors} />}
           cursor={{ stroke: colors.primary, strokeWidth: 1 }}
         />
-        <Legend 
+        <Legend
           wrapperStyle={{ color: colors.text }}
           iconType="rect"
         />
@@ -151,27 +151,27 @@ export const ThemedBarChart = ({ data, dataKeys = ['value'], height = 300 }) => 
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        <CartesianGrid 
-          strokeDasharray="3 3" 
+        <CartesianGrid
+          strokeDasharray="3 3"
           stroke={colors.border}
           opacity={0.3}
         />
-        <XAxis 
+        <XAxis
           dataKey="name"
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <YAxis 
+        <YAxis
           stroke={colors.muted}
           tick={{ fill: colors.text, fontSize: 12 }}
           tickLine={{ stroke: colors.muted }}
         />
-        <Tooltip 
+        <Tooltip
           content={<CustomTooltip colors={colors} />}
           cursor={{ fill: colors.border, opacity: 0.3 }}
         />
-        <Legend 
+        <Legend
           wrapperStyle={{ color: colors.text }}
           iconType="rect"
         />
@@ -190,15 +190,15 @@ export const ThemedBarChart = ({ data, dataKeys = ['value'], height = 300 }) => 
 
 /**
  * Exemple d'utilisation :
- * 
+ *
  * import { ThemedLineChart, ThemedAreaChart, ThemedBarChart } from './components/ThemedCharts';
- * 
+ *
  * const data = [
  *   { name: 'Jan', value: 400, value2: 240 },
  *   { name: 'Fev', value: 300, value2: 139 },
  *   { name: 'Mar', value: 600, value2: 980 },
  * ];
- * 
+ *
  * <ThemedLineChart data={data} dataKeys={['value', 'value2']} height={400} />
  * <ThemedAreaChart data={data} dataKeys={['value']} />
  * <ThemedBarChart data={data} dataKeys={['value', 'value2']} />

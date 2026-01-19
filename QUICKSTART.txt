@@ -30,7 +30,7 @@
 🎯 EXEMPLE D'UTILISATION
 
   1. Lancez : python cli.py
-  
+
   2. Le menu principal s'affiche :
      ┌─────────────────────────────────────┐
      │  1. SCRAPING & ENRICHISSEMENT       │
@@ -41,15 +41,15 @@
      │  6. OUTILS AVANCÉS                  │
      │  0. QUITTER                         │
      └─────────────────────────────────────┘
-  
+
   3. Tapez 1 pour accéder au scraping
-  
+
   4. Le sous-menu scraping s'affiche
-  
+
   5. Tapez 2 pour scraper aujourd'hui
-  
+
   6. Le script s'exécute
-  
+
   7. Appuyez sur Entrée pour continuer
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -100,9 +100,9 @@
 🎪 DÉMONSTRATION INTERACTIVE
 
   Voulez-vous voir les menus sans exécuter d'actions ?
-  
+
     python test_menu.py
-  
+
   Cela affichera tous les menus les uns après les autres.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

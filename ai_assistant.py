@@ -9,6 +9,7 @@ from db_connection import get_connection
 # Configuration logging
 logger = logging.getLogger(__name__)
 
+
 class HorseRacingAssistant:
     def __init__(self):
         self.api_key = os.getenv("OPENAI_API_KEY")
@@ -16,14 +17,17 @@ class HorseRacingAssistant:
         if self.api_key:
             try:
                 from openai import OpenAI
+
                 self.client = OpenAI(api_key=self.api_key)
             except ImportError:
-                logger.warning("OpenAI library not installed. Please install it with `pip install openai`.")
+                logger.warning(
+                    "OpenAI library not installed. Please install it with `pip install openai`."
+                )
         else:
             logger.warning("OPENAI_API_KEY not found in environment variables.")
 
     def get_system_prompt(self) -> str:
-        return """Tu es un expert en courses hippiques et en analyse de données. 
+        return """Tu es un expert en courses hippiques et en analyse de données.
 Ton rôle est d'aider les utilisateurs à analyser les performances des chevaux, jockeys et entraîneurs.
 Tu as accès à une base de données de courses hippiques.
 Tu dois fournir des réponses précises, basées sur les données, et des conseils stratégiques pertinents.
@@ -51,7 +55,7 @@ Sois concis, professionnel et encourageant.
     def get_top_horses(self, limit: int = 5) -> str:
         """Retourne les chevaux les plus performants (basé sur le taux de victoire)."""
         sql = """
-            SELECT c.nom, COUNT(p.id) as courses, 
+            SELECT c.nom, COUNT(p.id) as courses,
                    SUM(CASE WHEN p.place = 1 THEN 1 ELSE 0 END) as victoires,
                    ROUND(CAST(SUM(CASE WHEN p.place = 1 THEN 1 ELSE 0 END) AS NUMERIC) / COUNT(p.id) * 100, 2) as taux_victoire
             FROM participants p
@@ -63,8 +67,10 @@ Sois concis, professionnel et encourageant.
         """
         results = self.query_db(sql, (limit,))
         if not results:
-            return "Je n'ai pas trouvé de données suffisantes pour déterminer les meilleurs chevaux."
-        
+            return (
+                "Je n'ai pas trouvé de données suffisantes pour déterminer les meilleurs chevaux."
+            )
+
         response = "Voici les chevaux les plus performants (min. 10 courses) :\n"
         for r in results:
             response += f"- **{r['nom']}** : {r['taux_victoire']}% de victoires ({r['victoires']}/{r['courses']} courses)\n"
@@ -86,7 +92,7 @@ Sois concis, professionnel et encourageant.
         results = self.query_db(sql, (limit,))
         if not results:
             return "Je n'ai pas trouvé de données suffisantes pour les jockeys."
-            
+
         response = "Voici les jockeys les plus performants (min. 20 courses) :\n"
         for r in results:
             response += f"- **{r['nom']}** : {r['taux_victoire']}% de victoires ({r['victoires']}/{r['courses']} courses)\n"
@@ -103,40 +109,48 @@ Sois concis, professionnel et encourageant.
         results = self.query_db(sql)
         if not results:
             return "Il n'y a pas de courses enregistrées pour aujourd'hui dans ma base de données."
-            
+
         response = "Voici les courses d'aujourd'hui :\n"
         for r in results:
-            response += f"- {r['heure']} : **{r['nom']}** ({r['hippodrome']}) - {r['reunion_nom']}\n"
+            response += (
+                f"- {r['heure']} : **{r['nom']}** ({r['hippodrome']}) - {r['reunion_nom']}\n"
+            )
         return response
 
     def process_message(self, message: str, history: List[Dict[str, str]]) -> str:
         """Traite le message de l'utilisateur et retourne une réponse."""
-        
+
         # Détection d'intention simple (fallback si pas d'LLM ou pour rapidité)
         message_lower = message.lower()
-        
-        if "chevaux" in message_lower and ("performant" in message_lower or "meilleur" in message_lower):
+
+        if "chevaux" in message_lower and (
+            "performant" in message_lower or "meilleur" in message_lower
+        ):
             return self.get_top_horses()
-        
-        if "jockey" in message_lower and ("performant" in message_lower or "meilleur" in message_lower):
+
+        if "jockey" in message_lower and (
+            "performant" in message_lower or "meilleur" in message_lower
+        ):
             return self.get_top_jockeys()
 
-        if "course" in message_lower and ("aujourd'hui" in message_lower or "jour" in message_lower):
+        if "course" in message_lower and (
+            "aujourd'hui" in message_lower or "jour" in message_lower
+        ):
             return self.get_todays_races()
-            
+
         # Si OpenAI est configuré, utiliser l'LLM
         if self.client:
             try:
                 # Préparation des messages
                 messages = [{"role": "system", "content": self.get_system_prompt()}]
                 # Ajouter l'historique (limité aux 5 derniers échanges pour économiser les tokens)
-                for msg in history[-10:]: 
+                for msg in history[-10:]:
                     messages.append({"role": msg["role"], "content": msg["content"]})
                 messages.append({"role": "user", "content": message})
 
                 # Appel à l'API
                 completion = self.client.chat.completions.create(
-                    model="gpt-4-turbo-preview", # Ou gpt-3.5-turbo
+                    model="gpt-4-turbo-preview",  # Ou gpt-3.5-turbo
                     messages=messages,
                     temperature=0.7,
                 )
@@ -146,7 +160,7 @@ Sois concis, professionnel et encourageant.
                 return "Désolé, je rencontre des difficultés pour contacter mon cerveau numérique. Veuillez vérifier ma configuration."
 
         # Fallback générique
-        return """Je suis un assistant IA spécialisé en courses hippiques. 
+        return """Je suis un assistant IA spécialisé en courses hippiques.
 Pour l'instant, je peux vous donner des statistiques sur :
 - Les meilleurs chevaux
 - Les meilleurs jockeys

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -20,6 +21,8 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
+import { SimulationToggle, SimulationBadge, useSimulationMode } from '../components/SimulationToggle';
 import { API_BASE } from '../config/api';
 import { resolveBetMetrics } from '../lib/bettingMetrics';
 import { betsAPI } from '../services/api';
@@ -62,10 +65,16 @@ const TABS = [
 // ============================================
 // Composant Onglet Unitaires
 // ============================================
-const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterStatus, onBenterStatus, marketStatus, onMarketStatus, reloadKey, onReloadAnalysis }) => {
+const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterStatus, onBenterStatus, marketStatus, onMarketStatus, reloadKey, onReloadAnalysis, isSimulation, onToggleSimulation }) => {
   const [bets, setBets] = useState([]);
   const [serverPortfolio, setServerPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // ========== AGENT IA MODE ==========
+  const [iaMode, setIaMode] = useState(false);
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaResult, setIaResult] = useState(null);
+  const [iaError, setIaError] = useState(null);
 
   // Récupérer les paramètres de la politique de mise depuis settings
   const bettingDefaults = settings?.betting_defaults || {};
@@ -133,18 +142,18 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         name: 'full',
         label: '🚀 Optimisation',
         description: zone.description || 'Optimisation complète',
-        maxBetsPerDay: zone.max_bets_per_day ?? 5,
-        maxOddsWin: zone.max_odds_win ?? 10,
-        minProbaModel: zone.min_proba_model ?? 0.12,
-        valueCutoffWin: zone.value_cutoff_win ?? 0.08,
-        valueCutoffPlace: zone.value_cutoff_place ?? 0.06,
+        maxBetsPerDay: zone.max_bets_per_day ?? 8,        // 8 paris max (au lieu de 5)
+        maxOddsWin: zone.max_odds_win ?? 15,              // Cotes jusqu'à 15 (au lieu de 10)
+        minProbaModel: zone.min_proba_model ?? 0.08,      // Proba > 8% (au lieu de 12%)
+        valueCutoffWin: zone.value_cutoff_win ?? 0.02,    // Value > 2% (au lieu de 8%)
+        valueCutoffPlace: zone.value_cutoff_place ?? 0.01,
         allowedBetTypes: zone.allowed_bet_types || ['SIMPLE PLACÉ', 'E/P (GAGNANT-PLACÉ)', 'SIMPLE GAGNANT'],
         preferredBetType: zone.preferred_bet_type || 'E/P (GAGNANT-PLACÉ)',
         kellyFraction: zone.kelly_fraction ?? 0.25,
         maxStakePct: zone.max_stake_pct ?? 0.03,
         minStakeEur: zone.min_stake_eur ?? 5.0,
         maxStakeEur: zone.max_stake_eur ?? 50.0,
-        allowedRisks: zone.allowed_risks || ['Faible', 'Modéré', 'Élevé'],
+        allowedRisks: zone.allowed_risks || ['Faible', 'Modéré', 'Élevé', 'Très élevé'],
         dailyBudgetRate: 0.12,
         color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
       };
@@ -168,13 +177,15 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
     onMarketStatus?.({ status: 'pending' });
     fetchBets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reloadKey]);
+  }, [reloadKey, isSimulation]);  // Refetch when simulation mode changes
 
   const fetchBets = async () => {
     try {
       setLoading(true);
       // 1) Récupérer le portefeuille (politique de mise côté backend)
-      const portfolioResp = await fetch(`${API_BASE}/portfolio/today?bankroll=${bankroll}&kelly_profile=${kellyProfile}&source=picks`);
+      // En mode simulation, on ajoute le paramètre simulation=true
+      const simulationParam = isSimulation ? '&simulation=true' : '';
+      const portfolioResp = await fetch(`${API_BASE}/portfolio/today?bankroll=${bankroll}&kelly_profile=${kellyProfile}&source=picks${simulationParam}`);
       if (portfolioResp.ok) {
         const portfolioData = await portfolioResp.json();
         setServerPortfolio(portfolioData);
@@ -182,8 +193,10 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         setServerPortfolio(null);
       }
 
-      // 2) Récupérer les picks détaillés pour l’affichage (rationale, etc.)
-      const response = await fetch(`${API_BASE}/picks/today`);
+      // 2) Récupérer les picks détaillés pour l'affichage (rationale, etc.)
+      // Déterminer la zone selon le bankroll pour utiliser le modèle V2 approprié
+      const userZone = bankroll < 50 ? 'micro' : bankroll < 500 ? 'small' : 'full';
+      const response = await fetch(`${API_BASE}/picks/today?zone=${userZone}&bankroll=${bankroll}${simulationParam}`);
       if (!response.ok) {
         onBenterStatus?.({ status: 'error', reason: `HTTP ${response.status}` });
         setBets([]);
@@ -214,9 +227,8 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         }
         return [item];
       });
-      // Bloquer les paris avec micro_action=hold
-      const filtered = flatBets.filter(b => (b.micro_action || b.microAction || 'bet') !== 'hold');
-      setBets(filtered);
+      // Ne plus bloquer les paris avec micro_action=hold - on les affiche tous avec un avertissement
+      setBets(flatBets);
     } catch (error) {
       console.error('Erreur chargement bets:', error);
       onBenterStatus?.({ status: 'error', reason: error.message });
@@ -226,6 +238,82 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
       setLoading(false);
     }
   };
+
+  // ========== AGENT IA FUNCTIONS ==========
+
+  // Vérifier si un run IA existe aujourd'hui
+  const checkTodayIA = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/agent/today`);
+      const data = await res.json();
+      if (data.has_run) {
+        setIaResult(data);
+        setIaMode(true);
+      }
+    } catch (e) {
+      console.log('No IA run available:', e);
+    }
+  }, []);
+
+  // Lancer une nouvelle analyse IA
+  const runAgentAnalysis = async () => {
+    setIaLoading(true);
+    setIaError(null);
+    try {
+      const res = await fetch(`${API_BASE}/agent/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bankroll,
+          profile: kellyProfile,
+          skip_verification: false,
+          simulation: isSimulation,  // Mode simulation
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIaResult({
+          has_run: true,
+          run_id: data.run_id,
+          final_picks: data.final_picks || [],
+          executive_summary: data.executive_summary,
+          portfolio_confidence: data.portfolio_confidence,
+          total_picks: data.final_picks?.length || 0,
+          updated_at: new Date().toISOString(),
+          is_simulation: data.is_simulation,
+        });
+        setIaMode(true);
+      } else {
+        setIaError(data.error || 'Erreur analyse IA');
+      }
+    } catch (e) {
+      setIaError(e.message);
+    }
+    setIaLoading(false);
+  };
+
+  // Check for existing IA run on mount, auto-run if none exists
+  useEffect(() => {
+    const initIA = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/agent/today`);
+        const data = await res.json();
+        if (data.has_run) {
+          // Use cached result
+          setIaResult(data);
+          setIaMode(true);
+        } else {
+          // No cache, automatically run Agent IA
+          runAgentAnalysis();
+        }
+      } catch (e) {
+        console.log('IA check failed, running analysis:', e);
+        runAgentAnalysis();
+      }
+    };
+    initIA();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Calcul Kelly plein: f* = (p*(o-1) - (1-p)) / (o-1)
@@ -463,6 +551,38 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
       totalStake += bet.calculatedStake;
     }
 
+    // ==============================================================
+    // 6. REDISTRIBUTION DU BUDGET - Utiliser au moins 80% du budget
+    // ==============================================================
+    const MIN_BUDGET_USAGE = 0.80; // 80% minimum
+    const targetBudget = dailyBudget * MIN_BUDGET_USAGE;
+
+    if (selected.length > 0 && totalStake < targetBudget) {
+      // Calculer le facteur de scaling pour atteindre 80%
+      const scaleFactor = targetBudget / totalStake;
+
+      // Appliquer le scaling à chaque pari, en respectant le max par pari
+      let newTotal = 0;
+      for (const bet of selected) {
+        const originalStake = bet.calculatedStake;
+        let scaledStake = originalStake * scaleFactor;
+
+        // Plafonner au max par pari (50€ par défaut en zone FULL)
+        scaledStake = Math.min(scaledStake, zoneConfig.maxStakeEur);
+
+        // Arrondir à 0.50€
+        scaledStake = Math.round(scaledStake / 0.50) * 0.50;
+
+        // Mise minimum
+        scaledStake = Math.max(scaledStake, zoneConfig.minStakeEur);
+
+        bet.calculatedStake = scaledStake;
+        bet.scaledUp = originalStake < scaledStake; // Marquer si scalé
+        newTotal += scaledStake;
+      }
+      totalStake = newTotal;
+    }
+
     return {
       selectedBets: selected,
       excludedBets: excluded,
@@ -475,7 +595,8 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         kellyFraction: (kellyFraction * 100).toFixed(0),
         capPerBet: (capPerBet * 100).toFixed(1),
         valueCutoff: (valueCutoff * 100).toFixed(0),
-        zone: zoneConfig
+        zone: zoneConfig,
+        redistributed: totalStake >= targetBudget
       }
     };
   }, [bets, bankroll, kellyFraction, capPerBet, dailyBudget, valueCutoff, maxUnitBetsPerRace, zoneConfig, serverPortfolio, kellyProfile, calculateStake]);
@@ -502,6 +623,19 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
   if (analysisStatus !== 'ok') {
     return (
       <div className="space-y-4">
+        {/* ========== SIMULATION TOGGLE - Toujours visible ========== */}
+        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
+          <div className="flex items-center gap-3">
+            {isSimulation && <SimulationBadge />}
+            <span className="text-sm text-neutral-400">
+              {isSimulation
+                ? "Mode simulation: les courses passées sont incluses"
+                : "Mode réel: seules les courses à venir"}
+            </span>
+          </div>
+          <SimulationToggle isSimulation={isSimulation} onToggle={onToggleSimulation} />
+        </div>
+
         <GlassCard>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
@@ -517,8 +651,6 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
             <motion.button
               onClick={onReloadAnalysis || fetchBets}
               className="flex items-center gap-2 px-4 py-2 glass-button-primary rounded-xl"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               {loading ? (
                 <>
@@ -535,11 +667,42 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
           </div>
         </GlassCard>
         {loading && (
-          <div className="space-y-3">
-            {[...Array(4)].map((_, idx) => (
-              <div key={idx} className="h-16 bg-neutral-200/40 dark:bg-neutral-800/60 rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <motion.div
+            className="flex flex-col items-center justify-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.div
+              className="text-6xl mb-4"
+              animate={{
+                x: [0, 10, 0, -10, 0],
+                rotate: [0, 5, 0, -5, 0]
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              🏇
+            </motion.div>
+            <div className="text-lg font-semibold text-neutral-800 dark:text-neutral-200 mb-2">
+              Génération des conseils...
+            </div>
+            <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              Analyse avec modèle V2 • Zone {bankroll < 50 ? 'MICRO' : bankroll < 500 ? 'SMALL' : 'FULL'}
+            </div>
+            <div className="flex gap-1">
+              {[0, 1, 2].map(i => (
+                <motion.div
+                  key={i}
+                  className="w-2 h-2 bg-primary-500 rounded-full"
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }}
+                />
+              ))}
+            </div>
+          </motion.div>
         )}
       </div>
     );
@@ -547,6 +710,19 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
 
   return (
     <div className="space-y-6">
+      {/* ========== SIMULATION TOGGLE ========== */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {isSimulation && <SimulationBadge />}
+          <span className="text-sm text-neutral-400">
+            {isSimulation
+              ? "Les courses passées sont incluses pour tester"
+              : "Seules les courses à venir sont affichées"}
+          </span>
+        </div>
+        <SimulationToggle isSimulation={isSimulation} onToggle={onToggleSimulation} />
+      </div>
+
       <div className="glass-panel border border-emerald-500/20 bg-emerald-500/5 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
         <div className="text-sm text-emerald-800 dark:text-emerald-100">
           Head Benter actif (τ {analysisTau ?? '1.1'}, courses {analysisRaces ?? '—'}) • Blend marché corrigé (γ {gammaUsed ?? '0.9'}, α∈[{alphaBounds?.[0] ?? 0.3}, {alphaBounds?.[1] ?? 0.9}])
@@ -554,13 +730,88 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         <motion.button
           onClick={onReloadAnalysis || fetchBets}
           className="flex items-center gap-2 px-3 py-1.5 glass-button hover:bg-white/10 rounded-lg text-xs"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <ArrowPathIcon className="h-4 w-4" />
           Rejouer l'analyse
         </motion.button>
       </div>
+
+      {/* ========== AGENT IA BANNER ========== */}
+      <div className={`rounded-xl p-4 border ${iaMode ? 'border-purple-500/30 bg-purple-500/10' : 'border-neutral-700 bg-neutral-800/50'}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{iaMode ? '🤖' : '⚙️'}</span>
+            <div>
+              <p className="font-semibold text-neutral-900 dark:text-white">
+                {iaMode ? 'Agent IA Actif' : 'Mode Algorithme Standard'}
+              </p>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                {iaMode && iaResult?.updated_at
+                  ? `Dernière analyse: ${new Date(iaResult.updated_at).toLocaleTimeString('fr-FR')}`
+                  : 'Cliquez pour lancer l\'analyse IA complète (~60s)'
+                }
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {iaMode && iaResult?.portfolio_confidence && (
+              <div className="text-center px-3 py-1 bg-purple-500/20 rounded-lg">
+                <p className="text-xs text-purple-300">Confiance IA</p>
+                <p className={`font-bold ${iaResult.portfolio_confidence >= 60 ? 'text-green-400' : iaResult.portfolio_confidence >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
+                  {iaResult.portfolio_confidence}%
+                </p>
+              </div>
+            )}
+
+            <motion.button
+              onClick={runAgentAnalysis}
+              disabled={iaLoading}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${iaLoading
+                ? 'bg-purple-500/30 text-purple-300 cursor-wait'
+                : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white'
+                }`}
+            >
+              {iaLoading ? (
+                <>
+                  <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                  Analyse en cours...
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="h-4 w-4" />
+                  {iaMode ? 'Relancer IA' : 'Lancer Analyse IA'}
+                </>
+              )}
+            </motion.button>
+
+            {iaMode && (
+              <button
+                onClick={() => setIaMode(false)}
+                className="text-xs text-neutral-500 hover:text-neutral-300 px-2 py-1"
+              >
+                Mode Algo
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* IA Summary */}
+        {iaMode && iaResult?.executive_summary && (
+          <div className="mt-4 p-3 bg-purple-900/30 rounded-lg border border-purple-500/20">
+            <p className="text-xs text-purple-300 mb-1">📊 Résumé Agent IA:</p>
+            <p className="text-sm text-purple-100">{iaResult.executive_summary}</p>
+          </div>
+        )}
+
+        {/* IA Error */}
+        {iaError && (
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg border border-red-500/30">
+            <p className="text-sm text-red-400">❌ {iaError}</p>
+          </div>
+        )}
+      </div>
+
 
       {/* BANDEAU ZONE DE BANKROLL */}
       <div className={`rounded-xl p-4 border ${zoneConfig.color}`}>
@@ -662,8 +913,6 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
         <motion.button
           onClick={fetchBets}
           className="p-2 glass-button hover:bg-white/10"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
           <ArrowPathIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
         </motion.button>
@@ -686,20 +935,165 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
 
       {/* Liste des paris */}
       {loading ? (
-        <div className="space-y-3">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-20 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-xl animate-pulse" />
-          ))}
-        </div>
+        <motion.div
+          className="flex flex-col items-center justify-center py-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div
+            className="text-7xl mb-6"
+            animate={{
+              x: [0, 15, 0, -15, 0],
+              rotate: [0, 8, 0, -8, 0]
+            }}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            🏇
+          </motion.div>
+          <div className="text-xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">
+            Génération des paris du jour...
+          </div>
+          <div className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">
+            Modèle V2 • Zone {bankroll < 50 ? 'MICRO' : bankroll < 500 ? 'SMALL' : 'FULL'} • AUC 0.81
+          </div>
+          <div className="text-xs text-neutral-400 dark:text-neutral-500 mb-6">
+            Analyse de {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2, 3].map(i => (
+              <motion.div
+                key={i}
+                className="w-3 h-3 bg-gradient-to-r from-primary-500 to-pink-500 rounded-full"
+                animate={{
+                  y: [0, -10, 0],
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+              />
+            ))}
+          </div>
+        </motion.div>
       ) : (selectedBets.length === 0 && excludedBets.length === 0) ? (
         <GlassCard className="text-center py-12" hover={false}>
           <div className="text-6xl mb-4">🎯</div>
           <p className="text-neutral-500 dark:text-neutral-400">Aucun pari value disponible pour le moment</p>
+          <p className="text-sm text-neutral-400 mt-2">Vérifiez que des courses sont programmées aujourd'hui.</p>
+        </GlassCard>
+      ) : (selectedBets.length === 0 && excludedBets.length > 0) ? (
+        <GlassCard className="py-8" hover={false}>
+          <div className="text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
+              Aucun pari ne respecte les critères actuels
+            </h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+              {excludedBets.length} pari{excludedBets.length > 1 ? 's' : ''} potentiel{excludedBets.length > 1 ? 's' : ''} exclu{excludedBets.length > 1 ? 's' : ''} par les filtres de sécurité.
+            </p>
+          </div>
+          <div className="mt-4 border-t border-neutral-200 dark:border-white/10 pt-4">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 font-medium">Raisons d'exclusion :</p>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {excludedBets.slice(0, 10).map((bet, idx) => (
+                <div key={idx} className="flex items-start gap-2 text-sm p-2 bg-neutral-100 dark:bg-white/5 rounded-lg">
+                  <span className="text-red-400">❌</span>
+                  <div className="flex-1">
+                    <span className="font-medium text-neutral-900 dark:text-white">{bet.nom}</span>
+                    <span className="text-neutral-500 mx-1">•</span>
+                    <span className="text-neutral-600 dark:text-neutral-400">{bet.excludeReason || 'Critère non respecté'}</span>
+                  </div>
+                </div>
+              ))}
+              {excludedBets.length > 10 && (
+                <p className="text-xs text-neutral-400 text-center">+ {excludedBets.length - 10} autres...</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <Link
+              to="/settings"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-purple-500/20 text-purple-400 rounded-xl hover:bg-purple-500/30 transition"
+            >
+              ⚙️ Ajuster les paramètres de filtrage
+            </Link>
+          </div>
         </GlassCard>
       ) : (
         <div className="space-y-6">
-          {/* SECTION 1: Paris sélectionnés */}
-          {selectedBets.length > 0 && (
+          {/* SECTION 1: Paris IA ou Algo */}
+
+          {/* Mode IA - Affiche les picks de l'Agent IA avec le même BetCard que l'algo */}
+          {iaMode && iaResult?.final_picks?.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                  <span className="text-purple-400">🤖</span>
+                  Paris recommandés par l'IA ({iaResult.final_picks.length})
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-lg">
+                    Confiance: {iaResult.portfolio_confidence}%
+                  </span>
+                </div>
+              </div>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-3"
+              >
+                {iaResult.final_picks.map((pick, index) => {
+                  // Transformer le pick IA en format compatible avec BetCard
+                  // race_key format: "2025-12-22|R1|C1|DEA" -> extract hippodrome from 4th part
+                  const raceKeyParts = (pick.race_key || '').split('|');
+                  const hippoCode = raceKeyParts[3] || '';
+
+                  const betFromIA = {
+                    id: pick.runner_id || index,
+                    cheval_id: pick.runner_id || index,
+                    nom: pick.horse_name,
+                    race_key: pick.race_key,
+                    // Use hippodrome from LLM output, or build from race_key, or fallback
+                    hippodrome: pick.hippodrome || (hippoCode ? `HIPPODROME DE ${hippoCode}` : 'Agent IA'),
+                    cote: pick.odds || 3.0,
+                    cote_place: pick.odds_place || 1.50,
+                    odds: pick.odds || pick.odds_place || 1.50,
+                    p_place: pick.p_place || 0.4,
+                    value_place: pick.value_place || pick.value || 10,
+                    kelly_pct: pick.kelly_pct || 5,
+                    kelly_place: pick.kelly_place || 5,
+                    bet_type: pick.bet_type || 'SIMPLE PLACÉ',
+                    bet_risk: pick.bet_risk || 'Modéré',
+                    calculatedStake: pick.stake_eur,
+                    stake: pick.stake_eur,
+                    rationale: pick.justification,
+                    ia_pick: true,
+                    ia_confidence: pick.confidence_score,
+                    ia_action: pick.action,
+                  };
+                  return (
+                    <BetCard
+                      key={`ia-${pick.runner_id}-${index}`}
+                      bet={betFromIA}
+                      isInCart={isInCart}
+                      addToCart={addToCart}
+                      getValueColor={getValueColor}
+                      suggestedStake={pick.stake_eur}
+                      maxStakePerBet={maxStakePerBet}
+                      valueCutoff={valueCutoff}
+                    />
+                  );
+                })}
+
+              </motion.div>
+            </div>
+          )}
+
+          {/* Mode Algo classique - Affiche selectedBets */}
+          {(!iaMode || !iaResult?.final_picks?.length) && selectedBets.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -878,7 +1272,12 @@ const BetCard = ({ bet, isInCart, addToCart, getValueColor, suggestedStake, maxS
                   <span className="text-primary-400">p(placé): <strong>{pPlace.toFixed(1)}%</strong></span>
                   <span className={getValueColor(valuePlace)}>Value: <strong>{valuePlace > 0 ? '+' : ''}{valuePlace.toFixed(1)}%</strong></span>
                   <span className="text-warning">Kelly: <strong>{kellyPlace.toFixed(1)}%</strong></span>
-                  <span className="text-neutral-600 dark:text-neutral-400" title="Cote estimée - la vraie cote sera connue après la course">Cote*: <strong className="text-amber-500 dark:text-amber-400">~{cotePlace.toFixed(2)}</strong></span>
+                  <span className="text-neutral-600 dark:text-neutral-400" title="Cote gagnant (référence pour l'analyse)">
+                    Cote: <strong>{cote.toFixed(2)}</strong>
+                  </span>
+                  <span className="text-amber-500 dark:text-amber-400" title="Cote placé estimée (~1/3 gagnant)">
+                    Placé*: <strong>~{cotePlace.toFixed(2)}</strong>
+                  </span>
                 </>
               )}
             </div>
@@ -916,8 +1315,6 @@ const BetCard = ({ bet, isInCart, addToCart, getValueColor, suggestedStake, maxS
                 ? 'bg-success/20 text-success cursor-default'
                 : 'bg-[#ec489933] text-primary-400 hover:bg-[#ec48994d]'
                 }`}
-              whileHover={!inCart ? { scale: 1.1 } : {}}
-              whileTap={!inCart ? { scale: 0.9 } : {}}
             >
               {inCart ? (
                 <CheckCircleIcon className="h-5 w-5" />
@@ -1102,8 +1499,6 @@ const ExotiquesTab = ({ settings, bankroll }) => {
                   onClick={() => setPack(opt.value)}
                   className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${pack === opt.value ? getPackColor(opt.value) : 'border-white/10 bg-white/5 hover:bg-white/10'
                     }`}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
                 >
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">{opt.label}</span>
                   <span className="text-xs text-neutral-500">{opt.desc}</span>
@@ -1117,8 +1512,6 @@ const ExotiquesTab = ({ settings, bankroll }) => {
           onClick={buildExotics}
           disabled={loading || budget > maxPackBudget}
           className="mt-6 w-full py-3 bg-gradient-to-r from-[#8b5cf6] to-[#ec4899] text-white font-semibold rounded-xl hover:from-[#7c3aed] hover:to-[#db2777] transition-all disabled:opacity-50"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -1218,7 +1611,7 @@ const ExotiquesTab = ({ settings, bankroll }) => {
 // ============================================
 // Composant Onglet Portefeuille
 // ============================================
-const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
+const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings, isSimulation }) => {
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sendStatus, setSendStatus] = useState('');
@@ -1294,17 +1687,32 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
     const selection = bet.nom || bet.name || bet.cheval || bet.selection || 'Sélection';
     const { odds: resolvedOdds } = resolveBetMetrics(bet);
     const odds = Number(resolvedOdds || 1) || 1;
-    const eventDate = raceKey ? raceKey.split('|')[0] : null;
+
+    // Extract event_date: try from race_key (format: 'YYYY-MM-DD|...') or use bet.event_date or today
+    let eventDate = null;
+    if (raceKey && raceKey.includes('|')) {
+      const datePart = raceKey.split('|')[0];
+      // Validate it looks like a date (YYYY-MM-DD)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        eventDate = datePart;
+      }
+    }
+    // Fallback to bet.event_date or today's date for IA picks
+    if (!eventDate) {
+      eventDate = bet.event_date || new Date().toISOString().split('T')[0];
+    }
+
     return {
       race_key: raceKey,
-      event_date: eventDate || null,
+      event_date: eventDate,
       hippodrome: bet.hippodrome || bet.venue || null,
       selection,
       bet_type: bet.bet_type || 'GAGNANT',
       stake: Number(bet.stake) || 0,
       odds,
       status: 'PENDING',
-      notes: 'Ajouté depuis Conseils'
+      notes: bet.ia_pick ? `IA Pick - ${bet.justification || 'Agent IA'}` : 'Ajouté depuis Conseils',
+      is_simulation: isSimulation,  // Marqueur mode simulation
     };
   };
 
@@ -1321,12 +1729,26 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
     setSendStatus('');
     try {
       for (const bet of cart) {
-        await betsAPI.create(mapToApiBet(bet), authToken);
+        const payload = mapToApiBet(bet);
+        console.log('[DEBUG] Sending bet to API:', {
+          payload,
+          isSimulation,  // Debug: show simulation mode status
+          authToken: authToken ? 'present' : 'missing',
+          originalBet: bet
+        });
+        await betsAPI.create(payload, authToken);
       }
       setSendStatus('Paris envoyés vers Mes Paris ✅');
       setCart([]);
     } catch (err) {
-      setSendStatus(err.message);
+      console.error('[DEBUG] Bet submission error:', err, 'Status:', err.status, 'Token present:', !!authToken);
+      // Provide specific guidance for auth errors
+      if (err.status === 401) {
+        setSendStatus('Session expirée. Veuillez vous reconnecter via Mes Paris ou le menu utilisateur.');
+      } else {
+        const statusInfo = err.status ? `[${err.status}] ` : '';
+        setSendStatus(`${statusInfo}${err.message}`);
+      }
     } finally {
       setSending(false);
     }
@@ -1454,8 +1876,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
           onClick={exportCartCSV}
           disabled={cart.length === 0}
           className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-xl hover:bg-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <DocumentArrowDownIcon className="h-5 w-5" />
           Export CSV
@@ -1464,8 +1884,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
           onClick={exportCartJSON}
           disabled={cart.length === 0}
           className="flex items-center gap-2 px-4 py-2 bg-primary-500/20 text-primary-400 rounded-xl hover:bg-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <DocumentArrowDownIcon className="h-5 w-5" />
           Export JSON
@@ -1473,8 +1891,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
         <motion.button
           onClick={fetchPortfolio}
           className="flex items-center gap-2 px-4 py-2 glass-button hover:bg-white/10"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <ArrowPathIcon className="h-5 w-5" />
           Actualiser
@@ -1483,8 +1899,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
           onClick={sendToMesParis}
           disabled={cart.length === 0 || sending}
           className="flex items-center gap-2 px-4 py-2 bg-secondary-500/20 text-secondary-200 rounded-xl hover:bg-secondary-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
         >
           <CheckCircleIcon className="h-5 w-5" />
           Envoyer vers Mes Paris
@@ -1572,8 +1986,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
                       <motion.button
                         onClick={() => removeFromCart(index)}
                         className="p-2 text-error hover:bg-error/20 rounded-lg transition-colors"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
                       >
                         <TrashIcon className="h-5 w-5" />
                       </motion.button>
@@ -1599,8 +2011,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
                 onClick={exportServerPortfolioCSV}
                 data-testid="portfolio-export-csv"
                 className="flex items-center gap-2 px-3 py-2 glass-button hover:bg-white/10 text-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <DocumentArrowDownIcon className="h-4 w-4" />
                 Export CSV
@@ -1609,8 +2019,6 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings }) => {
                 onClick={exportServerPortfolioJSON}
                 data-testid="portfolio-export-json"
                 className="flex items-center gap-2 px-3 py-2 glass-button hover:bg-white/10 text-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <DocumentArrowDownIcon className="h-4 w-4" />
                 Export JSON
@@ -1664,21 +2072,17 @@ export default function Conseils() {
   const [activeTab, setActiveTab] = useState('unitaires');
   const [cart, setCart] = useState([]);
   const [bankroll, setBankroll] = useState(1000);
-  const [authToken, setAuthToken] = useState(() => localStorage.getItem('hrp_token'));
+  // Utiliser le contexte auth global (comme MesParis)
+  const { token: authToken } = useAuth();
   const [settings, setSettings] = useState(null);
   const [benterStatus, setBenterStatus] = useState({ status: 'pending' });
   const [marketStatus, setMarketStatus] = useState({ status: 'pending' });
   const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => {
-    const syncToken = () => setAuthToken(localStorage.getItem('hrp_token'));
-    window.addEventListener('storage', syncToken);
-    return () => window.removeEventListener('storage', syncToken);
-  }, []);
+  // Mode simulation (stocké dans localStorage)
+  const { isSimulation, toggleSimulation } = useSimulationMode();
 
-  useEffect(() => {
-    setAuthToken(localStorage.getItem('hrp_token'));
-  }, [activeTab]);
+  // Token is now managed by useAuth context, no need for localStorage sync
 
   // Charger les settings
   useEffect(() => {
@@ -1701,21 +2105,12 @@ export default function Conseils() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-0 py-6 sm:py-12">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+      {/* Header unifié */}
+      <PageHeader
+        emoji="💡"
+        title="Conseils de Paris"
+        subtitle="Unitaires, exotiques et gestion de portefeuille"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            💡 Conseils de Paris
-          </h1>
-          <p className="text-neutral-500 dark:text-neutral-400 mt-1">
-            Unitaires, exotiques et gestion de portefeuille
-          </p>
-        </div>
-
         {/* Badge panier */}
         {cart.length > 0 && (
           <motion.div
@@ -1726,12 +2121,12 @@ export default function Conseils() {
             <ShoppingCartIcon className="h-5 w-5 text-success" />
             <span className="text-success font-medium">{cart.length} paris</span>
             <span className="text-neutral-400">•</span>
-            <span className="text-white font-bold">
+            <span className="text-neutral-900 dark:text-white font-bold">
               {cart.reduce((sum, b) => sum + (b.stake || 0), 0)}€
             </span>
           </motion.div>
         )}
-      </motion.div>
+      </PageHeader>
 
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
@@ -1743,8 +2138,6 @@ export default function Conseils() {
               ? 'bg-gradient-to-r from-[#ec489933] to-[#8b5cf633] text-neutral-900 dark:text-neutral-100 border border-[#ec48994d]'
               : 'bg-white/5 text-neutral-400 hover:bg-white/10 border border-transparent'
               }`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
             <span>{tab.emoji}</span>
             <span>{tab.label}</span>
@@ -1779,6 +2172,8 @@ export default function Conseils() {
               onMarketStatus={setMarketStatus}
               reloadKey={reloadKey}
               onReloadAnalysis={triggerReload}
+              isSimulation={isSimulation}
+              onToggleSimulation={toggleSimulation}
             />
           )}
 
@@ -1797,8 +2192,6 @@ export default function Conseils() {
                   <motion.button
                     onClick={() => { setActiveTab('unitaires'); triggerReload(); }}
                     className="flex items-center gap-2 px-4 py-2 glass-button-primary rounded-xl"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                   >
                     <ArrowPathIcon className="h-4 w-4" />
                     Lancer l'analyse
@@ -1810,7 +2203,7 @@ export default function Conseils() {
 
           {activeTab === 'portefeuille' && (
             analysisOk ? (
-              <PortefeuilleTab cart={cart} setCart={setCart} authToken={authToken} bankroll={bankroll} settings={settings} />
+              <PortefeuilleTab cart={cart} setCart={setCart} authToken={authToken} bankroll={bankroll} settings={settings} isSimulation={isSimulation} />
             ) : (
               <GlassCard>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -1823,8 +2216,6 @@ export default function Conseils() {
                   <motion.button
                     onClick={() => { setActiveTab('unitaires'); triggerReload(); }}
                     className="flex items-center gap-2 px-4 py-2 glass-button-primary rounded-xl"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                   >
                     <ArrowPathIcon className="h-4 w-4" />
                     Lancer l'analyse

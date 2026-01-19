@@ -76,7 +76,7 @@ const Portfolio = () => {
           <h1 className="text-3xl font-bold text-gray-900">💼 Portefeuille</h1>
           <p className="text-gray-600">Gestion des mises et du risque quotidien</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <input
             type="date"
@@ -84,8 +84,8 @@ const Portfolio = () => {
             onChange={(e) => setSelectedDate(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setShowBankrollModal(true)}
             className="flex items-center gap-2"
           >
@@ -99,7 +99,7 @@ const Portfolio = () => {
         <>
           {/* Vue d'ensemble du portefeuille */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
             {/* Bankroll de référence */}
             <Card className="border-blue-200">
               <CardHeader className="pb-3">
@@ -180,7 +180,7 @@ const Portfolio = () => {
                   <div>
                     <h3 className="font-semibold text-red-800">⚠️ Attention - Risque Élevé</h3>
                     <p className="text-red-700 text-sm mt-1">
-                      Votre exposition représente {portfolio.risque_pct.toFixed(1)}% de votre bankroll. 
+                      Votre exposition représente {portfolio.risque_pct.toFixed(1)}% de votre bankroll.
                       Considérez réduire les mises ou augmenter votre capital de référence.
                     </p>
                   </div>
@@ -200,9 +200,9 @@ const Portfolio = () => {
             <CardContent>
               <div className="space-y-3">
                 {portfolio.paris_details.map((pari, index) => (
-                  <div key={`${pari.race_key}-${pari.cheval_id}`} 
+                  <div key={`${pari.race_key}-${pari.cheval_id}`}
                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                         {pari.numero}
@@ -300,15 +300,15 @@ const Portfolio = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button 
+              <Button
                 onClick={updateBankroll}
                 disabled={!newBankroll || parseFloat(newBankroll) <= 0}
                 className="flex-1"
               >
                 Confirmer
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {setShowBankrollModal(false); setNewBankroll('');}}
                 className="flex-1"
               >

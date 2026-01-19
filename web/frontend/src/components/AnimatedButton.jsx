@@ -1,6 +1,6 @@
 /**
  * AnimatedButton - Boutons avec animations avancées
- * 
+ *
  * Caractéristiques :
  * - Effet ripple au clic
  * - Animations hover fluides
@@ -14,11 +14,11 @@ import { Loader2 } from 'lucide-react';
 
 const buttonVariants = {
   initial: { scale: 1 },
-  hover: { 
+  hover: {
     scale: 1.02,
     transition: { type: "spring", stiffness: 400, damping: 17 }
   },
-  tap: { 
+  tap: {
     scale: 0.98,
     transition: { type: "spring", stiffness: 400, damping: 17 }
   }
@@ -26,7 +26,7 @@ const buttonVariants = {
 
 const shimmerVariants = {
   initial: { x: '-100%' },
-  hover: { 
+  hover: {
     x: '100%',
     transition: { duration: 0.6, ease: "easeInOut" }
   }
@@ -116,7 +116,7 @@ export const AnimatedButton = ({
         initial="initial"
         whileHover="hover"
       />
-      
+
       {/* Content */}
       <span className="relative z-10 flex items-center gap-2">
         {loading ? (
@@ -173,11 +173,10 @@ export const IconButton = ({
         color: 'var(--color-primary)',
         border: '1px solid var(--color-border)'
       }}
-      whileHover={{ 
-        scale: 1.1, 
+      whileHover={{
+        scale: 1.1,
         backgroundColor: 'var(--color-secondary)'
       }}
-      whileTap={{ scale: 0.9 }}
       onClick={onClick}
       title={tooltip}
       {...props}
@@ -218,11 +217,10 @@ export const FloatingActionButton = ({
       }}
       initial={{ scale: 0, rotate: -180 }}
       animate={{ scale: 1, rotate: 0 }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.1,
         boxShadow: '0 12px 35px rgba(157, 54, 86, 0.5)'
       }}
-      whileTap={{ scale: 0.9 }}
       onClick={onClick}
       {...props}
     >

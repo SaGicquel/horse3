@@ -6,6 +6,7 @@ import { TrendingUp, Users, Award, Calendar, MapPin, RefreshCw, BarChart3, Chevr
 import { analyticsAPI } from '../services/api';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
 import { StaggerContainer, StaggerItem, ScrollReveal } from '../components/PageTransition';
 import { SkeletonChart, Skeleton } from '../components/Skeleton';
 import { API_BASE } from '../config/api';
@@ -17,7 +18,7 @@ const COLORS = ['#9D3656', '#2ED573', '#DC2626', '#CA6384', '#D84A78', '#E75B8C'
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="p-4 rounded-xl shadow-2xl backdrop-blur-xl"
@@ -27,22 +28,22 @@ const CustomTooltip = ({ active, payload, label }) => {
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
         }}
       >
-        <p 
+        <p
           className="font-bold mb-3 text-sm"
           style={{ color: 'var(--color-text)' }}
         >
           {label}
         </p>
         {payload.map((entry, index) => (
-          <motion.p 
-            key={index} 
+          <motion.p
+            key={index}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             className="text-sm mt-2 flex items-center gap-2"
             style={{ color: entry.color || entry.fill }}
           >
-            <span 
+            <span
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: entry.color || entry.fill }}
             />
@@ -59,18 +60,18 @@ const CustomTooltip = ({ active, payload, label }) => {
 // Composant pour afficher un message quand il n'y a pas de données
 const EmptyState = ({ message, description }) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center py-12 px-4"
     >
-      <motion.div 
+      <motion.div
         className="rounded-full p-5 mb-4"
         style={{
           backgroundColor: 'var(--color-secondary)',
           border: '1px solid var(--color-border)'
         }}
-        animate={{ 
+        animate={{
           scale: [1, 1.05, 1],
           rotate: [0, 5, -5, 0]
         }}
@@ -78,13 +79,13 @@ const EmptyState = ({ message, description }) => {
       >
         <TrendingUp size={28} style={{ color: 'var(--color-muted)' }} />
       </motion.div>
-      <p 
+      <p
         className="text-base font-semibold mb-2"
         style={{ color: 'var(--color-text)' }}
       >
         {message}
       </p>
-      <p 
+      <p
         className="text-sm text-center max-w-md"
         style={{ color: 'var(--color-muted)' }}
       >
@@ -117,7 +118,7 @@ const AnalyticsSkeleton = () => (
 // Couleurs pour les buckets de risque
 const BUCKET_COLORS = {
   'SÛR': '#22C55E',
-  'ÉQUIL.': '#FBBF24', 
+  'ÉQUIL.': '#FBBF24',
   'RISQ.': '#EF4444'
 };
 
@@ -133,11 +134,11 @@ const Analytics = () => {
   const [ageData, setAgeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const colors = useThemeColors();
-  
+
   // EV par décile de value
   const [evDecileData, setEvDecileData] = useState(null);
   const [evDecileLoading, setEvDecileLoading] = useState(true);
-  
+
   // Buckets par contexte
   const [bucketsData, setBucketsData] = useState(null);
   const [bucketsLoading, setBucketsLoading] = useState(true);
@@ -217,8 +218,8 @@ const Analytics = () => {
   // Données buckets à afficher selon le toggle
   const currentBucketsData = useMemo(() => {
     if (!bucketsData) return [];
-    return bucketsGroupBy === 'discipline' 
-      ? (bucketsData.byDiscipline || bucketsData.by_discipline || []) 
+    return bucketsGroupBy === 'discipline'
+      ? (bucketsData.byDiscipline || bucketsData.by_discipline || [])
       : (bucketsData.byHippodrome || bucketsData.by_hippodrome || []);
   }, [bucketsData, bucketsGroupBy]);
 
@@ -231,7 +232,8 @@ const Analytics = () => {
   const loadAnalyticsData = async () => {
     try {
       setLoading(true);
-      const [chevaux, jockeys, entraineurs, hippodromes, evolution, tauxParRace, odds, distance, age] = await Promise.all([
+      // Utiliser Promise.allSettled pour que les graphiques s'affichent même si certains endpoints échouent
+      const results = await Promise.allSettled([
         analyticsAPI.getAnalyticsChevaux(),
         analyticsAPI.getAnalyticsJockeys(),
         analyticsAPI.getAnalyticsEntraineurs(),
@@ -242,16 +244,27 @@ const Analytics = () => {
         analyticsAPI.getAnalyticsDistance(),
         analyticsAPI.getAnalyticsAge(),
       ]);
-      
-      setChevauxData(chevaux);
-      setJockeysData(jockeys);
-      setEntraineursData(entraineurs);
-      setHippodromesData(hippodromes);
-      setEvolutionData(evolution);
-      setTauxParRaceData(tauxParRace);
-      setOddsData(odds);
-      setDistanceData(distance);
-      setAgeData(age);
+
+      // Extraire les valeurs des promesses résolues (null si échouée)
+      const getValue = (result) => result.status === 'fulfilled' ? result.value : null;
+
+      setChevauxData(getValue(results[0]));
+      setJockeysData(getValue(results[1]));
+      setEntraineursData(getValue(results[2]));
+      setHippodromesData(getValue(results[3]));
+      setEvolutionData(getValue(results[4]));
+      setTauxParRaceData(getValue(results[5]));
+      setOddsData(getValue(results[6]));
+      setDistanceData(getValue(results[7]));
+      setAgeData(getValue(results[8]));
+
+      // Log des erreurs pour debug
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const endpoints = ['chevaux', 'jockeys', 'entraineurs', 'hippodromes', 'evolution', 'tauxParRace', 'odds', 'distance', 'age'];
+          console.warn(`Analytics ${endpoints[index]} failed:`, result.reason);
+        }
+      });
     } catch (error) {
       console.error('Erreur chargement analytics:', error);
     } finally {
@@ -264,64 +277,20 @@ const Analytics = () => {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 sm:space-y-10 px-3 sm:px-6 py-6 sm:py-12">
-      {/* Header animé */}
-      <motion.div 
-        className="flex flex-col gap-2 sm:gap-3"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <motion.span 
-          className="text-[10px] sm:text-[11px] uppercase tracking-[0.42em]"
-          style={{ color: 'var(--color-muted)' }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          Analyse avancée
-        </motion.span>
-        <motion.h1 
-          className="text-2xl sm:text-3xl md:text-4xl font-semibold flex items-center gap-4"
-          style={{ color: 'var(--color-text)' }}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <motion.span
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: 'var(--color-primary)' }} />
-          </motion.span>
-          Analytics
-        </motion.h1>
-        <motion.p 
-          className="text-xs sm:text-sm max-w-2xl"
-          style={{ color: 'var(--color-muted)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          Analyses détaillées et approfondies de toutes les données historiques. Pour une vue d'ensemble rapide, consultez le Dashboard.
-        </motion.p>
-        <motion.div 
-          className="h-1 w-16 sm:w-24 rounded-full"
-          style={{ 
-            background: `linear-gradient(to right, var(--color-primary), transparent)`
-          }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        />
-      </motion.div>
+    <div className="mx-auto max-w-7xl space-y-6 sm:space-y-10 px-3 sm:px-6 py-6 sm:py-12">
+      {/* Header unifié */}
+      <PageHeader
+        emoji="📊"
+        title="Analytics"
+        subtitle="Analyses détaillées et approfondies de toutes les données historiques. Pour une vue d'ensemble rapide, consultez le Dashboard."
+      />
 
       {/* Section EV & Buckets - Nouvelles visualisations */}
       <StaggerContainer className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Chart 1: EV moyen par décile de value */}
         <StaggerItem>
           <GlassCard className="h-full">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={DollarSign}
               title="EV par décile de Value"
               subtitle="Expected Value selon le % value"
@@ -336,32 +305,32 @@ const Analytics = () => {
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={evDecileData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
-                    <XAxis 
-                      dataKey="decile" 
-                      stroke={colors.muted} 
+                    <XAxis
+                      dataKey="decile"
+                      stroke={colors.muted}
                       tick={{ fill: colors.text, fontSize: 10 }}
                       angle={-35}
                       textAnchor="end"
                       height={60}
                     />
-                    <YAxis 
-                      stroke={colors.muted} 
+                    <YAxis
+                      stroke={colors.muted}
                       tick={{ fill: colors.text, fontSize: 11 }}
                       tickFormatter={(v) => `${v}%`}
                     />
-                    <Tooltip 
+                    <Tooltip
                       content={<CustomTooltip />}
                       formatter={(value) => [`${value.toFixed(1)}%`, 'EV']}
                     />
-                    <Bar 
-                      dataKey="ev" 
-                      name="EV (%)" 
+                    <Bar
+                      dataKey="ev"
+                      name="EV (%)"
                       radius={[6, 6, 0, 0]}
                     >
                       {evDecileData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={entry.ev >= 0 ? '#22C55E' : '#EF4444'} 
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={entry.ev >= 0 ? '#22C55E' : '#EF4444'}
                           fillOpacity={0.85}
                         />
                       ))}
@@ -369,10 +338,10 @@ const Analytics = () => {
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="mt-3 flex justify-end">
-                  <Link 
+                  <Link
                     to="/conseils"
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:scale-105"
-                    style={{ 
+                    style={{
                       color: colors.primary,
                       background: 'rgba(var(--color-primary-rgb), 0.1)',
                       border: '1px solid rgba(var(--color-primary-rgb), 0.2)'
@@ -383,7 +352,7 @@ const Analytics = () => {
                 </div>
               </>
             ) : (
-              <EmptyState 
+              <EmptyState
                 message="Données non disponibles"
                 description="Les métriques EV par décile seront calculées une fois les prédictions historiques enregistrées."
               />
@@ -395,18 +364,18 @@ const Analytics = () => {
         <StaggerItem>
           <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-4">
-              <GlassCardHeader 
+              <GlassCardHeader
                 icon={Layers}
                 title="Répartition des Buckets"
                 subtitle={bucketsGroupBy === 'discipline' ? 'Par discipline' : 'Par hippodrome'}
                 iconColor="#8B5CF6"
                 iconBg="rgba(139, 92, 246, 0.15)"
               />
-              
+
               {/* Toggle discipline/hippodrome */}
-              <div 
+              <div
                 className="flex rounded-lg overflow-hidden text-xs"
-                style={{ 
+                style={{
                   border: '1px solid var(--color-border)',
                   background: 'var(--color-bg)'
                 }}
@@ -441,21 +410,21 @@ const Analytics = () => {
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={currentBucketsData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke={colors.muted} 
+                    <XAxis
+                      dataKey="name"
+                      stroke={colors.muted}
                       tick={{ fill: colors.text, fontSize: 10 }}
                       angle={-35}
                       textAnchor="end"
                       height={60}
                     />
-                    <YAxis 
-                      stroke={colors.muted} 
+                    <YAxis
+                      stroke={colors.muted}
                       tick={{ fill: colors.text, fontSize: 11 }}
                       tickFormatter={(v) => `${v}%`}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend 
+                    <Legend
                       wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
                       formatter={(value) => <span style={{ color: colors.text }}>{value}</span>}
                     />
@@ -465,10 +434,10 @@ const Analytics = () => {
                   </BarChart>
                 </ResponsiveContainer>
                 <div className="mt-3 flex justify-end">
-                  <Link 
+                  <Link
                     to="/conseils"
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:scale-105"
-                    style={{ 
+                    style={{
                       color: colors.primary,
                       background: 'rgba(var(--color-primary-rgb), 0.1)',
                       border: '1px solid rgba(var(--color-primary-rgb), 0.2)'
@@ -479,7 +448,7 @@ const Analytics = () => {
                 </div>
               </>
             ) : (
-              <EmptyState 
+              <EmptyState
                 message="Données non disponibles"
                 description="La répartition des buckets sera calculée une fois les prédictions catégorisées."
               />
@@ -491,7 +460,7 @@ const Analytics = () => {
       {/* Distribution par race */}
       <ScrollReveal>
         <GlassCard className="overflow-hidden">
-          <GlassCardHeader 
+          <GlassCardHeader
             icon={TrendingUp}
             title="Distribution par race"
             subtitle="Répartition des chevaux"
@@ -502,8 +471,8 @@ const Analytics = () => {
               <BarChart data={chevauxData.distribution_races}>
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={colors.primary} stopOpacity={1}/>
-                    <stop offset="95%" stopColor={colors.primary} stopOpacity={0.6}/>
+                    <stop offset="5%" stopColor={colors.primary} stopOpacity={1} />
+                    <stop offset="95%" stopColor={colors.primary} stopOpacity={0.6} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
@@ -522,7 +491,7 @@ const Analytics = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState 
+            <EmptyState
               message="Aucune donnée disponible"
               description="La distribution par race sera disponible une fois que les données des chevaux seront enregistrées."
             />
@@ -533,7 +502,7 @@ const Analytics = () => {
       {/* Top 10 performers */}
       <ScrollReveal>
         <GlassCard className="overflow-hidden">
-          <GlassCardHeader 
+          <GlassCardHeader
             icon={Award}
             title="Top 10 performers"
             subtitle="Taux de victoire"
@@ -550,8 +519,8 @@ const Analytics = () => {
               >
                 <defs>
                   <linearGradient id="successGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="5%" stopColor={colors.success} stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor={colors.success} stopOpacity={1}/>
+                    <stop offset="5%" stopColor={colors.success} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={colors.success} stopOpacity={1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
@@ -571,7 +540,7 @@ const Analytics = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState 
+            <EmptyState
               message="Aucune donnée disponible"
               description="Les statistiques des performances seront disponibles une fois que les chevaux auront participé à plusieurs courses."
             />
@@ -584,13 +553,13 @@ const Analytics = () => {
         <StaggerItem>
           <GlassCard className="h-full">
             <div className="mb-6 sm:mb-8 flex items-center justify-between">
-              <h2 
+              <h2
                 className="text-base sm:text-lg font-semibold"
                 style={{ color: 'var(--color-text)' }}
               >
                 Performance par sexe
               </h2>
-              <span 
+              <span
                 className="rounded-full px-3 sm:px-4 py-1 text-[10px] sm:text-xs uppercase tracking-[0.32em]"
                 style={{
                   border: '1px solid var(--color-border)',
@@ -623,7 +592,7 @@ const Analytics = () => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState 
+              <EmptyState
                 message="Aucune donnée disponible"
                 description="Les statistiques par sexe seront disponibles une fois que les données de courses seront enregistrées."
               />
@@ -633,7 +602,7 @@ const Analytics = () => {
 
         <StaggerItem>
           <GlassCard className="h-full">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={Users}
               title="Top jockeys"
               subtitle="Performances cumulées"
@@ -644,11 +613,11 @@ const Analytics = () => {
                 <BarChart data={jockeysData.top_jockeys.slice(0, 10)} layout="vertical" margin={{ left: 80, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
                   <XAxis type="number" stroke={colors.muted} tick={{ fill: colors.text, fontSize: 12 }} />
-                  <YAxis 
-                    dataKey="nom" 
-                    type="category" 
-                    stroke={colors.muted} 
-                    tick={{ fill: colors.text, fontSize: 11 }} 
+                  <YAxis
+                    dataKey="nom"
+                    type="category"
+                    stroke={colors.muted}
+                    tick={{ fill: colors.text, fontSize: 11 }}
                     width={70}
                   />
                   <Tooltip content={<CustomTooltip />} />
@@ -656,7 +625,7 @@ const Analytics = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState 
+              <EmptyState
                 message="Aucun jockey disponible"
                 description="Les données des jockeys seront disponibles une fois que les statistiques de courses seront calculées."
               />
@@ -668,7 +637,7 @@ const Analytics = () => {
       {/* Top entraîneurs */}
       <ScrollReveal>
         <GlassCard className="overflow-hidden">
-          <GlassCardHeader 
+          <GlassCardHeader
             icon={Users}
             title="Top entraîneurs"
             subtitle="Suivi des performances"
@@ -691,19 +660,19 @@ const Analytics = () => {
                   tick={{ fill: colors.muted, fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend 
+                <Legend
                   wrapperStyle={{
                     paddingTop: '16px',
                     fontSize: '13px',
                     color: colors.text
-                  }} 
+                  }}
                 />
                 <Bar dataKey="taux_reussite" fill={colors.primary} name="Taux de réussite (%)" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="nb_chevaux" fill={colors.success} name="Nombre de chevaux" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyState 
+            <EmptyState
               message="Aucun entraîneur disponible"
               description="Les données des entraîneurs seront disponibles une fois que les statistiques de courses seront calculées."
             />
@@ -715,7 +684,7 @@ const Analytics = () => {
       {tauxParRaceData?.taux_par_race && tauxParRaceData.taux_par_race.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={TrendingUp}
               title="Taux de victoire par race"
               subtitle="Performance moyenne"
@@ -748,7 +717,7 @@ const Analytics = () => {
       {evolutionData?.evolution && evolutionData.evolution.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={Calendar}
               title="Évolution dans le temps"
               subtitle="Courses par année"
@@ -760,12 +729,12 @@ const Analytics = () => {
               <AreaChart data={evolutionData.evolution.slice().reverse()}>
                 <defs>
                   <linearGradient id="coursesGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={colors.primary} stopOpacity={0}/>
+                    <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={colors.primary} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="chevauxGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={colors.success} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={colors.success} stopOpacity={0}/>
+                    <stop offset="5%" stopColor={colors.success} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={colors.success} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.border} opacity={0.3} />
@@ -814,7 +783,7 @@ const Analytics = () => {
       {hippodromesData?.hippodromes && hippodromesData.hippodromes.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={MapPin}
               title="Top hippodromes"
               subtitle="Par nombre de courses"
@@ -849,7 +818,7 @@ const Analytics = () => {
       {oddsData?.odds_stats && oddsData.odds_stats.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={TrendingUp}
               title="Taux de victoire par cote"
               subtitle="Rentabilité des favoris vs outsiders"
@@ -881,7 +850,7 @@ const Analytics = () => {
       {distanceData?.distance_stats && distanceData.distance_stats.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={MapPin}
               title="Taux de victoire par distance"
               subtitle="Probabilité mathématique (liée au nombre de partants)"
@@ -913,7 +882,7 @@ const Analytics = () => {
       {ageData?.age_stats && ageData.age_stats.length > 0 && (
         <ScrollReveal>
           <GlassCard className="overflow-hidden">
-            <GlassCardHeader 
+            <GlassCardHeader
               icon={Calendar}
               title="Taux de victoire par âge"
               subtitle="L'âge d'or des chevaux"

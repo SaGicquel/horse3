@@ -3,7 +3,7 @@
 ################################################################################
 # SCRAPING HISTORIQUE IMMORTEL V2 - ANTI-BLOCAGE
 ################################################################################
-# 
+#
 # Version améliorée avec:
 # - Détection de blocage (timeout 30 min par session)
 # - Kill automatique des processus bloqués
@@ -48,7 +48,7 @@ if [ -f "$LOCK_FILE" ]; then
         # Vérifier depuis combien de temps
         LOCK_AGE=$(( $(date +%s) - $(stat -f %m "$LOCK_FILE") ))
         LOCK_AGE_MIN=$((LOCK_AGE / 60))
-        
+
         if [ $LOCK_AGE_MIN -gt $MAX_SESSION_MINUTES ]; then
             log "⚠️ Processus $PID bloqué depuis ${LOCK_AGE_MIN} min (> ${MAX_SESSION_MINUTES} min)"
             kill_stuck_processes
@@ -105,13 +105,13 @@ ELAPSED=0
 while kill -0 $SCRAPER_PID 2>/dev/null; do
     sleep 30
     ELAPSED=$((ELAPSED + 30))
-    
+
     # Log de progression toutes les 5 minutes
     if [ $((ELAPSED % 300)) -eq 0 ]; then
         MINS=$((ELAPSED / 60))
         log "⏳ En cours depuis ${MINS} min..."
     fi
-    
+
     if [ $ELAPSED -gt $TIMEOUT_SEC ]; then
         log "⏰ Timeout atteint (${MAX_SESSION_MINUTES}min), kill du processus..."
         kill -9 $SCRAPER_PID 2>/dev/null

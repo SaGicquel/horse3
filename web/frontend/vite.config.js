@@ -9,6 +9,26 @@ export default defineConfig({
     port: 5173,      // Port par défaut de Vite
     strictPort: false,
   },
+  build: {
+    // Code splitting optimisé
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor React - chargé en premier, mis en cache longtemps
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Libs lourdes - lazy loaded
+          'vendor-charts': ['recharts'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-icons': ['lucide-react', '@heroicons/react'],
+        },
+      },
+    },
+    // Minification optimale
+    minify: 'esbuild',
+    target: 'esnext',
+    // Taille des chunks
+    chunkSizeWarningLimit: 500,
+  },
   test: {
     globals: true,
     environment: 'jsdom',

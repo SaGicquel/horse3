@@ -18,6 +18,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import { GlassCard, GlassCardHeader } from '../components/GlassCard';
+import PageHeader from '../components/PageHeader';
 import { API_BASE } from '../config/api';
 import { percent, odds as formatOdds } from '../lib/format';
 import { exportPicksCSV, exportPicksJSON } from '../lib/export';
@@ -328,59 +329,46 @@ export default function Courses() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 px-3 sm:px-6 py-6 sm:py-12">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+      {/* Header unifié */}
+      <PageHeader
+        emoji="🏇"
+        title="Courses du Jour"
+        subtitle="Analysez les courses et leurs probabilités"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            🏇 Courses du Jour
-          </h1>
-          <p className="text-neutral-700 dark:text-neutral-400 mt-1">
-            Analysez les courses et leurs probabilités
-          </p>
-        </div>
-
         {/* Filtres */}
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            value={filterDiscipline}
-            onChange={(e) => setFilterDiscipline(e.target.value)}
-            className="glass-input px-4 py-2 rounded-xl"
-          >
-            <option value="all">Toutes disciplines</option>
-            {disciplines.map(d => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
+        <select
+          value={filterDiscipline}
+          onChange={(e) => setFilterDiscipline(e.target.value)}
+          className="glass-input px-4 py-2 rounded-xl"
+        >
+          <option value="all">Toutes disciplines</option>
+          {disciplines.map(d => (
+            <option key={d} value={d}>{d}</option>
+          ))}
+        </select>
 
-          <div className="flex items-center gap-2 px-3 py-2 glass-panel border border-neutral-200 dark:border-white/10 rounded-xl">
-            <label className="text-sm text-neutral-800 dark:text-neutral-400">Value ≥</label>
-            <input
-              type="number"
-              value={valueThreshold}
-              onChange={(e) => setValueThreshold(Number(e.target.value) || 0)}
-              className="w-16 px-2 py-1 bg-transparent text-neutral-900 dark:text-neutral-100 focus:outline-none text-center"
-              min={-100}
-              max={100}
-              aria-label="Value threshold"
-            />
-            <span className="text-neutral-500 dark:text-neutral-400">%</span>
-          </div>
-
-          <motion.button
-            onClick={fetchCourses}
-            className="p-2 glass-button hover:bg-neutral-100 dark:hover:bg-white/10"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title="Actualiser"
-          >
-            <ArrowPathIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
-          </motion.button>
+        <div className="flex items-center gap-2 px-3 py-2 glass-panel border border-neutral-200 dark:border-white/10 rounded-xl">
+          <label className="text-sm text-neutral-800 dark:text-neutral-400">Value ≥</label>
+          <input
+            type="number"
+            value={valueThreshold}
+            onChange={(e) => setValueThreshold(Number(e.target.value) || 0)}
+            className="w-16 px-2 py-1 bg-transparent text-neutral-900 dark:text-neutral-100 focus:outline-none text-center"
+            min={-100}
+            max={100}
+            aria-label="Value threshold"
+          />
+          <span className="text-neutral-500 dark:text-neutral-400">%</span>
         </div>
-      </motion.div>
+
+        <motion.button
+          onClick={fetchCourses}
+          className="p-2 glass-button hover:bg-neutral-100 dark:hover:bg-white/10"
+          title="Actualiser"
+        >
+          <ArrowPathIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+        </motion.button>
+      </PageHeader>
 
       {hasContextFilters && (
         <div className="glass-panel border border-neutral-200 dark:border-white/10 rounded-xl px-3 py-2 flex flex-wrap items-center gap-2">
@@ -458,8 +446,6 @@ export default function Courses() {
                   <motion.div
                     key={raceKey}
                     variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
                   >
                     <GlassCard
                       className={`transition-all cursor-pointer ${selectedCourse === raceKey
@@ -536,8 +522,6 @@ export default function Courses() {
               <motion.button
                 onClick={closeRacePanel}
                 className="p-1 hover:bg-neutral-100 dark:hover:bg-white/10 rounded-lg transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
               >
                 <XMarkIcon className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
               </motion.button>
@@ -588,16 +572,12 @@ export default function Courses() {
                 <motion.button
                   onClick={() => exportCurrentRace('csv')}
                   className="glass-button px-3 py-1.5 text-xs"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   Export CSV
                 </motion.button>
                 <motion.button
                   onClick={() => exportCurrentRace('json')}
                   className="glass-button px-3 py-1.5 text-xs"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   Export JSON
                 </motion.button>

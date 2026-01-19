@@ -6,33 +6,32 @@ STRUCTURE DE LA BASE DE DONNÉES
 --------------------------------------------------------------------------------
   • nom_norm                       TEXT             PRIMARY KEY, NOT NULL
   • race_key                       TEXT             PRIMARY KEY, NOT NULL
-  • annee                          INTEGER         
-  • is_win                         INTEGER         
+  • annee                          INTEGER
+  • is_win                         INTEGER
   ➜ Nombre de lignes: 17,211
 
 📊 TABLE: chevaux
 --------------------------------------------------------------------------------
   • id_cheval                      INTEGER          PRIMARY KEY
   • nom                            TEXT             NOT NULL
-  • race                           TEXT            
-  • sexe                           TEXT            
-  • robe                           TEXT            
-  • date_naissance                 DATE            
-  • pays_naissance                 TEXT            
-  • entraineur_courant             TEXT            
-  • jockey_habituel                TEXT            
+  • race                           TEXT
+  • sexe                           TEXT
+  • robe                           TEXT
+  • date_naissance                 DATE
+  • pays_naissance                 TEXT
+  • entraineur_courant             TEXT
+  • jockey_habituel                TEXT
   • nombre_courses_total           INTEGER          DEFAULT 0
   • nombre_victoires_total         INTEGER          DEFAULT 0
-  • dernier_poids_couru            REAL            
-  • dernier_resultat               TEXT            
-  • meilleur_temps_distance        TEXT            
-  • surface_preferee               TEXT            
-  • distance_preferee              TEXT            
-  • date_derniere_course           DATE            
-  • condition_physique             TEXT            
+  • dernier_poids_couru            REAL
+  • dernier_resultat               TEXT
+  • meilleur_temps_distance        TEXT
+  • surface_preferee               TEXT
+  • distance_preferee              TEXT
+  • date_derniere_course           DATE
+  • condition_physique             TEXT
   • created_at                     TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
-  • nombre_courses_2025            INTEGER         
-  • nombre_victoires_2025          INTEGER         
-  • dernieres_performances         TEXT            
+  • nombre_courses_2025            INTEGER
+  • nombre_victoires_2025          INTEGER
+  • dernieres_performances         TEXT
   ➜ Nombre de lignes: 39,206
-

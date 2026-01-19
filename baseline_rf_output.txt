@@ -1,19 +1,19 @@
 2025-11-13 19:09:38 - INFO - 📂 Chargement des données...
 2025-11-13 19:09:39 - INFO -    ✅ Train: 16,424 lignes
 2025-11-13 19:09:39 - INFO -    ✅ Val: 3,519 lignes
-2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO -
 2025-11-13 19:09:39 - INFO - 📊 Features : 103
 2025-11-13 19:09:39 - INFO - 🎯 Target distribution train : 1,646 victoires (10.02%)
 2025-11-13 19:09:39 - INFO - 🎯 Target distribution val : 356 victoires (10.12%)
-2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO -
 2025-11-13 19:09:39 - INFO - ================================================================================
 2025-11-13 19:09:39 - INFO - 🚀 ENTRAÎNEMENT RANDOM FOREST
 2025-11-13 19:09:39 - INFO - ================================================================================
-2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO -
 2025-11-13 19:09:39 - INFO -    Estimators : 100
 2025-11-13 19:09:39 - INFO -    Max depth  : 10
 2025-11-13 19:09:39 - INFO -    Class weight : balanced
-2025-11-13 19:09:39 - INFO - 
+2025-11-13 19:09:39 - INFO -
 2025-11-13 19:09:39 - ERROR - ❌ Erreur : could not convert string to float: 'F'
 Traceback (most recent call last):
   File "/Users/gicquelsacha/horse3/train_baseline_rf.py", line 274, in <module>

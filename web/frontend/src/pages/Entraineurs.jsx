@@ -208,25 +208,25 @@ export default function Entraineurs() {
               <div className="text-2xl font-bold text-[var(--color-text)]">{entraineurStats.statistiques.victoires}</div>
               <div className="text-xs text-gray-400">Victoires</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <ChartBarIcon className="h-8 w-8 mx-auto text-blue-400 mb-2" />
               <div className="text-2xl font-bold text-[var(--color-text)]">{entraineurStats.statistiques.courses}</div>
               <div className="text-xs text-gray-400">Courses</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <ArrowTrendingUpIcon className="h-8 w-8 mx-auto text-green-400 mb-2" />
               <div className="text-2xl font-bold text-green-400">{entraineurStats.statistiques.taux_victoire}%</div>
               <div className="text-xs text-gray-400">Taux Victoire</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <div className="text-3xl mb-2">🐴</div>
               <div className="text-2xl font-bold text-purple-400">{entraineurStats.statistiques.nb_chevaux}</div>
               <div className="text-xs text-gray-400">Chevaux</div>
             </GlassCard>
-            
+
             <GlassCard className="text-center">
               <div className="text-3xl mb-2">💰</div>
               <div className="text-2xl font-bold text-emerald-400">{entraineurStats.statistiques.gains_total}</div>
@@ -244,17 +244,17 @@ export default function Entraineurs() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis dataKey="mois" stroke="#9CA3AF" fontSize={10} />
                   <YAxis stroke="#9CA3AF" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
                       border: '1px solid #374151',
                       borderRadius: '8px'
                     }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="victoires" 
-                    stroke="#F59E0B" 
+                  <Line
+                    type="monotone"
+                    dataKey="victoires"
+                    stroke="#F59E0B"
                     strokeWidth={2}
                     dot={{ fill: '#F59E0B', r: 4 }}
                     name="Victoires"
@@ -272,9 +272,9 @@ export default function Entraineurs() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="type" stroke="#9CA3AF" fontSize={10} />
                     <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1F2937',
                         border: '1px solid #374151',
                         borderRadius: '8px'
                       }}
@@ -299,16 +299,16 @@ export default function Entraineurs() {
                     <PolarGrid stroke="#374151" />
                     <PolarAngleAxis dataKey="categorie" stroke="#9CA3AF" fontSize={10} />
                     <PolarRadiusAxis stroke="#9CA3AF" fontSize={10} />
-                    <Radar 
-                      name="Performance" 
-                      dataKey="score" 
-                      stroke="#F59E0B" 
-                      fill="#F59E0B" 
+                    <Radar
+                      name="Performance"
+                      dataKey="score"
+                      stroke="#F59E0B"
+                      fill="#F59E0B"
                       fillOpacity={0.3}
                     />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1F2937',
                         border: '1px solid #374151',
                         borderRadius: '8px'
                       }}
@@ -328,7 +328,7 @@ export default function Entraineurs() {
                   <div key={i} className="bg-white/5 rounded-lg p-4">
                     <div className="flex items-center gap-3">
                       <div className={`text-2xl font-bold ${
-                        i === 0 ? 'text-yellow-400' : 
+                        i === 0 ? 'text-yellow-400' :
                         i === 1 ? 'text-gray-400' :
                         i === 2 ? 'text-orange-400' : 'text-gray-500'
                       }`}>
@@ -337,7 +337,7 @@ export default function Entraineurs() {
                       <div>
                         <p className="text-[var(--color-text)] font-medium">{cheval.nom}</p>
                         <p className="text-xs text-gray-400">
-                          {cheval.victoires} V / {cheval.courses} C • 
+                          {cheval.victoires} V / {cheval.courses} C •
                           <span className="text-green-400 ml-1">{cheval.taux}%</span>
                         </p>
                         <p className="text-xs text-purple-400">Gains: {cheval.gains}</p>
@@ -360,7 +360,7 @@ export default function Entraineurs() {
                     <div>
                       <p className="text-[var(--color-text)] font-medium">{jockey.nom}</p>
                       <p className="text-xs text-gray-400">
-                        {jockey.victoires} V / {jockey.courses} C • 
+                        {jockey.victoires} V / {jockey.courses} C •
                         <span className="text-green-400 ml-1">{jockey.taux}%</span>
                       </p>
                     </div>

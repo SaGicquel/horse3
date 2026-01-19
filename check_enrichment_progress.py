@@ -7,38 +7,39 @@ Affiche les statistiques de musique et temps enrichis en temps réel.
 from db_connection import get_connection
 import time
 
+
 def check_enrichment():
     """Affiche les statistiques d'enrichissement."""
     conn = get_connection()
     cur = conn.cursor()
-    
+
     # Total performances
     cur.execute("SELECT COUNT(*) FROM performances")
     total = cur.fetchone()[0]
-    
+
     # Musique enrichie
     cur.execute("SELECT COUNT(*) FROM performances WHERE musique IS NOT NULL")
     musique_count = cur.fetchone()[0]
-    
+
     # Temps enrichi
     cur.execute("SELECT COUNT(*) FROM performances WHERE temps_total IS NOT NULL")
     temps_count = cur.fetchone()[0]
-    
+
     # Vitesse enrichie
     cur.execute("SELECT COUNT(*) FROM performances WHERE vitesse_moyenne IS NOT NULL")
     vitesse_count = cur.fetchone()[0]
-    
+
     # Courses uniques
     cur.execute("SELECT COUNT(DISTINCT id_course) FROM performances")
     courses_count = cur.fetchone()[0]
-    
+
     cur.close()
     conn.close()
-    
+
     musique_pct = (musique_count / total * 100) if total > 0 else 0
     temps_pct = (temps_count / total * 100) if total > 0 else 0
     vitesse_pct = (vitesse_count / total * 100) if total > 0 else 0
-    
+
     print("=" * 90)
     print("📊 PROGRESSION ENRICHISSEMENT PHASE 2A")
     print("=" * 90)
@@ -52,10 +53,11 @@ def check_enrichment():
     print()
     print("=" * 90)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
-    
-    if '--watch' in sys.argv:
+
+    if "--watch" in sys.argv:
         # Mode watch : rafraîchir toutes les 5 secondes
         try:
             while True:

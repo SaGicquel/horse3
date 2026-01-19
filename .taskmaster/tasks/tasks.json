@@ -1,0 +1,159 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Architecture & Migration PostgreSQL (Phase 1)",
+        "description": "Mise en place de l'infrastructure Docker et migration de la base de données SQLite vers PostgreSQL.",
+        "details": "Configurer `docker-compose.yml` pour inclure un service PostgreSQL 15+. Créer les scripts de migration avec Alembic pour porter le schéma existant (Courses, Chevaux, Cotes). Migrer les données de SQLite vers PG. Configurer la connexion SQLAlchemy (asyncpg) dans `backend/database.py`.",
+        "testStrategy": "Vérifier que `docker-compose up` lance la DB. Exécuter les tests de connexion. Vérifier l'intégrité des données après import via des requêtes SQL de comptage.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "completedAt": "2026-01-15T12:10:00.000Z",
+        "notes": "PostgreSQL déjà en place via container Docker pmuBDD. 25 tables migrées. Connexion via psycopg2 (sync) - asyncpg optionnel pour plus tard.",
+        "subtasks": []
+      },
+      {
+        "id": "2",
+        "title": "API Backend Core & Modèles Pydantic",
+        "description": "Développement des endpoints FastAPI de base et structuration des données.",
+        "details": "Créer les modèles Pydantic (`schemas.py`) reflétant la nouvelle structure DB. Implémenter les routes CRUD dans `routers/races.py` pour récupérer les courses du jour et l'historique. Assurer la sérialisation correcte des JSON.",
+        "testStrategy": "Tests unitaires avec `pytest` et `TestClient` sur les endpoints `/races/today` et `/races/{id}`.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "completedAt": "2026-01-15T12:15:00.000Z",
+        "notes": "Structure backend/ créée avec schemas.py (15 modèles Pydantic), routers/races.py (4 endpoints), database.py (pooling psycopg2). 10/10 tests passent.",
+        "subtasks": []
+      },
+      {
+        "id": "3",
+        "title": "Pipeline de Scraping & Ingestion de Données",
+        "description": "Adaptation et sécurisation des scripts de scraping pour alimenter PostgreSQL.",
+        "details": "Refactoriser les scrapers existants (PMU, Equidia) pour utiliser la session SQLAlchemy asynchrone. Implémenter un mécanisme de `retry` robuste et de logs d'erreurs. Mettre en place un scheduler (ex: APScheduler ou simple Cron) pour l'exécution quotidienne.",
+        "testStrategy": "Lancer le scraping sur une journée passée et vérifier que les tables (races, participants) sont peuplées sans doublons.",
+        "priority": "high",
+        "dependencies": [
+          "1",
+          "2"
+        ],
+        "status": "done",
+        "completedAt": "2026-01-15T12:50:00.000Z",
+        "notes": "Système déjà mature: scraper_pmu_simple.py avec multi-threading, AdaptiveRateLimiter, CircuitBreaker. Fix appliqué: connexion par thread pour éviter conflits de transaction. Scheduler via launchd (3 jobs actifs). Test: 44 courses/490 partants scrapés avec succès.",
+        "subtasks": []
+      },
+      {
+        "id": "4",
+        "title": "Intégration Modèle ML (XGBoost v9) & Calibration",
+        "description": "Mise en production du modèle Champion et du pipeline de calibration.",
+        "details": "Charger le modèle XGBoost v9 via `joblib`/`pickle` dans un singleton FastAPI. Implémenter le pipeline de pré-traitement (Feature Engineering) identique à l'entraînement. Ajouter la calibration de Platt pour transformer les scores bruts en probabilités réelles.",
+        "testStrategy": "Comparer les outputs de l'API avec un script de prédiction local sur un set de test connu (check de non-régression).",
+        "priority": "high",
+        "dependencies": [
+          "2",
+          "3"
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": "5",
+        "title": "Agent IA Supervisor - Étapes A & B (Génération & Analyse)",
+        "description": "Implémentation de la génération de rapport et de la critique par LLM.",
+        "details": "Développer le service `AiSupervisor`. Étape A : Générer un prompt structuré incluant les prédictions ML et les stats de la course. Étape B : Connecter l'API OpenAI/Gemini pour analyser ce prompt et détecter les anomalies (ex: cheval favori avec mauvaise musique).",
+        "testStrategy": "Mocker l'API OpenAI et vérifier que le prompt généré contient bien les features importance et les cotes.",
+        "priority": "medium",
+        "dependencies": [
+          "4"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T12:30:38.902Z"
+      },
+      {
+        "id": "6",
+        "title": "Agent IA Supervisor - Étapes C & D (Vérification & Décision)",
+        "description": "Vérification factuelle des dires de l'IA et calcul du score de confiance.",
+        "details": "Étape C : Parser la réponse du LLM et vérifier les affirmations contre la DB (Cross-check). Étape D : Aggéger le score ML et le score 'Sentiment' du LLM pour produire un `final_confidence_score`.",
+        "testStrategy": "Injecter une hallucination volontaire dans le mock LLM et vérifier que le module de Cross-check la détecte.",
+        "priority": "medium",
+        "dependencies": [
+          "5"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T13:39:29.261Z"
+      },
+      {
+        "id": "7",
+        "title": "Gestion de Bankroll & Critère de Kelly",
+        "description": "Algorithme de calcul de mise basé sur la value perçue.",
+        "details": "Implémenter la logique `BettingManager`. Calculer l'overlay (Probabilité Modèle vs Cote Bookmaker). Appliquer la formule de Kelly fractionné (configurable: Prudent/Aggressif) pour déterminer le % de bankroll à miser.",
+        "testStrategy": "Tests unitaires sur la formule de Kelly avec différents cas limites (cote négative, proba 100%).",
+        "priority": "medium",
+        "dependencies": [
+          "4",
+          "6"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T14:13:54.660Z"
+      },
+      {
+        "id": "8",
+        "title": "Frontend Dashboard - Visualisation des Paris",
+        "description": "Interface utilisateur pour consulter les courses et les prédictions.",
+        "details": "Configurer React + Vite + Tailwind. Créer les composants : `RaceCard`, `PredictionBadge`, `BankrollChart`. Connecter le front à l'API FastAPI. Afficher les icônes (Lucide) pour les indicateurs de confiance.",
+        "testStrategy": "Vérifier l'affichage responsive et le temps de chargement (objectif < 100ms API response display).",
+        "priority": "medium",
+        "dependencies": [
+          "2"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T14:20:28.738Z"
+      },
+      {
+        "id": "9",
+        "title": "Module de Backtesting Historique",
+        "description": "Moteur de simulation pour valider les stratégies sur le passé.",
+        "details": "Créer un script capable de rejouer les N derniers jours de courses en utilisant les cotes réelles stockées. Simuler le portefeuille (Bankroll) jour après jour en appliquant les décisions du modèle+IA. Générer un rapport ROI/WinRate.",
+        "testStrategy": "Comparer les résultats du backtest avec les résultats réels connus d'une stratégie simple (ex: toujours miser le favori).",
+        "priority": "low",
+        "dependencies": [
+          "7"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T14:28:36.040Z"
+      },
+      {
+        "id": "10",
+        "title": "Monitoring & Alertes de Drift",
+        "description": "Système de surveillance de la performance du modèle.",
+        "details": "Calculer quotidiennement la précision (Top-3 accuracy) post-course. Stocker ces métriques. Configurer une alerte (log ou notification) si la précision glissante sur 7 jours chute sous 25%.",
+        "testStrategy": "Simuler une dégradation des résultats en base et vérifier le déclenchement de l'alerte.",
+        "priority": "low",
+        "dependencies": [
+          "4",
+          "9"
+        ],
+        "status": "in-progress",
+        "subtasks": [],
+        "updatedAt": "2026-01-15T14:36:48.665Z"
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-01-15T14:36:48.666Z",
+      "taskCount": 10,
+      "completedCount": 3,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}

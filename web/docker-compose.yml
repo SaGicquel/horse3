@@ -25,6 +25,9 @@ services:
       # Connexion à la BDD existante (pmuBDD) via host.docker.internal
       - DATABASE_URL=postgresql://pmu_user:pmu_secure_password_2025@host.docker.internal:54624/pmu_database
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_API_KEY=AIzaSyBi_o5kQJ9Nl1OR-_y2axv2Iv5nLKI9f7w
+      - AI_PROVIDER=${AI_PROVIDER:-auto}
       - LOG_LEVEL=info
       # Activer le modèle Champion (ré-entraîné avec features runtime)
       - USE_CHAMPION_MODEL=1
@@ -41,9 +44,11 @@ services:
       - ../race_pronostic_generator.py:/project/race_pronostic_generator.py:ro
       - ../calibration:/project/calibration:ro
       - ../artifacts:/project/artifacts:ro
+      # Module d'analyse IA
+      - ../ai_results_analyzer.py:/project/ai_results_analyzer.py:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
+      test: [ "CMD", "curl", "-sf", "http://localhost:8000/healthz" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -71,7 +76,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:80/healthz"]
+      test: [ "CMD", "curl", "-sf", "http://localhost:80/healthz" ]
       interval: 30s
       timeout: 5s
       retries: 3

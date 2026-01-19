@@ -1,11 +1,11 @@
-je veux que tu cherche comment france galot et letrot recupere leurs infos sur les courses passent ils par un prestataire ? 
+je veux que tu cherche comment france galot et letrot recupere leurs infos sur les courses passent ils par un prestataire ?
 
 Voici ce que j’ai trouvé sur **la façon dont France Galop et LeTROT récupèrent/produisent les informations de courses** et s’ils passent (ou non) par des prestataires.
 
 ## TL;DR
 
 * **Les données “cœur de métier” (engagements, partants, non‑partants, résultats officiels)** sont **saisies par les officiels sur l’hippodrome** dans des systèmes **internes** (ex. côté France Galop : **Hipponet/GNet**), puis centralisées et publiées sur les sites officiels. ([france-galop.com][1])
-* **LeTROT** formalise la chaîne officielle : le **procès‑verbal (PV) de course** remonte à la SETF (LeTROT) et le résultat est **notifié/affiché le jour même**, puis **homologué** après réception du PV. 
+* **LeTROT** formalise la chaîne officielle : le **procès‑verbal (PV) de course** remonte à la SETF (LeTROT) et le résultat est **notifié/affiché le jour même**, puis **homologué** après réception du PV.
 * **L’identification des chevaux** s’appuie sur le **registre national SIRE** (IFCE), qui fournit l’identité/traçabilité et alimente les démarches réglementaires. ([ifce.fr][2])
 * **Prestataires externes** : oui, mais **sur des briques périphériques** (tracking, hébergement du site, etc.), **pas pour créer la donnée officielle** elle‑même. Ex. **McLloyd** pour le **tracking** (EpiqE/PMU Tracking), **DIGDEO** (hébergeur du site LeTROT), etc. ([letrot.com][3])
 
@@ -37,8 +37,8 @@ Voici ce que j’ai trouvé sur **la façon dont France Galop et LeTROT récupè
 
 * Le **Code des courses au trot** détaille le cadre de production et de validation :
 
-  * **Notification du résultat** par **affichage sur l’hippodrome le jour même**, puis **homologation** après **réception du PV de la course par la SETF** (LeTROT). 
-  * Processus disciplinaire et **chaîne des PV** (y compris prélèvements/antidopage) sont normés, avec transmission à la **Fédération Nationale des Courses Hippiques / Laboratoire des Courses Hippiques (LCH)**. 
+  * **Notification du résultat** par **affichage sur l’hippodrome le jour même**, puis **homologation** après **réception du PV de la course par la SETF** (LeTROT).
+  * Processus disciplinaire et **chaîne des PV** (y compris prélèvements/antidopage) sont normés, avec transmission à la **Fédération Nationale des Courses Hippiques / Laboratoire des Courses Hippiques (LCH)**.
 * **Infonet LeTROT** est l’espace pro (accès réservé) qui fédère outils & infos opérationnelles (engagements, documents, etc.). ([infonet.letrot.com][9])
 
 **Prestataires identifiés / périphérie :**
@@ -46,7 +46,7 @@ Voici ce que j’ai trouvé sur **la façon dont France Galop et LeTROT récupè
 * **Tracking** : contenu institutionnel LeTROT sur **PMU Tracking** ; plus récemment, **McLloyd** est nommé **prestataire du tracking** pour la filière française. ([letrot.com][10])
 * **Hébergement & réalisation du site** public letrot.com : **DIGDEO** (hébergeur) et **UserAdgents** (réalisation). ([letrot.com][11])
 
-> **Conclusion LeTROT** : comme pour le galop, la **donnée officielle** (partants/résultats) est **produite par la filière** (PV des juges, officiels) et **centralisée par LeTROT** ; des **prestataires** interviennent pour le **tracking** et l’**infrastructure web**, mais **pas** pour “faire” le résultat officiel. 
+> **Conclusion LeTROT** : comme pour le galop, la **donnée officielle** (partants/résultats) est **produite par la filière** (PV des juges, officiels) et **centralisée par LeTROT** ; des **prestataires** interviennent pour le **tracking** et l’**infrastructure web**, mais **pas** pour “faire” le résultat officiel.
 
 ---
 
@@ -68,7 +68,7 @@ Voici ce que j’ai trouvé sur **la façon dont France Galop et LeTROT récupè
 
 * France Galop – formulaires officiels (non‑partants : Hipponet/GNet) et docuthèque (cahiers des charges & formulaires). ([france-galop.com][1])
 * France Galop – page “Find out more” (site lié à la base FG). ([france-galop.com][4])
-* LeTROT – **Code des courses 2024/2025** (PV, affichage du résultat, chaîne d’homologation & LCH). 
+* LeTROT – **Code des courses 2024/2025** (PV, affichage du résultat, chaîne d’homologation & LCH).
 * LeTROT – contenus institutionnels sur **PMU Tracking** et article mentionnant **McLloyd** comme prestataire de tracking. ([letrot.com][10])
 * IFCE – **SIRE** (base nationale d’identification des équidés). ([ifce.fr][2])
 * LeTROT – **Mentions légales** (hébergeur DIGDEO / réalisation UserAdgents). ([letrot.com][11])
@@ -95,19 +95,19 @@ Si tu veux, je peux te **schématiser le flux complet** (de la saisie sur l’hi
 
 ok car je souhaite scrapper france galop et le trot mais ils bloquent les scrapping donc puis passer par leurs intermediare pour recuperer les infos a la source ? car je souhaite recupérer les infos suivante :
 
-Gains totaux (€)	
-Gains annuels (€)	
-Record attelé	
-Record monté	
-Réduction kilométrique	
+Gains totaux (€)
+Gains annuels (€)
+Record attelé
+Record monté
+Réduction kilométrique
 Père
 Mère
-Père de mère	
-Propriétaire actuel	
-Éleveur	
-Naisseur	
+Père de mère
+Propriétaire actuel
+Éleveur
+Naisseur
 
-que je ne peux pas avoir en scrappant pmu donc comment faire 
+que je ne peux pas avoir en scrappant pmu donc comment faire
 
 Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop & LeTROT **sans “contourner”** leurs protections anti‑scraping.
 
@@ -116,7 +116,7 @@ Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop 
 ## Synthèse (3–5 phrases)
 
 * France Galop et LeTROT publient leurs données sous **CGU strictes** qui interdisent l’extraction/reutilisation “à la volée” du contenu du site (donc le scraping bloqué). ([billetterie.francegalop-live.com][1])
-* **Accès “à la source”** : France Galop expose des **web services (80+ APIs internes)** pour ses partenaires B2B ; LeTROT offre un **espace pro (Infonet)** et gère le **Livre généalogique** ; pour la généalogie multi‑races la base **SIRE** (IFCE) propose des **webservices payants** (modules Info Chevaux / Pedigree). 
+* **Accès “à la source”** : France Galop expose des **web services (80+ APIs internes)** pour ses partenaires B2B ; LeTROT offre un **espace pro (Infonet)** et gère le **Livre généalogique** ; pour la généalogie multi‑races la base **SIRE** (IFCE) propose des **webservices payants** (modules Info Chevaux / Pedigree).
 * Pour les champs **Gains/Records/Réduction km**, la **source autorisée** est LeTROT (trot) et France Galop (galop) via un **contrat/licence** ; pour **Père/Mère/Père de mère**, **SIRE** couvre jusqu’à 3 générations. ([letrot.com][2])
 * En complément, **PMU** expose des **endpoints JSON** publics (programme, participants, performances) utiles pour résultats/allocations/réductions km, mais **ne couvrent pas** tous tes champs (ex. éleveur/naisseur) et doivent être utilisés **dans le respect de leurs conditions**. ([online.turfinfo.api.pmu.fr][3])
 * **Recommandation** : contracter un **accès B2B** (France Galop + LeTROT) et **SIRE Webservices** ; à défaut, combiner SIRE (pedigree) + PMU (performances/allocations) en gardant à l’esprit les limites juridiques et fonctionnelles.
@@ -156,7 +156,7 @@ Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop 
 
 ### 1) France Galop – **accès B2B / API**
 
-* **Fait établi** : FG a déployé **>80 APIs** pour exposer ses web services aux partenaires (SOA/API fabric). 
+* **Fait établi** : FG a déployé **>80 APIs** pour exposer ses web services aux partenaires (SOA/API fabric).
 * **Action** : Demander un accès via **Espace Pro** / contact entreprise ; leurs services sont “directement liés à la base FG” (site officiel). ([pro.france-galop.com][11])
 
 ### 2) LeTROT – **licence / Infonet / Livre généalogique**
@@ -184,7 +184,7 @@ Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop 
 1. **Signer** :
 
    * **IFCE SIRE Webservices** → récupérer **Père / Mère / Père de mère** (+ descendance jument si besoin). ([ifce.fr][8])
-   * **Licences B2B** avec **LeTROT** (trot) & **France Galop** (galop) → **Gains (totaux/annuels), Records, Réductions km, Propriétaire, Éleveur/Naisseur**. 
+   * **Licences B2B** avec **LeTROT** (trot) & **France Galop** (galop) → **Gains (totaux/annuels), Records, Réductions km, Propriétaire, Éleveur/Naisseur**.
 
 2. **Modèle de données** (clé unique) :
 
@@ -204,7 +204,7 @@ Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop 
 
 ## Ce que **tu peux** et **ne peux pas** faire
 
-* ✅ **Tu peux** : contracter des **flux officiels** (FG/LeTROT), souscrire aux **webservices SIRE**, et, en complément, consommer **les JSON PMU** avec prudence (non exhaustif) pour des **résultats/allocations**. 
+* ✅ **Tu peux** : contracter des **flux officiels** (FG/LeTROT), souscrire aux **webservices SIRE**, et, en complément, consommer **les JSON PMU** avec prudence (non exhaustif) pour des **résultats/allocations**.
 * ❌ **Tu ne peux pas** : contourner les bloqueurs anti‑robots ni extraire massivement les bases **FG/LeTROT** sans accord (leurs CGU l’interdisent explicitement). ([billetterie.francegalop-live.com][1])
 
 ---
@@ -252,7 +252,7 @@ Voici la voie **fiable et légale** pour obtenir tes champs depuis France Galop 
 
 * **CGU France Galop (billetterie / principes)** : interdiction d’extraction/réutilisation de la base ; usage strictement personnel ; interdiction d’outils de copie. ([billetterie.francegalop-live.com][1])
 * **CGU LeTROT** : licence d’usage privée, pas d’usage professionnel sans autorisation. ([letrot.com][4])
-* **France Galop – APIs internes (cas d’étude Adaptigent/GT Software)** : “host **more than 80 APIs**” et “publishes key Web services”. 
+* **France Galop – APIs internes (cas d’étude Adaptigent/GT Software)** : “host **more than 80 APIs**” et “publishes key Web services”.
 * **IFCE – SIRE Webservices** : modules *Info Chevaux*, *Pedigree* (3 générations), tarifs **500–5000 €/an**, pas de données personnelles/lien “personne‑cheval”. ([ifce.fr][8])
 * **LeTROT – fiches/statistiques élevage & performances** (gains, records, réduction km, éleveur/propriétaire visibles sur site) – à consommer via **flux/licence**. ([letrot.com][2])
 * **PMU – endpoints JSON** (programme/participants/performances/rapports) – **complément partiel**. ([online.turfinfo.api.pmu.fr][3])
@@ -282,7 +282,7 @@ Si tu veux, je peux t’aider à **rédiger les demandes** (FG/LeTROT/IFCE), **c
 
 
 
-moi je veux les recuperer 100% gratutitement cmment faire ? 
+moi je veux les recuperer 100% gratutitement cmment faire ?
 
 Je te réponds cash : **il n’existe pas de source “officielle” qui te donne *tous* ces champs gratuitement et en masse** de façon légale. France Galop et LeTROT **interdisent l’extraction/re‑utilisation** de leurs bases via leurs CGU ; donc je ne peux pas t’aider à contourner leurs protections anti‑scraping. En revanche, tu peux **reconstituer une grosse partie gratuitement** en combinant des **données ouvertes/consultables** (légalement) – mais **pas l’intégralité** ni à grande échelle. ([france-galop.com][1])
 

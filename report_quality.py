@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Rapport qualité basique sous forme Markdown en BDD."""
+
 from datetime import datetime
 from db_connection import get_connection
 from psycopg2.extras import Json
@@ -36,7 +37,9 @@ def generate_quality_report(date_iso: str) -> str:
     races_without_participants = cur.fetchone()[0]
 
     # Distribution similitudes
-    cur.execute("SELECT percentile_disc(ARRAY[0.5,0.8,0.9,0.95,0.99]) WITHIN GROUP (ORDER BY score) FROM aux.match_horse")
+    cur.execute(
+        "SELECT percentile_disc(ARRAY[0.5,0.8,0.9,0.95,0.99]) WITHIN GROUP (ORDER BY score) FROM aux.match_horse"
+    )
     row = cur.fetchone()
     percentiles = row[0] if row and row[0] is not None else []
 
@@ -59,7 +62,7 @@ def generate_quality_report(date_iso: str) -> str:
     # Enregistrer dans BDD (optionnel)
     cur.execute(
         "INSERT INTO stg.raw_payloads(source, endpoint, key, payload) VALUES ('REPORT','quality',%s,%s::jsonb) ON CONFLICT (source, endpoint, key) DO UPDATE SET payload=EXCLUDED.payload, fetched_at=NOW()",
-        (date_iso, Json({"content": content}))
+        (date_iso, Json({"content": content})),
     )
     con.commit()
     con.close()
@@ -67,6 +70,7 @@ def generate_quality_report(date_iso: str) -> str:
     return content
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from datetime import date
+
     generate_quality_report(date.today().isoformat())

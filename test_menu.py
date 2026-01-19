@@ -5,7 +5,8 @@ Test du menu CLI - Simule l'affichage du menu principal
 """
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 
 from cli import print_main_menu, print_scraping_menu, print_audit_menu, print_cleaning_menu
 

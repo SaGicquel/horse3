@@ -3,7 +3,7 @@
 ################################################################################
 # SCRIPT CRON - SCRAPING HISTORIQUE AUTOMATIQUE
 ################################################################################
-# 
+#
 # Description : Script d'automatisation pour construire progressivement
 #               une base historique sur 5 ans. Exécute 2 périodes par jour
 #               avec vérifications automatiques.
@@ -18,7 +18,7 @@
 #   crontab -e
 #   # Scraping historique matin (4h00)
 #   0 4 * * * /Users/gicquelsacha/horse3/cron_scraping_historique.sh >> /Users/gicquelsacha/horse3/logs/cron_historique.log 2>&1
-#   
+#
 #   # Scraping historique soir (22h00)
 #   0 22 * * * /Users/gicquelsacha/horse3/cron_scraping_historique.sh >> /Users/gicquelsacha/horse3/logs/cron_historique.log 2>&1
 #
@@ -130,24 +130,24 @@ from db_connection import get_connection
 try:
     conn = get_connection()
     cur = conn.cursor()
-    
+
     # Totaux
     cur.execute("SELECT COUNT(*) FROM chevaux")
     nb_chevaux = cur.fetchone()[0]
-    
+
     cur.execute("SELECT COUNT(*) FROM courses")
     nb_courses = cur.fetchone()[0]
-    
+
     cur.execute("SELECT COUNT(*) FROM performances")
     nb_perfs = cur.fetchone()[0]
-    
+
     # Plage de dates
     cur.execute("""
         SELECT MIN(SUBSTRING(id_course, 1, 8)), MAX(SUBSTRING(id_course, 1, 8))
         FROM courses
     """)
     min_date, max_date = cur.fetchone()
-    
+
     print(f"   🐴 Chevaux        : {nb_chevaux:,}")
     print(f"   🏁 Courses        : {nb_courses:,}")
     print(f"   📊 Performances   : {nb_perfs:,}")
@@ -155,7 +155,7 @@ try:
         min_fmt = f"{min_date[:4]}-{min_date[4:6]}-{min_date[6:]}"
         max_fmt = f"{max_date[:4]}-{max_date[4:6]}-{max_date[6:]}"
         print(f"   📅 Période        : {min_fmt} → {max_fmt}")
-    
+
     cur.close()
     conn.close()
 except Exception as e:

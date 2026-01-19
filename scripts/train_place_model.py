@@ -176,7 +176,10 @@ def time_split(df: pd.DataFrame, test_ratio: float = 0.2) -> Tuple[pd.DataFrame,
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", default="postgresql://pmu_user:pmu_secure_password_2025@localhost:54624/pmu_database")
+    ap.add_argument(
+        "--db",
+        default="postgresql://pmu_user:pmu_secure_password_2025@localhost:54624/pmu_database",
+    )
     ap.add_argument("--out", default="config/place_model.json")
     ap.add_argument("--test_ratio", type=float, default=0.2)
     ap.add_argument("--max_rows", type=int, default=0)
@@ -230,10 +233,11 @@ def main() -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Wrote {out_path} with metrics: test brier={metrics['test']['brier']:.4f}, auc={metrics['test']['auc']}")
+    print(
+        f"Wrote {out_path} with metrics: test brier={metrics['test']['brier']:.4f}, auc={metrics['test']['auc']}"
+    )
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
