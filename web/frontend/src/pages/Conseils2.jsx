@@ -201,6 +201,7 @@ const UnitairesTab = ({ cart, setCart, bankroll, setBankroll, settings, benterSt
 
       // Transformer pour compatibilité avec l'interface existante
       const formattedBets = picks.map(pick => ({
+        id: `${pick.race_key}_${pick.numero}`, // ID unique pour le cart
         race_key: pick.race_key,
         hippodrome: pick.hippodrome,
         heure: pick.heure || "14h00",
@@ -1601,6 +1602,7 @@ const PortefeuilleTab = ({ cart, setCart, authToken, bankroll, settings, isSimul
     return {
       race_key: raceKey,
       event_date: eventDate,
+      race_time: bet.heure || bet.race_time || null,  // Capture du champ 'race_time'
       hippodrome: bet.hippodrome || bet.venue || null,
       selection,
       bet_type: bet.bet_type || 'GAGNANT',

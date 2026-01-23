@@ -648,6 +648,7 @@ export default function MesParis() {
                       />
                     </th>
                     <th className="py-2 pr-4">Date</th>
+                    <th className="py-2 pr-4">Heure</th>
                     <th className="py-2 pr-4">Sélection</th>
                     <th className="py-2 pr-4">Mise</th>
                     <th className="py-2 pr-4">Cote</th>
@@ -672,6 +673,9 @@ export default function MesParis() {
                       </td>
                       <td className="py-3 pr-4 text-neutral-900 dark:text-white">
                         {bet.event_date || (bet.created_at ? bet.created_at.slice(0, 10) : '—')}
+                      </td>
+                      <td className="py-3 pr-4 text-neutral-900 dark:text-white">
+                        {bet.race_time || '—'}
                       </td>
                       <td className="py-3 pr-4 text-neutral-900 dark:text-white">
                         <div className="font-semibold">{bet.selection}</div>

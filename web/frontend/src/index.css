@@ -181,6 +181,11 @@
      GLASSMORPHISM UTILITIES
      ======================================== */
 
+  .glass-nav {
+    @apply backdrop-blur-xl border-b border-white/10;
+    background: rgba(var(--color-bg-rgb), 0.7);
+  }
+
   .glass-panel {
     @apply backdrop-blur-xl shadow-xl;
     background: linear-gradient(135deg, rgba(var(--color-card-rgb), 0.6), rgba(var(--color-card-rgb), 0.4));
@@ -258,6 +263,11 @@
   /* ========================================
      LIGHT MODE SPECIFIC OVERRIDES
      ======================================== */
+
+  .glass-nav {
+    @apply backdrop-blur-xl border-b border-white/10;
+    background: rgba(var(--color-bg-rgb), 0.7);
+  }
 
   :root:not(.dark) .glass-panel {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));

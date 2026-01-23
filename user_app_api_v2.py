@@ -30,6 +30,8 @@ from pydantic import BaseModel, Field
 
 sys.path.append("..")
 from db_connection import get_connection
+from pari_math import kelly_stake
+from bankroll_manager import BankrollManager
 
 app = FastAPI(
     title="Horse3 User App API V2 - Algo Brut",
@@ -62,8 +64,8 @@ ALGO_CONFIG = {
         "random_state": 42,
     },
     "cote_min": 7,
-    "cote_max": 15,
-    "threshold": 0.50,  # 50% de probabilité
+    "cote_max": 20,
+    "threshold": 0.45,  # 45% = Compromis volume/qualité (~5-10 paris/jour)
     "mise_uniforme": 10.0,  # 10€ par pari
 }
 
@@ -88,7 +90,10 @@ class DailyAdviceV2(BaseModel):
     cote: float = Field(..., description="Cote gagnant de référence")
     cote_place: float = Field(..., description="Cote placé estimée")
     proba: float = Field(..., description="Probabilité de placement (%) selon ML")
-    mise: float = Field(default=10.0, description="Mise conseillée (uniforme 10€)")
+    mise: float = Field(default=10.0, description="Mise conseillée (uniforme ou Kelly)")
+    suggested_stake: float = Field(default=10.0, description="Mise optimisée calculée")
+    action: str = Field(default="PLACE", description="Action recommandée (PLACE ou SKIP)")
+    risk_level: str = Field(default="NORMAL", description="Niveau de risque")
     gain_potentiel: float = Field(..., description="Gain si placé (en €)")
     roi_potentiel: float = Field(..., description="ROI potentiel si placé (%)")
 
@@ -158,6 +163,11 @@ def train_model_for_date(target_date: str):
         raise ValueError(f"Pas de données d'entraînement avant {target_date}")
 
     print(f"[TRAIN] {len(df):,} courses chargées")
+
+    # Ensure numeric features for training data too
+    for col in ALGO_CONFIG["features_base"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
 
     # Feature engineering
     df["cote_log"] = np.log1p(df["cote_reference"])
@@ -231,19 +241,41 @@ import time
 
 
 @app.get("/daily-advice-v2", response_model=list[DailyAdviceV2])
-async def get_daily_advice_v2(date_str: str | None = Query(None)):
+async def get_daily_advice_v2(
+    date_str: str | None = Query(None),
+    current_bankroll: float = Query(100.0, description="Bankroll actuelle pour Kelly"),
+    strategy: str = Query("fixed", enum=["fixed", "kelly"], description="Stratégie de mise"),
+):
     """
     Page 'Conseils 2' - Algo brut optimisé (+71% ROI).
 
     Filtre:
     - Cote gagnant entre 7 et 15 (semi-outsiders)
     - Probabilité ML >= 50%
-    - Mise uniforme 10€
+    - Mise: Uniforme 10€ (default) ou Kelly 0.25 (opt-in)
     - Uniquement les courses futures si requête pour aujourd'hui
 
     Returns:
         Liste de paris conseillés pour le jour demandé.
     """
+    # 0. Check Stop-Loss
+    bm = BankrollManager()
+    if bm.is_stop_loss_active():
+        print("[STOP LOSS] Blocking advice due to daily loss limit triggered.")
+        # Return empty list or specific error?
+        # PRD says "API returns STOP_LOSS_TRIGGERED".
+        # But response_model is list[DailyAdviceV2].
+        # We can raise HTTPException 403 Forbidden with custom detail?
+        # Or return empty list with a header?
+        # Let's raise 403 as it blocks "new recommendations".
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "STOP_LOSS_TRIGGERED",
+                "message": "Daily stop-loss limit reached. No more advice today.",
+            },
+        )
+
     if not date_str:
         date_str = datetime.now().strftime("%Y-%m-%d")
 
@@ -264,6 +296,11 @@ async def get_daily_advice_v2(date_str: str | None = Query(None)):
 
         print(f"[PREDICT] {len(df_races)} chevaux trouvés pour {date_str}")
 
+        # Ensure numeric features
+        for col in ALGO_CONFIG["features_base"]:
+            if col in df_races.columns:
+                df_races[col] = pd.to_numeric(df_races[col], errors="coerce")
+
         # 3. Feature engineering
         df_races["cote_log"] = np.log1p(df_races["cote_reference"])
         df_races["cote_place"] = 1 + (df_races["cote_reference"] - 1) / 3.5
@@ -274,6 +311,11 @@ async def get_daily_advice_v2(date_str: str | None = Query(None)):
         df_races["hippodrome_avg_cote"] = df_races["hippodrome_avg_cote"].fillna(
             df_races["cote_reference"].mean()
         )
+
+        # Ensure numeric features
+        for col in ALGO_CONFIG["features_base"]:
+            if col in df_races.columns:
+                df_races[col] = pd.to_numeric(df_races[col], errors="coerce")
 
         # 4. Prédictions
         features = ALGO_CONFIG["features_base"] + ["hippodrome_place_rate", "hippodrome_avg_cote"]
@@ -329,10 +371,33 @@ async def get_daily_advice_v2(date_str: str | None = Query(None)):
         advice_list = []
 
         for _, row in selected.iterrows():
-            # Calculs
-            mise = ALGO_CONFIG["mise_uniforme"]
+            # Calculs Mise
+            if strategy == "kelly":
+                # Kelly 0.25, max 5%, min 2€
+                mise = kelly_stake(
+                    p=float(row["proba"]) / 100.0,
+                    odds=float(row["cote_place"]),
+                    bankroll=current_bankroll,
+                    fraction=0.25,
+                    max_stake_pct=0.05,
+                    min_stake=2.0,
+                    parimutuel=True,  # Safety reduction
+                )
+                if mise < 2.0:
+                    mise = 0.0
+                    action = "SKIP"
+                    risk_level = "HIGH_RISK_LOW_REWARD"
+                else:
+                    action = "PLACE"
+                    risk_level = "NORMAL"
+            else:
+                # Fixed
+                mise = ALGO_CONFIG["mise_uniforme"]
+                action = "PLACE"
+                risk_level = "NORMAL"
+
             gain_potentiel = mise * row["cote_place"]
-            roi_potentiel = (gain_potentiel - mise) / mise * 100
+            roi_potentiel = (gain_potentiel - mise) / mise * 100 if mise > 0 else 0.0
 
             # Extraire infos course
             race_parts = row["race_key"].split("|")
@@ -358,6 +423,9 @@ async def get_daily_advice_v2(date_str: str | None = Query(None)):
                 cote_place=round(float(row["cote_place"]), 2),
                 proba=round(float(row["proba"]), 1),
                 mise=mise,
+                suggested_stake=mise,
+                action=action,
+                risk_level=risk_level,
                 gain_potentiel=round(gain_potentiel, 2),
                 roi_potentiel=round(roi_potentiel, 1),
             )
@@ -376,6 +444,205 @@ async def get_daily_advice_v2(date_str: str | None = Query(None)):
         raise HTTPException(status_code=500, detail=f"Erreur génération conseils V2: {str(e)}")
 
 
+class PnLUpdate(BaseModel):
+    amount: float
+
+
+class BetOutcome(BaseModel):
+    """Payload for recording a bet outcome."""
+
+    race_date: str = Field(..., description="YYYY-MM-DD")
+    hippodrome: str
+    horse_name: str
+    race_key: Optional[str] = None
+    predicted_prob: float
+    predicted_odds_place: Optional[float] = None
+    odds_obtained: float
+    stake: float
+    strategy: str = "kelly"
+    result: str = Field(..., pattern="^(WIN|LOSS|VOID)$")
+
+
+@app.get("/api/weekly-summary")
+async def get_weekly_summary(
+    week: str | None = Query(None, description="ISO Week format YYYY-Www, e.g. 2026-W03"),
+):
+    """
+    Get weekly performance summary (ROI, PnL, Win Rate).
+    """
+    if not week:
+        # Default to current week
+        week = datetime.now().strftime("%Y-W%V")
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Calculate stats for the specific week
+        # Extract Year and Week from string or date range logic
+        # ISO week can be tricky in SQL.
+        # Simpler: TO_CHAR(race_date, 'IYYY-"W"IW')
+
+        query = """
+        SELECT
+            COUNT(*) as total_bets,
+            COUNT(CASE WHEN result = 'WIN' THEN 1 END) as wins,
+            SUM(stake) as total_stake,
+            SUM(profit_loss) as total_pnl,
+            AVG(predicted_prob) as avg_prob,
+            AVG(odds_obtained) as avg_odds
+        FROM bet_tracking
+        WHERE TO_CHAR(race_date, 'IYYY-"W"IW') = %s
+          AND result IN ('WIN', 'LOSS', 'VOID')
+        """
+
+        cur.execute(query, (week,))
+        row = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if not row or row[0] == 0:
+            return {
+                "week": week,
+                "status": "NO_DATA",
+                "total_bets": 0,
+                "win_rate": 0.0,
+                "roi_percent": 0.0,
+                "pnl": 0.0,
+            }
+
+        total_bets = row[0]
+        wins = row[1]
+        total_stake = row[2] or 0.0
+        total_pnl = row[3] or 0.0
+        avg_prob = row[4] or 0.0
+        avg_odds = row[5] or 0.0
+
+        win_rate = (wins / total_bets) * 100 if total_bets > 0 else 0.0
+        roi_percent = (total_pnl / total_stake) * 100 if total_stake > 0 else 0.0
+
+        # Expected Value (Approx) based on predicted probabilities and odds obtained
+        # EV = (Prob * Odds) - 1. Summing this? Or avg?
+        # Let's simple compare Avg ROI vs Avg Expected ROI?
+        # Better: Sum(Expected Profit) / Total Stake
+        # But we need row level calc for that.
+        # Approximation: Win Rate vs Avg Prob is a good drift check.
+
+        status = "ON_TRACK"
+        if roi_percent < -10:
+            status = "CRITICAL_REVIEW"
+        elif roi_percent < 0:
+            status = "NEEDS_IMPROVEMENT"
+
+        return {
+            "week": week,
+            "status": status,
+            "total_bets": total_bets,
+            "wins": wins,
+            "win_rate": round(win_rate, 2),
+            "total_stake": round(total_stake, 2),
+            "pnl": round(total_pnl, 2),
+            "roi_percent": round(roi_percent, 2),
+            "avg_odds": round(avg_odds, 2),
+            "expected_win_rate": round(avg_prob * 100, 2) if avg_prob else 0.0,
+        }
+
+    except Exception as e:
+        print(f"Error fetching weekly summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/record-bet-outcome")
+async def record_bet_outcome(bet: BetOutcome):
+    """
+    Record a bet outcome and update Bankroll PnL automatically.
+    """
+    # 1. Calculate PnL
+    profit_loss = 0.0
+    if bet.result == "WIN":
+        # Profit = (Stake * Odds) - Stake
+        profit_loss = (bet.stake * bet.odds_obtained) - bet.stake
+    elif bet.result == "LOSS":
+        profit_loss = -bet.stake
+    elif bet.result == "VOID":
+        profit_loss = 0.0
+
+    try:
+        # 2. Update Bankroll Manager (Story 1.2 integration)
+        bm = BankrollManager()
+        bm.update_pnl(profit_loss)
+
+        # 3. Persist to DB (Story 1.3 requirement)
+        conn = get_connection()
+        cur = conn.cursor()
+
+        query = """
+        INSERT INTO bet_tracking (
+            race_date, hippodrome, horse_name, race_key,
+            predicted_prob, predicted_odds_place,
+            odds_obtained, stake, strategy,
+            result, profit_loss
+        ) VALUES (
+            %s, %s, %s, %s,
+            %s, %s,
+            %s, %s, %s,
+            %s, %s
+        ) RETURNING id
+        """
+
+        cur.execute(
+            query,
+            (
+                bet.race_date,
+                bet.hippodrome,
+                bet.horse_name,
+                bet.race_key,
+                bet.predicted_prob,
+                bet.predicted_odds_place,
+                bet.odds_obtained,
+                bet.stake,
+                bet.strategy,
+                bet.result,
+                profit_loss,
+            ),
+        )
+
+        new_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return {
+            "status": "recorded",
+            "id": new_id,
+            "profit_loss": round(profit_loss, 2),
+            "bankroll_updated": True,
+        }
+
+    except Exception as e:
+        # Rollback handled by connection close/exception?
+        # Ideally explicit rollback
+        print(f"Error recording bet: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/update-pnl")
+async def update_daily_pnl(pnl: PnLUpdate):
+    """
+    Update daily PnL (Win/Loss amount).
+    Used to feed the Stop-Loss system.
+    """
+    bm = BankrollManager()
+    bm.update_pnl(pnl.amount)
+    status = bm.get_status()
+    return {
+        "status": "updated",
+        "current_daily_pnl": status["current_daily_pnl"],
+        "stop_loss_triggered": status["stop_loss_triggered"],
+    }
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
@@ -385,7 +652,7 @@ async def health_check():
         "algo": "Brut optimisé (+71% ROI)",
         "config": {
             "cote_range": f"{ALGO_CONFIG['cote_min']}-{ALGO_CONFIG['cote_max']}",
-            "threshold": f"{ALGO_CONFIG['threshold']*100}%",
+            "threshold": f"{ALGO_CONFIG['threshold'] * 100}%",
             "mise": f"{ALGO_CONFIG['mise_uniforme']}€",
         },
     }
@@ -433,7 +700,7 @@ if __name__ == "__main__":
     print("=" * 80)
     print("Configuration:")
     print(f"  - Cote range: {ALGO_CONFIG['cote_min']}-{ALGO_CONFIG['cote_max']}")
-    print(f"  - Probabilité min: {ALGO_CONFIG['threshold']*100}%")
+    print(f"  - Probabilité min: {ALGO_CONFIG['threshold'] * 100}%")
     print(f"  - Mise uniforme: {ALGO_CONFIG['mise_uniforme']}€")
     print("  - ROI validé: +71.47% (222 paris sur 5 mois)")
     print("=" * 80)

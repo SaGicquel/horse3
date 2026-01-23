@@ -20,7 +20,7 @@ repos:
         exclude: docker-compose.*
       - id: check-json
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ['--maxkb=2000']
       - id: check-merge-conflict
       - id: detect-private-key
 

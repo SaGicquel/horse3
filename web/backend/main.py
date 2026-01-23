@@ -758,6 +758,7 @@ class LoginRequest(BaseModel):
 class BetCreateRequest(BaseModel):
     race_key: str | None = None
     event_date: date | None = None
+    race_time: str | None = None  # Ajout de l'heure
     hippodrome: str | None = None
     selection: str
     bet_type: str | None = None
@@ -771,6 +772,7 @@ class BetCreateRequest(BaseModel):
 class BetUpdateRequest(BaseModel):
     race_key: str | None = None
     event_date: date | None = None
+    race_time: str | None = None  # Ajout de l'heure
     hippodrome: str | None = None
     selection: str | None = None
     bet_type: str | None = None
@@ -784,6 +786,7 @@ class BetResponse(BaseModel):
     id: int
     race_key: str | None = None
     event_date: date | None = None
+    race_time: str | None = None  # Ajout de l'heure
     hippodrome: str | None = None
     selection: str
     bet_type: str | None = None
@@ -973,6 +976,7 @@ def init_user_tables():
                     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
                     race_key TEXT,
                     event_date DATE,
+                    race_time TEXT,
                     hippodrome TEXT,
                     selection TEXT NOT NULL,
                     bet_type TEXT,
@@ -1030,6 +1034,7 @@ def init_user_tables():
                     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
                     race_key TEXT,
                     event_date DATE,
+                    race_time TEXT,
                     hippodrome TEXT,
                     selection TEXT NOT NULL,
                     bet_type TEXT,
@@ -1061,6 +1066,26 @@ def init_user_tables():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+
+        # --- MIGRATION AUTO ---
+        try:
+            if USE_POSTGRESQL:
+                cur.execute("ALTER TABLE user_bets ADD COLUMN IF NOT EXISTS race_time TEXT;")
+                cur.execute(
+                    "ALTER TABLE user_bets ADD COLUMN IF NOT EXISTS is_simulation BOOLEAN DEFAULT FALSE;"
+                )
+            else:
+                cur.execute("PRAGMA table_info(user_bets);")
+                cols = [info[1] for info in cur.fetchall()]
+                if "race_time" not in cols:
+                    print("[MIGRATION] Ajout colonne race_time")
+                    cur.execute("ALTER TABLE user_bets ADD COLUMN race_time TEXT;")
+                if "is_simulation" not in cols:
+                    print("[MIGRATION] Ajout colonne is_simulation")
+                    cur.execute("ALTER TABLE user_bets ADD COLUMN is_simulation BOOLEAN DEFAULT 0;")
+        except Exception as e:
+            print(f"[WARN] Migration error: {e}")
+
         con.commit()
     finally:
         con.close()
@@ -1140,6 +1165,11 @@ def require_auth(authorization: str | None) -> dict[str, Any]:
 
 def serialize_bet_row(row) -> dict[str, Any]:
     """Transforme une ligne SQL de pari en dictionnaire API"""
+    if len(row) < 13:
+        # Fallback pour ancienne structure (sans is_simulation et race_time)
+        # TODO: A supprimer une fois la migration complete
+        pass
+
     event_date_raw = row[2]
     event_date = None
     if isinstance(event_date_raw, date):
@@ -1149,23 +1179,32 @@ def serialize_bet_row(row) -> dict[str, Any]:
             event_date = datetime.fromisoformat(event_date_raw).date()
         except Exception:
             event_date = None
-    status = normalize_bet_status(row[8])
-    bet_type = row[5]
-    pnl = compute_bet_pnl(status, row[6], row[7], bet_type)
-    created_at = serialize_datetime(row[10])
+
+    # row[3] est maintenant race_time
+    race_time = row[3]
+
+    # row[9] est status dans le nouveau layout
+    status = normalize_bet_status(row[9])
+    bet_type = row[6]
+    pnl = compute_bet_pnl(status, row[7], row[8], bet_type)
+    created_at = serialize_datetime(row[11])
+    is_simulation = row[12] if len(row) > 12 else False
+
     return {
         "id": row[0],
         "race_key": row[1],
         "event_date": event_date,
-        "hippodrome": row[3],
-        "selection": row[4],
-        "bet_type": row[5],
-        "stake": to_float(row[6]),
-        "odds": to_float(row[7]),
+        "race_time": race_time,
+        "hippodrome": row[4],
+        "selection": row[5],
+        "bet_type": row[6],
+        "stake": to_float(row[7]),
+        "odds": to_float(row[8]),
         "status": status,
-        "notes": row[9],
+        "notes": row[10],
         "created_at": created_at,
         "pnl": pnl,
+        "is_simulation": is_simulation,
     }
 
 
@@ -1173,7 +1212,7 @@ def fetch_user_bets(cur, user_id: int) -> list[dict[str, Any]]:
     """Récupère et sérialise tous les paris d'un utilisateur (ordre chronologique)."""
     cur.execute(
         adapt_query("""
-        SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+        SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
         FROM user_bets
         WHERE user_id = %s
         ORDER BY COALESCE(event_date, created_at) ASC
@@ -2415,6 +2454,7 @@ async def create_bet(payload: BetCreateRequest, authorization: str | None = Head
             user["id"],
             payload.race_key,
             event_date,
+            payload.race_time,  # Ajout race_time
             payload.hippodrome,
             payload.selection,
             payload.bet_type,
@@ -2429,9 +2469,9 @@ async def create_bet(payload: BetCreateRequest, authorization: str | None = Head
             cur.execute(
                 """
                 INSERT INTO user_bets (
-                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
+                    user_id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
             """,
                 params,
             )
@@ -2440,15 +2480,15 @@ async def create_bet(payload: BetCreateRequest, authorization: str | None = Head
             cur.execute(
                 adapt_query("""
                 INSERT INTO user_bets (
-                    user_id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, is_simulation
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """),
                 params,
             )
             bet_id = cur.lastrowid
             cur.execute(
                 adapt_query("""
-                SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
+                SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
                 FROM user_bets
                 WHERE id = %s
             """),
@@ -2562,7 +2602,7 @@ async def update_bet(
 
             cur.execute(
                 adapt_query("""
-            SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+            SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
             FROM user_bets
             WHERE id = %s AND user_id = %s
         """),
@@ -2649,7 +2689,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
         cur = con.cursor()
         cur.execute(
             adapt_query("""
-            SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+            SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
             FROM user_bets
             WHERE id = %s AND user_id = %s
         """),
@@ -2659,12 +2699,12 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
         if not bet_row:
             raise HTTPException(status_code=404, detail="Pari introuvable")
 
-        current_status = normalize_bet_status(bet_row[8])
+        current_status = normalize_bet_status(bet_row[9])
         already_resolved = current_status in ("WIN", "LOSE", "VOID")
 
         race_key = bet_row[1]
-        selection = bet_row[4]
-        bet_type = bet_row[5]
+        selection = bet_row[5]
+        bet_type = bet_row[6]
 
         # Variables pour stocker les infos de la course
         race_data = None
@@ -2714,7 +2754,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
             # Recharger et retourner le pari mis à jour
             cur.execute(
                 adapt_query("""
-                SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
                 FROM user_bets
                 WHERE id = %s AND user_id = %s
             """),
@@ -2775,7 +2815,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
 
                     cur.execute(
                         adapt_query("""
-                        SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                        SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
                         FROM user_bets
                         WHERE id = %s AND user_id = %s
                     """),
@@ -2799,7 +2839,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
 
                     cur.execute(
                         adapt_query("""
-                        SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+                        SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
                         FROM user_bets
                         WHERE id = %s AND user_id = %s
                     """),
@@ -2815,7 +2855,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
             print(f"[WARN] Pas de données de l'API pour {race_key}")
 
         # Mettre à jour la cote avec la cote finale de l'API PMU selon le TYPE DE PARI
-        old_odds = float(bet_row[7]) if bet_row[7] else 0.0
+        old_odds = float(bet_row[8]) if bet_row[8] else 0.0
         updated_odds = old_odds
 
         # Récupérer les rapports définitifs pour avoir la vraie cote selon le type de pari
@@ -2960,7 +3000,7 @@ async def refresh_bet_result(bet_id: int, authorization: str | None = Header(Non
         # Recharger le pari mis à jour
         cur.execute(
             adapt_query("""
-            SELECT id, race_key, event_date, hippodrome, selection, bet_type, stake, odds, status, notes, created_at
+            SELECT id, race_key, event_date, race_time, hippodrome, selection, bet_type, stake, odds, status, notes, created_at, is_simulation
             FROM user_bets
             WHERE id = %s AND user_id = %s
         """),
